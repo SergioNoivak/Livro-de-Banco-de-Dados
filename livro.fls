@@ -412,6 +412,9 @@ INPUT /usr/share/texlive/texmf-dist/tex/latex/base/t1cmtt.fd
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ectt1200.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/ecti1200.tfm
 OUTPUT livro.toc
+INPUT ./capitulos/MER/MER.tex
+INPUT ./capitulos/MER/MER.tex
+INPUT capitulos/MER/MER.tex
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/jknappen/ec/tcrm1200.tfm
 INPUT ./er1.png
 INPUT ./er1.png
@@ -451,6 +454,9 @@ INPUT ./fazenda.png
 INPUT ./fazenda.png
 INPUT ./fazenda.png
 INPUT ./fazenda.png
+INPUT ./capitulos/Introducao_Ao_SQL/Introducao_Ao_SQL.tex
+INPUT ./capitulos/Introducao_Ao_SQL/Introducao_Ao_SQL.tex
+INPUT capitulos/Introducao_Ao_SQL/Introducao_Ao_SQL.tex
 OUTPUT livro.listing
 INPUT ./livro.listing
 INPUT ./_minted-livro/default.pygstyle
