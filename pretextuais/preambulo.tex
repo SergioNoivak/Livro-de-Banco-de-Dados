@@ -4,11 +4,13 @@
 % =======================
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[brazil]{babel}
+\usepackage[brazilian]{babel}
+\usepackage{amsmath,amssymb}
 \usepackage{geometry}
 \geometry{a4paper, top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
 
 \usepackage{graphicx}    % Para inserir logo/imagens
+\usepackage{adjustbox}   % Para ajustar tabelas
 \usepackage{xcolor}      % Cores
 \usepackage{hyperref}    % Links clicáveis
 \usepackage{minted}      % Código com destaque (compilar com -shell-escape)
@@ -53,6 +55,7 @@
 \hypersetup{
     colorlinks=true,
     linkcolor=verdeuni,
+    citecolor=black,
     urlcolor=blue 
 }
 
@@ -157,4 +160,22 @@ keepaspectratio]{#1}
 \title{Banco de Dados}
 \author{Me. Sergio Souza Novak} 
 \date{\today}
+
+% =======================
+% Bibliografia (BibLaTeX)
+% =======================
+\usepackage[
+    style=abnt, % Use ABNT style or authoryear for full references
+    backend=biber
+]{biblatex}
+
+% Comando para gerar a citação bibliográfica completa na nota de rodapé
+\let\cite\footfullcite
+\let\autocite\footfullcite
+
+% Remover cores dos links na bibliografia (Hiperlinks ocultos/pretos)
+\AtBeginBibliography{\hypersetup{hidelinks}}
+
+% Link para o arquivo .bib
+\addbibresource{bibliografia/normalizacao.bib}
  

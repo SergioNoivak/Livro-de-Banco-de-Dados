@@ -1,0 +1,1368 @@
+\chapter{Normalização}
+
+A concepção de um banco de dados relacional eficiente vai muito além da simples identificação das entidades e de seus relacionamentos.
+
+O modelo conceitual de banco de dados, como o representado pela notação de Peter-Chen, discutido em capítulos anteriores, e sua posterior transformação em um modelo lógico — composto por tabelas, colunas, chaves primárias e chaves estrangeiras — fornece apenas uma estrutura inicial para a organização dos dados. Todavia, essa estrutura ainda necessita de refinamento para evitar redundâncias, minimizar inconsistências e assegurar a integridade das informações armazenadas.\cite{ramakrishnan2011} É nesse contexto que entra a \textbf{Normalização de Banco de Dados}.
+
+O processo de normalização é uma técnica matemática formal, introduzida por Edgar F. Codd na década de 1970, no contexto do desenvolvimento do modelo relacional.\cite{codd1970relational} Posteriormente, o autor aprofundou e formalizou as formas normais em trabalhos subsequentes.\cite{codd1971normalization}
+
+Ele consiste na aplicação sistemática de um conjunto de regras visando organizar a estrutura das tabelas para minimizar a redundância de informações e evitar problemas indesejados nas operações de manipulação de dados, conhecidos como anomalias. 
+
+Para compreender a fundo a importância desse processo, este capítulo explorará inicialmente a natureza das anomalias de dados e os problemas intrínsecos aos esquemas lógicos mal estruturados. Uma vez estabelecido o diagnóstico, serão apresentados, de forma progressiva, os conceitos relativos às dependências funcionais e as diferentes Formas Normais, as quais fornecem os critérios estruturais indispensáveis para a consistência de um banco de dados relacional.
+
+\section{Anomalias de Dados}
+Conforme já mencionado, quando um banco de dados relacional não está devidamente normalizado, a redundância de informações em múltiplos locais não apenas desperdiça espaço em disco — um problema crítico em décadas passadas — como também eleva o risco de inconsistências e contradições durante as manipulações de dados. 
+
+Nesse sentido, para compreender a real necessidade da normalização, é fundamental analisar os efeitos de estruturas mal desenhadas, as quais estão sujeitas a três tipos principais de anomalias: inserção, atualização e exclusão.\cite{ramakrishnan2011}
+
+\begin{tcolorbox}[breakable, colback=blue!5,colframe=blue!40!black,title=Situação base para análise]
+
+    Para compreender de forma concreta os efeitos das anomalias em bancos de dados não normalizados, considere a tabela fictícia de \texttt{Alunos\_Cursos}, que busca armazenar, em uma única relação, informações relativas a alunos, cursos e departamentos.
+
+    Essa estrutura representa um exemplo típico de modelagem inadequada, na qual diferentes entidades são indevidamente agrupadas, gerando redundância de dados e inconsistências potenciais.
+
+    A tabela a seguir será utilizada como base para a análise das anomalias de inserção, atualização e exclusão apresentadas nas subseções seguintes.
+
+    \vspace{0.4cm}
+
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{|c|l|c|l|l|}
+    \hline
+    \textbf{\underline{Matricula}} & \textbf{Nome\_Aluno} & \textbf{Cod\_Curso} & \textbf{Nome\_Curso} & \textbf{Departamento} \\ \hline
+    101 & Leandro & C10 & Engenharia de Software & Faculdade de Tecnologia \\ \hline
+    102 & Sergio & C10 & Engenharia de Software & Faculdade de Tecnologia\\ \hline
+    103 & Ronaldo & C20 & Direito & Faculdade de Direito \\ \hline
+    104 & Arthur & C10 & Engenharia de Software & Faculdade de Tecnologia \\ \hline
+    105 & Pedro & C30 & Medicina & Faculdade de Medicina \\ \hline
+    106 & Claudia & C40 & Agronomia & Faculdade de Agronomia \\ \hline
+    \end{tabular}
+\end{adjustbox}
+    \vspace{0.3cm}
+    \captionof{table}{Tabela base para análise das anomalias.}
+    \label{tab:anomalia_exemplo}
+
+\end{tcolorbox}
+
+
+\subsection{Anomalia de Inserção}
+A anomalia de inserção ocorre quando não é possível inserir dados sobre uma determinada entidade sem  inserir dados sobre outra entidade não relacionada no momento.\cite{ramakrishnan2011}
+
+\begin{tcolorbox}[breakable, colback=blue!5,colframe=blue!40!black,title=Situação exemplo]
+
+    Imagine que a universidade acaba de criar um novo curso chamado "Engenharia de Computação" (Código: C50, Departamento: Faculdade de Tecnologia). 
+    
+    Como não há, ainda, nenhum aluno matriculado nesse novo curso, não podemos registrar a existência do curso na Tabela \texttt{Alunos\_Cursos}, a menos que criemos um "aluno fantasma". Isso ocorre porque fatos sobre cursos estão indevidamente acoplados a fatos sobre alunos.
+
+    \vspace{0.5cm}
+
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{|c|l|c|l|l|}
+    \hline
+    \textbf{\underline{Matricula}} & \textbf{Nome\_Aluno} & \textbf{Cod\_Curso} & \textbf{Nome\_Curso} & \textbf{Departamento} \\ \hline
+    .... & ... & ... & ... & .... \\ \hline
+    105 & Pedro & C30 & Medicina & Faculdade de Medicina \\ \hline
+    106 & Claudia & C40 & Agronomia & Faculdade de Agronomia \\ \hline
+    \textcolor{red}{107} & \textcolor{red}{NULL} & C50 & Engenharia de Computação & Faculdade de Tecnologia \\ \hline
+    \end{tabular}
+\end{adjustbox}
+\captionof{table}{Exemplo de anomalia de inserção}
+\label{tab:anomaliains_exemplo}
+
+\end{tcolorbox}
+
+\subsection{Anomalia de Atualização}
+A anomalia de atualização ocorre quando, devido à duplicidade de informações, um dado armazenado em mais de um registro precisa ser alterado. Se apenas uma das ocorrências desse for atualizada, enquanto as demais permanecem inalteradas, o banco de dados passa a apresentar informações inconsistentes.\cite{ramakrishnan2011}
+
+\begin{tcolorbox}[breakable, colback=blue!5,colframe=blue!40!black,title=Situação exemplo]
+    Note que o nome do curso "Engenharia de Software" e seu departamento "Faculdade de Tecnologia" estão repetidos para os alunos Leandro, Sergio e Arthur. Se a universidade decidir alterar o nome do departamento de "Faculdade de Tecnologia" para "Faculdade de Engenharia", é preciso mudar o departamento nas três linhas. 
+
+    Se, por falha do sistema ou falha de transação, apenas as duas primeiras linhas forem atualizadas, o banco de dados ficará num estado inconsistente, afirmando que Arthur cursa "Engenharia de Software" na "Faculdade de Engenharia" e Leandro cursa o mesmo curso com o mesmo \texttt{Cod\_Curso} C10, mas em departamento diverso.
+
+    \vspace{0.5cm}
+
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{|c|l|c|l|l|}
+    \hline
+    \textbf{\underline{Matricula}} & \textbf{Nome\_Aluno} & \textbf{Cod\_Curso} & \textbf{Nome\_Curso} & \textbf{Departamento} \\ \hline
+    101 & Leandro & C10 & Engenharia de Software & Faculdade de Engenharia \\ \hline
+    102 & Sergio & \textcolor{blue}{C10} & Engenharia de Software & \textcolor{red}{Faculdade de Engenharia} \\ \hline
+    103 & Ronaldo & C20 & Direito & Faculdade de Direito \\ \hline
+    104 & Arthur & \textcolor{blue}{C10} & Engenharia de Software & \textcolor{red}{Faculdade de Tecnologia} \\ \hline
+    .... & ... & ... & ... & .... \\ \hline
+    \end{tabular}
+\end{adjustbox}
+    \captionof{table}{Exemplo de anomalia de atualização}
+    \label{tab:anomaliaat_exemplo}
+\end{tcolorbox}
+
+\subsection{Anomalia de Exclusão}
+A anomalia de exclusão ocorre quando a exclusão intencional de algumas informações de uma entidade leva também à perda não intencional de informações não relacionadas, ou seja, perde-se também informações informações de outra entidade.\cite{ramakrishnan2011}
+
+\begin{tcolorbox}[breakable, colback=blue!5,colframe=blue!40!black,title=Situação exemplo]
+    Imagine que o aluno "Pedro" (Matrícula 105) decida trancar sua matrícula ou abandonar o curso, e seu registro precise ser excluído do sistema. Ao excluir o aluno 105, perderemos não apenas as informações do Pedro, mas também perderemos completamente a informação de que a universidade oferece o curso C30 (Medicina) e que este pertence à Faculdade de Medicina.
+
+    \vspace{0.5cm}
+
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{|c|l|c|l|l|}
+    \hline
+    \textbf{\underline{Matricula}} & \textbf{Nome\_Aluno} & \textbf{Cod\_Curso} & \textbf{Nome\_Curso} & \textbf{Departamento} \\ \hline
+    .... & ... & ... & ... & .... \\ \hline
+    104 & Arthur & C10 & Engenharia de Software & Faculdade de Tecnologia \\ \hline
+    105 & Pedro & \textcolor{red}{C30} & \textcolor{red}{Medicina} & \textcolor{red}{Faculdade de Medicina} \\ \hline
+    106 & Claudia & C40 & Agronomia & Faculdade de Agronomia \\ \hline
+    \end{tabular}
+\end{adjustbox}    \captionof{table}{Exemplo de anomalia de exclusão.}
+    \label{tab:anomaliaex_exemplo}
+\end{tcolorbox}
+
+\section{Dependências Funcionais}
+Uma relação com redundância pode ser normalizada, resolvendo as anomalias supramencionadas, por sua decomposição ou sua substituição por relações menores que contêm as mesmas informações, mas sem redundância.\cite{ramakrishnan2011} Mas para fazer a decomposição/substituição das relações de forma a normalizá-las, é necessário dominar o conceito de Dependência Funcional (DF). 
+
+Uma dependência funcional ocorre quando um conjunto de atributos determina outro conjunto de atributos dentro de uma relação (tabela). 
+
+Formalmente, diz-se que um atributo, ou conjunto de atributos, \textbf{Y} é funcionalmente dependente de um atributo, ou conjunto de atributos, \textbf{X}, se, para cada valor de \textbf{X} estiver associado a um único valor de \textbf{Y}.\cite{date2003introducao}
+
+Neste contexto, X é chamado de atributo determinante e Y é o atributo dependente e podemos representar da seguinte forma:
+
+\begin{center}
+$X \rightarrow Y$
+\vskip 0.2cm
+(lido como "X determina Y")
+\end{center}
+
+Deve-se ter cuidado, a dependência funcional determina que para cada valor de X temos sempre o mesmo valor de Y, mas não impede que muitos valores distintos de X podem ter o mesmo valor de Y.
+
+\begin{tcolorbox}[breakable,colback=blue!5,colframe=blue!40!black,title=Situação exemplo]
+
+    Considere o cadastro de alunos apresentado anteriormente, no qual cada matrícula identifica um único aluno. Nesse caso, temos que a matrícula determina funcionalmente o nome do aluno:
+
+    \[
+    Matricula \rightarrow Nome\_Aluno
+    \]
+
+    Isso significa que, conhecendo a matrícula, sempre é possível identificar um único nome associado a ela. Por outro lado, o inverso não é necessariamente verdadeiro, dois ou mais alunos, com matrículas distintas, podem possuir o mesmo nome. A tabela abaixo ilustra essa situação.
+
+    \vspace{0.4cm}
+
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+
+    \begin{tabular}{|c|l|}
+    \hline
+    \textbf{\underline{Matricula}} & \textbf{Nome\_Aluno} \\ \hline
+    101 & Leandro \\ \hline
+    102 & Sergio \\ \hline
+    ... & ... \\ \hline
+    107 & Leandro \\ \hline
+    
+    \end{tabular}
+
+    \vspace{0.3cm}
+\end{tcolorbox}
+
+De forma prática, na teoria relacional, a chave primária de uma tabela deve determinar todos os outros atributos dessa tabela. O problema surge quando os atributos não-chave começam a determinar outros atributos não-chave, ou quando são determinados apenas uma parte da chave primária. Vejamos os tipos de dependências funcionais, nas próximas subseções.
+
+\subsection{Dependência Funcional Transitiva}
+Ocorre quando um atributo não-chave de uma tabela, depende de outro atributo não-chave da mesma tabela, que por sua vez depende do atributo chave da tabela.\cite{angelotti2010banco} 
+
+Formalmente, se temos uma chave primária X, e atributos não-chave Y e Z. Se a chave determina Y  e Y determina Z , então Z depende da chave X de forma \textit{transitiva} mediante Y. Note que, o atributo Z não tem relação direta com a chave X, mas sim com outro atributo da tabela Y.\cite{date2003introducao}
+
+Em forma de notação, temos que se: $X \rightarrow Y$ e $Y \rightarrow Z$, então, podemos concluir que $X \rightarrow Z$.
+
+\begin{tcolorbox}[breakable, colback=blue!5,colframe=blue!40!black,title=Situação exemplo]
+    Retornando à tabela inicial \texttt{Alunos\_Cursos} (Tabela \ref{tab:anomalia_exemplo}), considere que cada aluno pode estar matriculado em apenas um curso, e cada curso pertence a um departamento. Nesse caso, a chave primária simples é a \texttt{Matricula}.
+
+    \vspace{0.4cm}
+    \renewcommand{\arraystretch}{1.2}
+
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{|c|l|c|l|l|}
+    \hline
+    \textbf{\underline{Matricula}} & \textbf{Nome\_Aluno} & \textbf{Cod\_Curso} & \textbf{Nome\_Curso} & \textbf{Departamento} \\ \hline
+    101 & Leandro & C10 & Engenharia de Software & Faculdade de Tecnologia \\ \hline
+    102 & Sergio & C10 & Engenharia de Software & Faculdade de Tecnologia\\ \hline
+    103 & Ronaldo & C20 & Direito & Faculdade de Direito \\ \hline
+    105 & Pedro & C30 & Medicina & Faculdade de Medicina \\ \hline
+    \end{tabular}
+\end{adjustbox}
+    \vspace{0.4cm}
+
+    Neste cenário, sabemos que a chave primária determina todos os outros atributos da tabela. Logo:
+
+    \[
+    Matricula \rightarrow Cod\_Curso
+    \]
+
+    Porém, os atributos relacionados ao curso (\texttt{Nome\_Curso} e \texttt{Departamento}) dependem unicamente do \texttt{Cod\_Curso}, e não diretamente da matrícula do aluno em si. Portanto, temos a seguinte dependência entre atributos não-chave:
+
+    \[
+    Cod\_Curso \rightarrow Departamento
+    \]
+
+    Como a matrícula determina o código do curso, e o código do curso determina o departamento, concluímos que o \texttt{Departamento} depende \textbf{transitivamente} da chave primária \texttt{Matricula}. O mesmo ocorre com o \texttt{Nome\_Curso}.
+\end{tcolorbox}
+
+\subsection{Dependência Funcional Total e Dependência Funcional Parcial}
+A análise de dependência funcional total ou parcial faz-se necessária quando a tabela possui uma chave primária composta, ou seja, aquela formada por mais de um atributo. A dependência funcional total se dá quando o atributo não-chave Y depende funcionamemente de toda a chave primária composta \{X, Z\}.\cite{angelotti2010banco}
+
+    \[
+    \{X, Y\} \rightarrow Z
+    \]
+
+De forma análoga, a dependência funcional parcial se dá quando o atributo atributo não-chave Y depende funcionamemente de apenas uma parte da chave primária composta \{X, Z\}.
+
+    \[
+    X \rightarrow Y
+    \]
+
+
+\begin{tcolorbox}[breakable,colback=blue!5,colframe=blue!40!black,title=Situação exemplo]
+    Considere uma ampliação do cenário da universidade, em que a tabela agora registra a nota final obtida (média) pelo aluno no curso. Nesta nova versão da tabela, a chave primária deve composta por \texttt{Matricula} e \texttt{Cod\_Curso}, afinal um aluno pode realizar vários cursos e cada curso pode possuir vários alunos.
+
+    \vspace{0.4cm}  
+    \renewcommand{\arraystretch}{1.2}
+
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{|c|l|c|l|c|}
+    \hline
+    \textbf{\underline{Matricula}} & \textbf{Nome\_Aluno} & \textbf{\underline{Cod\_Curso}} & \textbf{Nome\_Curso} & \textbf{Nota} \\ \hline
+    101 & Leandro & C10 & Engenharia de Software & 9.0 \\ \hline
+    101 & Leandro & C20 & Direito & 8.5 \\ \hline
+    102 & Sergio & C10 & Engenharia de Software & 7.5 \\ \hline
+    103 & Ronaldo & C30 & Medicina & 8.0 \\ \hline
+    \end{tabular}
+\end{adjustbox}
+    \vspace{0.4cm}
+
+    Nesse caso, em relação à nota, temos uma dependência funcional total, sendo necessário conhecer ambos os atributos da chave composta (aluno e curso) para determiná-la.
+
+    \[
+    \{\text{Matricula}, \text{Cod\_Curso}\} \rightarrow Nota
+    \]
+
+    \vspace{0.3cm}
+
+    Entretanto, também observamos as seguintes dependências:
+
+    \[
+    \begin{aligned}
+    Matricula &\rightarrow Nome\_Aluno \\
+    Cod\_Curso &\rightarrow Nome\_Curso
+    \end{aligned}
+    \]
+
+    Essas são dependências funcionais parciais, nas quais os atributos \texttt{Nome\_Aluno} e \texttt{Nome\_Curso} são determinados por apenas parte da chave primária composta.
+\end{tcolorbox}
+
+\subsection{Dependência Funcional Trivial e Não Trivial}
+Uma dependência funcional é classificada como trivial quando o conjunto de atributos dependentes constitui um subconjunto do conjunto de atributos determinantes. Em outras palavras, o lado direito da dependência contém apenas atributos que já aparecem no lado esquerdo.\cite{date2003introducao}
+
+Em notação funcional, se $\{X, Y\}$ é chave de uma determinada relação R)e ocorre $\{X, Y\} \rightarrow Y$, então essa dependência funcional é considerada trivial.
+
+Dependências triviais não representam conhecimento novo sobre os dados, mas precisam ser compreendidas porque aparecem formalmente nas definições das formas normais mais avançadas. De forma simples, se os valores de um conjunto de atributos já são conhecidos, conhecer o valor de apenas parte desse conjunto não acrescenta nenhuma nova informação.
+
+Por outro lado, uma dependência funcional é não trivial quando, para a mesma relação R, um determinado atributo dependente Z não é um subconjunto da chave determinante \{X, Y\}. Em outras palavras, o lado direito da dependência apresenta um atributo que não está contido no lado esquerdo.
+
+Nesse caso, a dependência funcional expressa uma relação real entre os atributos da tabela, indicando que o valor de um atributo pode ser determinado a partir de um conjunto de outros atributos.
+
+São justamente as dependências funcionais não triviais que possuem maior relevância no processo de normalização, pois revelam possíveis redundâncias e relações estruturais entre os dados. A identificação dessas dependências permite decompor tabelas de forma adequada, eliminando inconsistências e conduzindo o esquema relacional às diferentes formas normais.
+
+\begin{tcolorbox}[breakable, colback=blue!5,colframe=blue!40!black,title=Situação exemplo]
+    Considere mais uma vez a tabela que registra a nota final obtida pelo aluno em um curso. A chave primária é a composição de \texttt{Matricula} e \texttt{Cod\_Curso}.
+
+    \vspace{0.4cm}
+    \renewcommand{\arraystretch}{1.2}
+
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{|c|l|c|l|c|}
+    \hline
+    \textbf{\underline{Matricula}} & \textbf{Nome\_Aluno} & \textbf{\underline{Cod\_Curso}} & \textbf{Nome\_Curso} & \textbf{Nota} \\ \hline
+    101 & Leandro & C10 & Engenharia de Software & 9.0 \\ \hline
+    101 & Leandro & C20 & Direito & 8.5 \\ \hline
+    102 & Sergio & C10 & Engenharia de Software & 7.5 \\ \hline
+    103 & Ronaldo & C30 & Medicina & 8.0 \\ \hline
+    \end{tabular}
+\end{adjustbox}
+    \vspace{0.4cm}
+
+    Neste caso, podemos observar as seguintes dependências funcionais \textbf{triviais}:
+
+    \[
+    \{\text{Matricula}, \text{Cod\_Curso}\} \rightarrow \text{Matricula}
+    \]
+    \[
+    \{\text{Matricula}, \text{Cod\_Curso}\} \rightarrow \text{Cod\_Curso}
+    \]
+
+    É evidente que se possuímos os valores de \texttt{Matricula} e \texttt{Cod\_Curso}, seremos capazes de determinar unicamente o valor de \texttt{Matricula} (ou do próprio \texttt{Cod\_Curso}). Trata-se de uma constatação lógica e natural do modelo.
+
+    Entretanto, a dependência abaixo é considerada \textbf{não trivial}, pois o atributo \texttt{Nota} não está contido na chave primária e traz, de fato, uma nova informação sobre a relação:
+
+    \[
+    \{\text{Matricula}, \text{Cod\_Curso}\} \rightarrow \text{Nota}
+    \]
+\end{tcolorbox}
+
+\section{O Processo de Normalização e as Formas Normais mais utilizadas}
+
+O processo de normalização consiste em um conjunto de técnicas aplicadas ao projeto de bancos de dados relacionais com o objetivo de organizar os dados de forma adequada, reduzir redundâncias e evitar anomalias.
+
+Esse processo baseia-se na análise das dependências existentes entre os atributos de uma relação, especialmente nas dependências funcionais, buscando estruturar o esquema relacional de maneira mais consistente e eficiente.
+
+A normalização é realizada por meio da aplicação sucessiva de critérios estruturais conhecidos como \textit{formas normais}. 
+
+Conceitualmente, uma forma normal pode ser entendida como uma condição ou conjunto de restrições estruturais aplicadas a uma relação, cujo objetivo é reduzir redundâncias e evitar anomalias.\cite{codd1971normalization}
+
+Conforme apontam as principais literaturas da área, no projeto de bancos de dados comerciais busca-se garantir que o modelo atinja, pelo menos, a Terceira Forma Normal (3FN). O processo de normalização é gradual: não é possível que uma relação esteja na 2FN sem antes satisfazer os requisitos da 1FN, e assim sucessivamente.
+
+Assim, o fato de uma tabela encontrar-se em uma forma normal mais avançada implica, necessariamente, o cumprimento cumulativo de todas as formas normais precedentes. Uma relação que esteja, por exemplo, na Terceira Forma Normal (3FN) já atende integralmente aos requisitos da Primeira Forma Normal (1FN) e da Segunda Forma Normal (2FN). Tal lógica revela o caráter hierárquico e progressivo do processo de normalização, no qual cada etapa sucessiva incorpora e refina as restrições estruturais das anteriores, promovendo um modelo de dados mais consistente, com menor incidência de anomalias.
+
+Vamos conduzir um Estudo de Caso completo, ampliando a tabela tabela fictícia de \texttt{Alunos\_Cursos}. Imagine que a secretaria acadêmica de uma instituição de ensino apresentou a seguinte "Ficha de Histórico Escolar" manual em formato de planilha e nos pediu para transformá-la em um banco de dados relacional (Tabela \ref{tab:fnn}).
+
+\begin{table}[h!]
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+
+    \begin{adjustbox}{max width=\textwidth}
+        \begin{tabular}{|c|l|c|l|l|c|l|c|}
+            \hline
+            \textbf{Matricula} & \textbf{Nome\_Aluno} & \textbf{Cod\_Curso} & \textbf{Nome\_Curso} & \textbf{Departamento} & \textbf{Cod\_Disc} & \textbf{Nome\_Disciplina} & \textbf{Nota} \\ \hline
+            101 & Leandro & C10 & Eng. de Software & Fac. Tecnologia & D01 & Banco de Dados & 9.0 \\ 
+            ~ & ~ & ~ & ~ & ~ & D02 & Prog. Orientada a Objetos & 8.5 \\ 
+            ~ & ~ & ~ & ~ & ~ & D03 & Redes de Computadores & 7.0 \\ \hline
+            102 & Sergio & C10 & Eng. de Software & Fac. Tecnologia & D01 & Banco de Dados & 8.0 \\ 
+            ~ & ~ & ~ & ~ & ~ & D04 & Eng. de Requisitos & 9.5 \\ \hline
+            103 & Ronaldo & C20 & Direito & Fac. Direito & D05 & Direito Civil & 8.0 \\ \hline
+        \end{tabular}
+\end{adjustbox}
+    \caption{Tabela em forma não normalizada, com grupos repetitivos.}
+    \label{tab:fnn}
+\end{table}
+
+Cabe ressaltar que a Primeira Forma Normal (1FN), a Segunda Forma Normal (2FN) e a Terceira Forma Normal (3FN), apresentadas nas subseções seguintes, têm como base conceitual o trabalho clássico de Edgar F. Codd, nos artigos \textit{"A Relational Model of Data for Large Shared Data Banks"} e \textit{"Further Normalization of the Data Base Relational Model"}, nos quais são discutidos os princípios fundamentais da normalização em bancos de dados relacionais.\cite{codd1970relational,codd1971normalization}
+
+Esses conceitos constituem o alicerce teórico do processo de normalização e são amplamente reconhecidos na literatura da área de Banco de Dados, servindo como referência para a organização adequada de esquemas relacionais, com o objetivo de reduzir redundâncias e evitar anomalias de inserção, atualização e exclusão.
+
+Destaca-se que, ao longo das próximas subseções, diversas definições derivam diretamente desses fundamentos teóricos. Entretanto, optou-se por não inserir citações bibliográficas em todos os parágrafos em que tais ideias aparecem. Essa decisão foi adotada exclusivamente por razões de clareza textual e fluidez da leitura, evitando a repetição excessiva de referências em trechos consecutivos, sem prejuízo do devido reconhecimento da obra original que fundamenta a discussão apresentada.
+
+\subsection{Forma Não Normalizada (FNN ou 0FN)}
+
+A Tabela \ref{tab:fnn} representa a tabela de origem do usuário, não normalizada. Ela mistura em um único plano de visão dados pertencentes às entidades: Aluno, Curso e Disciplina. Como o histórico de um aluno contém múltiplas disciplinas cursadas, existe na tabela o que chamamos de grupos repetitivos de dados, ou também conhecidos como tabelas aninhadas. Observe, por exemplo, que na linha da matrícula 101 os dados do aluno (Matrícula, Nome, Curso, Departamento) aparecem apenas uma vez, enquanto existem múltiplas informações nas colunas de disciplinas (D01, D02, D03).
+
+\subsection{Primeira Forma Normal (1FN)}
+
+Bancos de Dados Relacionais exigem que as tabelas sejam bidimensionais e estruturadas de forma plana, sem a presença de listas ou múltiplos valores armazenados em uma mesma célula.
+
+Assim, uma tabela (relação) encontra-se na Primeira Forma Normal (1FN) se, e somente se, todos os seus atributos contêm apenas valores atômicos, ou seja, não podem existir atributos compostos, atributos multivalorados ou grupos repetitivos de dados.
+
+De forma prática, para adequar a tabela à Primeira Forma Normal, deve-se, inicialmente, decompor eventuais atributos compostos em atributos simples, garantindo que cada coluna represente uma única informação indivisível.
+
+No que se refere aos atributos multivalorados e aos grupos repetitivos, uma abordagem possível para eliminação se dá pela criação de tuplas distintas para cada valor. Para isso, os valores repetidos são deslocados para novas linhas, repetindo-se os demais atributos necessários, de modo que cada registro contenha apenas um único valor por coluna, preservando a correta associação entre os dados.
+
+\begin{tcolorbox}[breakable, colback=blue!5,colframe=blue!40!black,title=Situação exemplo]
+
+    Aplicando-se os conceitos da Primeira Forma Normal ao exemplo anteriormente apresentado, obtém-se uma nova estrutura relacional na qual todos os atributos passam a conter valores atômicos e os grupos repetitivos são eliminados. Para isso, cada disciplina cursada por um aluno passa a ser representada em uma linha distinta, garantindo que não existam múltiplos valores em uma mesma célula.
+
+    \vspace{0.4cm}
+
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{|c|l|c|l|l|c|l|c|}
+    \hline
+    \textbf{\underline{Matricula}} & \textbf{Nome\_Aluno} & \textbf{Cod\_Curso} & \textbf{Nome\_Curso} & \textbf{Departamento} & \textbf{\underline{Cod\_Disc}} & \textbf{Nome\_Disciplina} & \textbf{Nota} \\ \hline
+    101 & Leandro & C10 & Eng. de Software & Fac. Tecnologia & D01 & Banco de Dados & 9.0 \\ \hline
+    101 & Leandro & C10 & Eng. de Software & Fac. Tecnologia & D02 & Prog. Orientada a Objetos & 8.5 \\ \hline
+    101 & Leandro & C10 & Eng. de Software & Fac. Tecnologia & D03 & Redes de Computadores & 7.0 \\ \hline
+    102 & Sergio & C10 & Eng. de Software & Fac. Tecnologia & D01 & Banco de Dados & 8.0 \\ \hline
+    102 & Sergio & C10 & Eng. de Software & Fac. Tecnologia & D04 & Eng. de Requisitos & 9.5 \\ \hline
+    103 & Ronaldo & C20 & Direito & Fac. Direito & D05 & Direito Civil & 8.0 \\ \hline
+    \end{tabular}
+\end{adjustbox}
+    \vspace{0.3cm}
+    \captionof{table}{Tabela em 1FN - Remoção dos grupos repetitivos.}
+    \label{tab:1fn2}
+
+    \vspace{0.4cm}
+
+    \justify
+
+    Observa-se que a tabela passa a apresentar uma estrutura tipicamente relacional, na qual cada linha representa uma ocorrência única da relação entre aluno, curso e disciplina. Entretanto, essa reorganização impõe uma consequência relevante do ponto de vista da modelagem: a redefinição da chave primária.
+
+    Nota-se que o atributo \texttt{Matricula}, isoladamente, não é suficiente para identificar univocamente os registros, uma vez que um mesmo aluno pode estar associado a múltiplas disciplinas. De igual modo, o atributo \texttt{Cod\_Disc} também não é capaz de identificar uma tupla de forma única, pois uma mesma disciplina pode ser cursada por diferentes alunos.
+
+    Dessa forma, torna-se necessário adotar uma chave primária composta, formada pela combinação dos atributos (\texttt{Matricula}, \texttt{Cod\_Disc}), a qual, em conjunto, garante a unicidade de cada registro na relação.
+
+    Outro problema é que ao utilizar esta abordagem para adequar a tabela à 1FN, resolve-se a estrutura tabular, mas invariavelmente gera redundâncias absurdas. Note que para armazenar as três disciplinas do aluno 101, o sistema registrou o seu nome "Leandro" e o seu curso três vezes. Isso causa anomalias de atualização iminentes, exatamente como discutido nas seções anteriores. 
+\end{tcolorbox}
+
+Uma segunda abordagem, mais adequada sob a ótica do projeto lógico de bancos de dados, consiste em extrair os atributos multivalorados e grupos repetitivos para relações próprias, ao invés de simplesmente replicar dados em múltiplas tuplas.\cite{angelotti2010banco}
+
+Nessa perspectiva, os dados são reorganizados em tabelas distintas, cada uma representando uma entidade ou relacionamento específico, eliminando-se a necessidade de repetição da chave principal com atributos redundantes. Assim, os atributos que se repetem deixam de estar aninhados em uma única tabela e passam a compor uma nova relação, vinculada à entidade principal por meio de chave estrangeira.
+
+Essa abordagem não apenas atende à 1FN, ao eliminar atributos multivalorados, como também evita a redundância excessiva observada na solução anterior. Com isso, reduz-se significativamente o risco de anomalias de atualização, inserção e exclusão, promovendo maior integridade e consistência dos dados, além de alinhar o modelo às boas práticas de normalização relacional.
+
+\begin{tcolorbox}[breakable, colback=blue!5,colframe=blue!40!black,title=Situação exemplo]
+
+    Aplicando-se essa segunda abordagem ao exemplo em análise, observa-se uma mudança estrutural significativa no modelo de dados. 
+
+    A seguir, apresenta-se a nova organização dos dados, agora distribuídos em duas relações distintas. A primeira representa a entidade principal (aluno e curso), enquanto a segunda armazena as informações anteriormente repetidas, relativas às disciplinas cursadas.
+
+    \vspace{0.4cm}
+
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{|c|l|c|l|l|}
+    \hline
+    \textbf{\underline{Matricula}} & \textbf{Nome\_Aluno} & \textbf{Cod\_Curso} & \textbf{Nome\_Curso} & \textbf{Departamento} \\ \hline
+    101 & Leandro & C10 & Eng. de Software & Fac. Tecnologia \\ \hline
+    102 & Sergio & C10 & Eng. de Software & Fac. Tecnologia \\ \hline
+    103 & Ronaldo & C20 & Direito & Fac. Direito \\ \hline
+    \end{tabular}
+\end{adjustbox}
+    \vspace{0.3cm}
+    \captionof{table}{Tabela principal (ALUNO\_CURSO) após a separação do grupo repetitivo.}
+    \label{tab:principal_grupo_repetitivo}
+
+    \vspace{0.5cm}
+
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{|c|c|l|c|}
+    \hline
+    \textbf{\underline{Matricula} (FK)} & \textbf{\underline{Cod\_Disc}} & \textbf{Nome\_Disciplina} & \textbf{Nota} \\ \hline
+    101 & D01 & Banco de Dados & 9.0 \\ \hline
+    101 & D02 & Programação Orientada a Objetos & 8.5 \\ \hline
+    101 & D03 & Redes de Computadores & 7.0 \\ \hline
+    102 & D01 & Banco de Dados & 8.0 \\ \hline
+    102 & D04 & Engenharia de Requisitos & 9.5 \\ \hline
+    103 & D05 & Direito Civil & 8.0 \\ \hline
+    \end{tabular}
+\end{adjustbox}
+    \vspace{0.3cm}
+    \captionof{table}{Tabela do grupo repetitivo extraído (ALUNO\_DISCIPLINA).}
+    \label{tab:grupo_repetitivo_extraido}
+
+    \vspace{0.4cm}
+
+    \justify
+
+    Essa reorganização evidencia uma evolução importante no processo de normalização, cada informação passa a ser armazenada apenas no contexto em que possui significado próprio, evitando duplicações desnecessárias.
+
+    Por fim, observa-se que a associação entre as tabelas é preservada por meio do atributo \texttt{Matricula}, que atua como elo lógico entre as relações, caracterizando uma estrutura típica de chave primária e chave estrangeira.
+
+    \textbf{Observação:} os próximos exemplos serão baseados nessa estrutura de tabelas, com a aplicação da segunda abordagem aqui apresentada.
+
+\end{tcolorbox}
+
+Nessa segunda abordagem, a eliminação dos grupos repetitivos não ocorre pela simples replicação dos dados do aluno em diversas linhas, mas sim pela separação lógica das entidades e de seus relacionamentos. Com isso, evita-se a repetição desnecessária de informações textuais, como o nome do aluno, o nome do curso e o nome da disciplina, tornando a estrutura mais próxima de um esquema relacional adequadamente projetado.
+
+A separação das relações permite maior controle sobre as dependências funcionais existentes, facilitando futuras etapas do processo de normalização, como a eliminação de dependências parciais e transitivas. Com isso, o modelo torna-se mais flexível, consistente e aderente aos princípios do modelo relacional.
+
+Cumpre destacar, contudo, que essa segunda abordagem ultrapassa a simples eliminação de grupos repetitivos, pois já promove uma decomposição lógica das entidades e relacionamentos envolvidos. Em verdade, a separação das relações permite maior controle sobre as dependências funcionais existentes, facilitando futuras etapas do processo de normalização, como a eliminação de dependências parciais e transitivas. Com isso, o modelo torna-se mais flexível, consistente e aderente aos princípios do modelo relacional.
+
+\subsection{Segunda Forma Normal (2FN)}
+Uma tabela (relação) encontra-se na Segunda Forma Normal (2FN) se, e somente se, estiver previamente na Primeira Forma Normal (1FN) e não apresentar dependências funcionais parciais. Em outras palavras, além de possuir apenas atributos atômicos, todo atributo que não integra a chave primária deve depender funcionalmente da chave primária em sua totalidade, e não apenas de parte dela.
+
+Importante destacar que a Segunda Forma Normal constitui uma preocupação relevante apenas em tabelas cuja chave primária é composta. Isso porque, quando a chave primária é simples, não há possibilidade de ocorrência de dependência parcial; assim, uma vez atendidos os requisitos da 1FN, a tabela estará automaticamente em 2FN.
+
+Do ponto de vista prático, a adequação à Segunda Forma Normal exige a decomposição da relação original, de modo a eliminar as dependências parciais identificadas. Para tanto, os atributos que dependem apenas de parte da chave primária devem ser extraídos para novas tabelas, nas quais essa parte da chave passa a atuar como chave primária. Por sua vez, os atributos que dependem integralmente da chave composta permanecem na relação original.\cite{angelotti2010banco}
+
+\begin{tcolorbox}[breakable, colback=blue!5,colframe=blue!40!black,title=Situação exemplo]
+
+Considerando a tabela relacionamento Aluno\_Disciplina obtida na Primeira Forma Normal (Tabela \ref{tab:grupo_repetitivo_extraido}), cuja chave primária é composta por \textbf{(\texttt{Matricula}, \texttt{Cod\_Disc})}, procede-se à análise das dependências funcionais, a fim de verificar sua adequação à Segunda Forma Normal:
+
+\begin{itemize}
+    \item O atributo \texttt{Nome\_Disciplina} não depende da chave composta em sua totalidade, sendo determinado exclusivamente pelo \texttt{Cod\_Disc}, independentemente da matrícula do aluno. Tal situação caracteriza uma \textbf{dependência funcional parcial}.
+
+    \item O atributo \textbf{Nota}, por sua vez, depende integralmente da combinação \textbf{(\texttt{Matricula}, \texttt{Cod\_Disc})}, uma vez que não pode ser determinado isoladamente nem pelo aluno, nem pela disciplina. Trata-se, portanto, de uma \textbf{dependência funcional total}.
+\end{itemize}
+
+\vspace{0.4cm}
+
+Diante dessa análise, verifica-se que a relação ainda apresenta dependência funcional parcial, o que impede seu enquadramento na Segunda Forma Normal.
+
+Para eliminar essa inconsistência estrutural, torna-se necessária a decomposição da tabela, isolando-se os atributos conforme seus respectivos determinantes funcionais.
+
+\vspace{0.5cm}
+
+\centering
+\renewcommand{\arraystretch}{1.2}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|l|c|l|l|}
+\hline
+\textbf{\underline{Matricula}} & \textbf{Nome\_Aluno} & \textbf{Cod\_Curso} & \textbf{Nome\_Curso} & \textbf{Departamento} \\ \hline
+101 & Leandro & C10 & Eng. de Software & Fac. Tecnologia \\ \hline
+102 & Sergio & C10 & Eng. de Software & Fac. Tecnologia \\ \hline
+103 & Ronaldo & C20 & Direito & Fac. Direito \\ \hline
+\end{tabular}
+\end{adjustbox}
+\vspace{0.3cm}
+\captionof{table}{Tabela ALUNO\_CURSO repetida do exemplo anterior}
+\label{tab:2fn_aluno_curso}
+
+\vspace{0.5cm}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{\underline{Matricula} (FK)} & \textbf{\underline{Cod\_Disc} (FK)} & \textbf{Nota} \\ \hline
+101 & D01 & 9.0 \\ \hline
+101 & D02 & 8.5 \\ \hline
+101 & D03 & 7.0 \\ \hline
+102 & D01 & 8.0 \\ \hline
+102 & D04 & 9.5 \\ \hline
+103 & D05 & 8.0 \\ \hline
+\end{tabular}
+\end{adjustbox}
+\vspace{0.3cm}
+\captionof{table}{Tabela de relacionamento ALUNO\_DISCIPLINA agora somente com a nota}
+\label{tab:2fn_relacionamento}
+
+\vspace{0.5cm}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|l|}
+\hline
+\textbf{\underline{Cod\_Disc}} & \textbf{Nome\_Disciplina} \\ \hline
+D01 & Banco de Dados \\ \hline
+D02 & Programação Orientada a Objetos \\ \hline
+D03 & Redes de Computadores \\ \hline
+D04 & Engenharia de Requisitos \\ \hline
+D05 & Direito Civil \\ \hline
+\end{tabular}
+\end{adjustbox}
+\vspace{0.3cm}
+\captionof{table}{Tabela DISCIPLINA criada pela deconposição de eliminar a dependência parcial.}
+\label{tab:2fn_disciplina}
+
+\vspace{0.4cm}
+
+\justify
+
+Com a decomposição realizada, elimina-se a dependência funcional parcial anteriormente identificada. A tabela de relacionamento passa a armazenar exclusivamente atributos que dependem integralmente da chave composta, enquanto o atributo \texttt{Nome\_Disciplina} é corretamente alocado em uma relação própria, determinada por \texttt{Cod\_Disc}.
+
+Dessa forma, o modelo passa a atender aos requisitos da Segunda Forma Normal, reduzindo redundâncias e promovendo maior consistência estrutural dos dados. 
+
+Contudo, embora a estrutura esteja agora adequada à 2FN, ainda subsistem dependências funcionais transitivas, especialmente entre \texttt{Cod\_Curso}, \texttt{Nome\_Curso} e \texttt{Departamento}, o que será objeto de análise na próxima etapa do processo de normalização.
+
+\end{tcolorbox}
+
+\subsection{Terceira Forma Normal (3FN)}
+
+A \textbf{Terceira Forma Normal (3FN)} exige que a tabela esteja conformizada com a 2FN e que nenhum de seus atributos não haja dependência transitiva. 
+
+Assim, o atributo deve estar logicamente vinculado à chave, não podendo depender apenas de parte dela (o que caracterizaria dependência parcial) nem de outro atributo não-chave que por sua vez depende da chave (o que configuraria dependência transitiva). 
+
+Do ponto de vista prático, a eliminação de dependências transitivas exige a decomposição da relação original, de modo a isolar, em uma nova entidade, os atributos que não dependem diretamente da chave primária. Nessa abordagem, tais atributos passam a compor uma relação própria, cuja chave primária corresponde ao seu determinante natural, enquanto na relação original mantém-se apenas a referência a essa nova entidade, por meio de chave estrangeira. Com isso, assegura-se que todos os atributos remanescentes dependam exclusivamente da chave primária da relação, atendendo aos requisitos da Terceira Forma Normal.\cite{angelotti2010banco}
+
+A observância da 3FN assegura que cada atributo represente uma informação genuína sobre a entidade modelada, evitando redundâncias e garantindo maior consistência estrutural ao esquema relacional.
+
+\begin{tcolorbox}[breakable, colback=blue!5,colframe=blue!40!black,title=Situação exemplo]
+
+    Considerando a relação \texttt{ALUNO\_CURSO}, obtida na etapa da Segunda Forma Normal (Tabela \ref{tab:2fn_aluno_curso}), cuja chave primária é a \texttt{Matricula}, procede-se à análise das dependências funcionais, a fim de verificar sua adequação à Terceira Forma Normal:
+
+    \begin{itemize}
+        \item O atributo \texttt{Nome\_Aluno} depende diretamente da \texttt{Matricula}, que é a chave primária da relação. Trata-se, portanto, de uma dependência funcional adequada.
+
+        \item O atributo \texttt{Cod\_Curso} também depende diretamente da \texttt{Matricula}, uma vez que identifica o curso ao qual o aluno está vinculado. Também se trata de dependência funcional adequada.
+
+        \item O atributo \texttt{Nome\_Curso}, contudo, não depende diretamente da \texttt{Matricula}, mas sim do \texttt{Cod\_Curso}. Verifica-se, assim, a existência de \textbf{dependência funcional transitiva}, pois a chave primária determina \texttt{Cod\_Curso}, e este, por sua vez, determina \texttt{Nome\_Curso}.
+
+        \item O mesmo ocorre com o atributo \texttt{Departamento}, que igualmente não depende diretamente da \texttt{Matricula}, mas do \texttt{Cod\_Curso}, configurando outra \textbf{dependência funcional transitiva}.
+    \end{itemize}
+
+    \vspace{0.4cm}
+
+    Diante dessa análise, verifica-se que a relação \texttt{ALUNO\_CURSO} ainda não atende aos requisitos da Terceira Forma Normal, pois contém atributos não-chave que dependem de outro atributo não-chave.
+
+    Para eliminar essa inconsistência estrutural, torna-se necessária nova decomposição, isolando-se em uma relação própria os atributos que dependem funcionalmente de \texttt{Cod\_Curso}.
+
+    \vspace{0.5cm}
+
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{|c|l|l|}
+    \hline
+    \textbf{\underline{Cod\_Curso}} & \textbf{Nome\_Curso} & \textbf{Departamento} \\ \hline
+    C10 & Eng. de Software & Fac. Tecnologia \\ \hline
+    C20 & Direito & Fac. Direito \\ \hline
+    \end{tabular}
+\end{adjustbox}
+    \vspace{0.3cm}
+    \captionof{table}{Tabela CURSO criada para eliminar a dependência transitiva.}
+    \label{tab:3fn_curso}
+
+    \vspace{0.5cm}
+
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{|c|l|c|}
+    \hline
+    \textbf{\underline{Matricula}} & \textbf{Nome\_Aluno} & \textbf{Cod\_Curso} (FK) \\ \hline
+    101 & Leandro & C10 \\ \hline
+    102 & Sergio & C10 \\ \hline
+    103 & Ronaldo & C20 \\ \hline
+    \end{tabular}
+\end{adjustbox}
+    \vspace{0.3cm}
+    \captionof{table}{Tabela ALUNO após a decomposição da relação ALUNO\_CURSO.}
+    \label{tab:3fn_aluno}
+
+    \vspace{0.4cm}
+
+    \justify
+
+    Com a decomposição realizada, eliminam-se as dependências transitivas anteriormente identificadas na relação \texttt{ALUNO\_CURSO}. Os atributos \texttt{Nome\_Curso} e \texttt{Departamento}, que dependiam funcionalmente de \texttt{Cod\_Curso}, passam a ser armazenados na relação \texttt{CURSO}, cuja chave primária é o próprio \texttt{Cod\_Curso}.
+
+    Por sua vez, a relação \texttt{ALUNO} passa a conter apenas atributos que dependem diretamente de sua chave primária, mantendo \texttt{Cod\_Curso} apenas como chave estrangeira.
+
+    As relações \texttt{DISCIPLINA} e \texttt{ALUNO\_DISCIPLINA}, obtidas na etapa da Segunda Forma Normal, permanecem inalteradas, pois já atendem aos requisitos da Terceira Forma Normal.
+
+    Dessa forma, o modelo passa a atender plenamente à 3FN, assegurando que todo atributo não-chave dependa exclusivamente da chave primária, sem dependências parciais ou transitivas.
+
+\end{tcolorbox}
+
+\section{Formas Normais Avançadas}
+
+As formas normais superiores à Terceira Forma Normal (3FN) são, em geral, menos frequentes na prática cotidiana de modelagem de dados, mas assumem relevância em cenários mais complexos, especialmente em contextos acadêmicos ou em sistemas que envolvem múltiplas variáveis independentes associadas a uma mesma chave, bem como em estruturas que apresentam múltiplas chaves candidatas.
+
+Destaca-se que, ao longo das próximas subseções, diversas definições e construções conceituais derivam diretamente dos fundamentos teóricos apresentados por C. J. Date\cite{date2003introducao}, sendo também os exemplos aqui utilizados adaptações do trabalho do referido autor. Contudo, optou-se por não inserir citações bibliográficas diretamente nos parágrafos em que tais ideias se manifestam, por razões de clareza textual e fluidez da leitura, evitando a repetição excessiva de referências sem prejuízo do devido reconhecimento da obra original.
+
+umpre registrar que a abordagem adotada no presente texto envolve determinadas simplificações metodológicas, voltadas à organização e exposição progressiva dos conceitos, principalmente com o foco em facilitar a compreenção de analistas iniciais. Tais simplificações não exaurem o tema, razão pela qual se recomenda a consulta direta à obra do autor mencionado, cuja profundidade e rigor teórico são essenciais para o completo domínio da matéria.
+
+\subsection{Forma Normal de Boyce-Codd (BCNF)}
+Conforme explica Christopher J. Date\cite{date2003introducao} definição original da Terceira Forma Normal, proposta por Codd, mostrou-se insuficiente para lidar adequadamente com situações mais complexas, especialmente quando uma relação possui múltiplas chaves candidatas compostas que compartilham atributos entre si. Nesses casos, a formulação inicial da 3FN não conseguia evitar determinadas anomalias estruturais.
+
+Diante dessa limitação, passou-se a buscar uma definição mais rigorosa da 3FN, capaz de tratar adequadamente dependências funcionais que escapavam à formulação original. Nesse contexto, destaca-se que a primeira formalização relevante do problema foi apresentada por Heath\cite{heath1971unacceptable}, ao identificar anomalias decorrentes de determinadas dependências funcionais em esquemas relacionais. Posteriormente, Codd\cite{codd1972recent} aprofundou a análise teórica dessas limitações, consolidando uma definição mais restritiva no âmbito do modelo relacional.
+
+Assim, essa nova formulação, por impor uma condição mais rigorosa do que a 3FN originalmente proposta, não foi tratada como mera redefinição, mas sim como uma nova forma normal, denominada Forma Normal de Boyce-Codd (FNBC), em reconhecimento à contribuição de Boyce e Codd na sua sistematização.
+
+Importa destacar que, na prática, os cenários que motivaram essa reformulação não são tão frequentes. Assim, em muitas situações, a Terceira Forma Normal e a Forma Normal de Boyce-Codd produzem resultados equivalentes. Entretanto, quando há múltiplas chaves candidatas com sobreposição, a FNBC se mostra necessária para garantir a eliminação completa de redundâncias e inconsistências.
+
+Uma tabela encontra-se na FNBC se, e somente se, para todas as suas dependências funcionais não triviais $X \rightarrow Y$, $X$ for uma superchave.\cite{ramakrishnan2011} 
+
+Conforme explica William Kent\cite{kent1983simple}, nessa forma normal todo atributo não-chave deve fornecer um fato sobre a chave, toda a chave e nada mais além da chave. Nesse contexto, o termo “fato” deve ser compreendido como uma informação que descreve diretamente a entidade identificada pela chave primária, ou seja, uma propriedade que lhe é intrínseca e que dela depende exclusivamente. 
+
+Em termos simples, nenhum atributo pode ser determinado por um atributo não-chave e para adequar a relação à FNBC, impõe-se sua decomposição em duas tabelas, de modo que cada dependência funcional passe a ocorrer em um contexto no qual seu determinante seja efetivamente uma chave.
+
+\begin{tcolorbox}[breakable, colback=blue!5,colframe=blue!40!black,title=Situação exemplo]
+
+Considere o seguinte cenário: um aluno pode se inscrever em múltiplos Cursos Extracurriculares. Para cada curso em que está matriculado, ele terá aula com apenas um Professor específico. Contudo, um mesmo curso pode ser ministrado por diferentes professores ao longo do tempo. A estrutura relacional que representa essas inscrições pode ser definida como: \texttt{(Aluno, Curso\_Extra, Professor)}
+
+\vspace{0.4cm}
+
+\centering
+\renewcommand{\arraystretch}{1.2}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{\underline{Aluno}} & \textbf{\underline{Curso\_Extra}} & \textbf{Professor} \\ \hline
+Ana & Teatro & Carlos \\ \hline
+Ana & Música & Fernanda \\ \hline
+Bruno & Teatro & Carlos \\ \hline
+Bruno & Música & Fernanda \\ \hline
+Carla & Teatro & Carlos \\ \hline
+\end{tabular}
+\end{adjustbox}
+\vspace{0.3cm}
+\captionof{table}{Tabela de inscrições em cursos extracurriculares.}
+\label{tab:bcnf_exemplo}
+
+\vspace{0.4cm}
+
+\justify
+
+Observa-se que o atributo \texttt{Professor} depende da totalidade da chave primária (\texttt{Aluno}, \texttt{Curso\_Extra}), não havendo dependência parcial nem dependência transitiva em relação a atributos não-chave. Assim, a relação atende, do ponto de vista formal, aos requisitos da Terceira Forma Normal.
+
+\[
+(\texttt{Aluno}, \texttt{Curso\_Extra}) \rightarrow \texttt{Professor}
+\]
+
+Todavia, verifica-se uma inconsistência estrutural mais sutil: o atributo não-chave \texttt{Professor} determina parte da chave primária (\texttt{Curso\_Extra}). Isso configura uma violação da Forma Normal de Boyce-Codd, pois existe uma dependência funcional na qual o determinante não é superchave.
+
+\[
+\texttt{Professor} \rightarrow \texttt{Curso\_Extra}
+\]
+
+Como consequência da segunda dependência descrita acima, o modelo permanece sujeito a anomalias. Caso um professor passe a lecionar outro curso extracurricular, será necessário atualizar múltiplas tuplas da relação, repetindo a informação para todos os alunos vinculados a esse professor, o que caracteriza uma típica anomalia de atualização
+
+Para eliminar essa inconsistência, torna-se necessária a decomposição da relação original em duas novas relações:
+
+\vspace{0.5cm}
+
+\centering
+\renewcommand{\arraystretch}{1.2}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|}
+\hline
+\textbf{\underline{Professor}} & \textbf{Curso\_Extra} \\ \hline
+Carlos & Teatro \\ \hline
+Fernanda & Música \\ \hline
+\end{tabular}
+\end{adjustbox}
+\vspace{0.3cm}
+\captionof{table}{Tabela PROFESSOR\_CURSO\_EXTRA, criada para representar a dependência \texttt{Professor} $\rightarrow$ \texttt{Curso\_Extra}.}
+\label{tab:bcnf_professor_curso}
+
+\vspace{0.5cm}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|}
+\hline
+\textbf{\underline{Aluno}} & \textbf{\underline{Professor} (FK)} \\ \hline
+Ana & Carlos \\ \hline
+Ana & Fernanda \\ \hline
+Bruno & Carlos \\ \hline
+Bruno & Fernanda \\ \hline
+Carla & Carlos \\ \hline
+\end{tabular}
+\end{adjustbox}
+\vspace{0.3cm}
+\captionof{table}{Tabela ALUNO\_PROFESSOR, resultante da decomposição em FNBC.}
+\label{tab:bcnf_aluno_professor}
+
+\vspace{0.4cm}
+
+\justify
+
+Com a decomposição realizada, a dependência funcional \texttt{Professor} $\rightarrow$ \texttt{Curso\_Extra} passa a ser representada em uma relação própria, na qual \texttt{Professor} atua como chave primária. Já a associação entre aluno e professor é armazenada separadamente, preservando as inscrições realizadas sem redundância indevida.
+
+Dessa forma, elimina-se a violação anteriormente identificada, pois, em ambas as relações resultantes, todo determinante passa a ser chave.
+\end{tcolorbox}
+
+\subsection{Quarta Forma Normal (4FN)}
+
+A Quarta Forma Normal trata das dependências multivaloradas. Esse tipo de dependência ocorre quando uma mesma entidade possui dois ou mais conjuntos de valores independentes, associados a diferentes atributos, que são armazenados em múltiplas linhas da relação, mesmo não havendo qualquer relação semântica entre esses conjuntos de valores.
+
+Importa destacar que a violação da Quarta Forma Normal não decorre da presença de atributos multivalorados no sentido clássico da Primeira Forma Normal. Na situação analisada, todos os valores são atômicos e a relação atende à 1FN. O problema surge em um nível mais profundo, em termos práticos, tem-se múltiplos conjuntos de valores independentes distribuídos em diferentes linhas, associados a atributos que não possuem relação entre si, mas que, devido à sua repetição na mesma relação, acabam sendo combinados, gerando associações artificiais e redundantes.
+
+Essa estrutura dificulta a manutenção dos dados, uma vez que operações de inserção, atualização e exclusão passam a demandar múltiplas alterações correlacionadas, caracterizando anomalias semelhantes às observadas em formas normais inferiores.
+
+Para resolver esse problema, torna-se necessária a decomposição da relação, separando-se esses conjuntos em relações distintas, cada uma representando um único fato multivalorado.
+
+Assim, a Quarta Forma Normal busca garantir que cada relação represente apenas um único conjunto de associações multivaloradas, eliminando combinações artificiais e promovendo um modelo mais enxuto, consistente e alinhado aos princípios do modelo relacional.
+
+\begin{tcolorbox}[breakable, colback=blue!5,colframe=blue!40!black,title=Situação exemplo]
+
+Considere a seguinte relação que busca representar os perfis de atuação dos professores: \texttt{(Professor, Disciplina, Polo)}. Suponha que um professor possa lecionar várias disciplinas e atuar em diversos polos. Contudo, essas duas informações são independentes entre si, isto é, as disciplinas que o professor leciona não estão vinculadas aos polos em que ele atua.
+
+\vspace{0.4cm}
+
+\centering
+\renewcommand{\arraystretch}{1.2}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{\underline{Professor}} & \textbf{\underline{Disciplina}} & \textbf{\underline{Polo}} \\ \hline
+Carlos & Banco de Dados & Campus Norte \\ \hline
+Carlos & Banco de Dados & Campus Sul \\ \hline
+Carlos & Redes & Campus Norte \\ \hline
+Carlos & Redes & Campus Sul \\ \hline
+Fernanda & Algoritmos & Campus Norte \\ \hline
+Fernanda & Algoritmos & Campus Sul \\ \hline
+Fernanda & Estruturas de Dados & Campus Norte \\ \hline
+Fernanda & Estruturas de Dados & Campus Sul \\ \hline
+\end{tabular}
+\end{adjustbox}
+\vspace{0.3cm}
+\captionof{table}{Relação com dependências multivaloradas.}
+\label{tab:4fn_exemplo}
+
+\vspace{0.4cm}
+
+\justify
+
+Observa-se que, para cada professor, as disciplinas que ele leciona são combinadas com todos os polos em que atua, gerando associações artificiais entre esses dois conjuntos de valores. Como consequência, a relação passa a representar implicitamente que cada disciplina é ministrada em cada polo, o que não corresponde à realidade que se pretendia modelar.
+
+Essa situação decorre do fato de que as informações \texttt{Disciplina} e \texttt{Polo} são independentes entre si, estando ambas associadas exclusivamente ao atributo \texttt{Professor}.
+
+Na forma como a tabela foi estruturada, o banco de dados registra combinações entre \texttt{Disciplina} e \texttt{Polo} que não representam fatos reais, mas sim um cruzamento artificial entre valores independentes, introduzindo redundância na relação.
+
+Tal redundância não decorre de uma exigência do domínio do problema, mas sim de uma inadequação na organização dos dados. Para eliminar essa inconsistência, impõe-se a decomposição da relação, separando-se os conjuntos multivalorados independentes em estruturas distintas.
+
+\vspace{0.5cm}
+
+\centering
+\renewcommand{\arraystretch}{1.2}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|}
+\hline
+\textbf{\underline{Professor}} & \textbf{\underline{Disciplina}} \\ \hline
+Carlos & Banco de Dados \\ \hline
+Carlos & Redes \\ \hline
+Fernanda & Algoritmos \\ \hline
+Fernanda & Estruturas de Dados \\ \hline
+\end{tabular}
+\end{adjustbox}
+\vspace{0.3cm}
+\captionof{table}{Relação PROFESSOR\_DISCIPLINA.}
+\label{tab:4fn_prof_disc}
+
+\vspace{0.5cm}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|}
+\hline
+\textbf{\underline{Professor}} & \textbf{\underline{Polo}} \\ \hline
+Carlos & Campus Norte \\ \hline
+Carlos & Campus Sul \\ \hline
+Fernanda & Campus Norte \\ \hline
+Fernanda & Campus Sul \\ \hline
+\end{tabular}
+\end{adjustbox}\vspace{0.3cm}
+\captionof{table}{Relação PROFESSOR\_POLO.}
+\label{tab:4fn_prof_polo}
+
+\vspace{0.4cm}
+
+\justify
+
+Com a decomposição realizada, eliminam-se as dependências multivaloradas, garantindo que cada relação represente um único conjunto de associações. 
+
+\end{tcolorbox}
+
+\subsection{Quinta Forma Normal (5FN ou PJNF)}
+
+Até este ponto, considera-se implicitamente que o processo de normalização se dá por meio da decomposição de uma relação em duas novas relações, de forma que a junção dessas partes seja suficiente para reconstruir os dados originais sem perda de informação. Essa abordagem é suficiente para atender às exigências até a Quarta Forma Normal.
+
+Entretanto, existem situações em que essa premissa não se sustenta. Há relações que não podem ser corretamente decompostas em apenas duas novas relações sem perda de informação, sendo necessária a sua decomposição em três ou mais relações para que a reconstrução por junção preserve integralmente os dados originais.
+
+Nesses casos, a decomposição adequada depende da combinação simultânea de múltiplas relações, o que evidencia a presença de dependências de junção mais complexas, não capturadas por decomposições binárias. Esse fenômeno reforça a necessidade da Quinta Forma Normal.
+
+A Quinta Forma Normal, também conhecida como Forma Normal de Projeção-Junção (PJNF), trata dessas situações em que uma relação pode ser decomposta em várias outras menores, de modo que apenas a junção de todas elas permite reconstruir corretamente os dados originais, sem gerar tuplas inválidas.
+
+Esse tipo de problema está relacionado às chamadas \textbf{dependências de junção}, que ocorrem quando a associação entre três ou mais atributos depende da combinação conjunta entre eles, não podendo ser corretamente representada por decomposições parciais.
+
+Em termos práticos, a 5FN busca evitar a existência de combinações inválidas de dados que podem surgir quando uma relação é reconstruída a partir de partes que, isoladamente, não capturam completamente a regra de negócio.
+
+\begin{tcolorbox}[breakable, colback=blue!5,colframe=blue!40!black,title=Situação exemplo]
+    Considere a seguinte relação que busca representar a participação de professores em atividades acadêmicas: \texttt{(Professor, Disciplina, Projeto)}
+
+    \vspace{0.4cm}
+
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{|c|c|c|}
+    \hline
+    \textbf{\underline{Professor}} & \textbf{\underline{Disciplina}} & \textbf{\underline{Projeto}} \\ \hline
+    Carlos & Banco de Dados & Pesquisa IA \\ \hline
+    Carlos & Redes & Pesquisa Redes \\ \hline
+    Fernanda & Algoritmos & Pesquisa IA \\ \hline
+    \end{tabular}
+\end{adjustbox}
+    \vspace{0.3cm}
+    \captionof{table}{Relação envolvendo professor, disciplina e projeto.}
+
+    \vspace{0.4cm}
+
+    \justify
+
+    Suponha que no domínio que estamos modelando tenhamos as seguintes regras:
+    \begin{itemize}
+        \item R1 - um professor pode lecionar determinadas disciplinas;
+        \item R2 - um professor pode participar de determinados projetos;
+        \item R3 - determinadas disciplinas podem estar associadas a determinados projetos.
+        \item R4 - nem toda combinação entre \texttt{Professor}, \texttt{Disciplina} e \texttt{Projeto} é válida, apenas algumas combinações específicas representam situações reais.
+    \end{itemize}
+
+    Observa-se que, na relação apresentada, não há dependências multivaloradas independentes, uma vez que as disciplinas e os projetos estão diretamente associados entre si. Dessa forma, a relação atende aos requisitos da Quarta Forma Normal.
+
+    Contudo ainda há redundância de dados e, devido a R4, não é possível decompor essa relação em apenas duas tabelas sem gerar combinações inválidas. Caso fossem criadas, por exemplo, as relações \texttt{(Professor, Disciplina)} e \texttt{(Professor, Projeto)}, a junção dessas relações resultaria em novas combinações que não existiam originalmente, associando disciplinas e projetos de forma indevida, conforme demonstrado abaixo:
+
+    \vspace{0.4cm}
+
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{|c|c|}
+    \hline
+    \textbf{\underline{Professor}} & \textbf{\underline{Disciplina}} \\ \hline
+    Carlos & Banco de Dados \\ \hline
+    Carlos & Redes \\ \hline
+    Fernanda & Algoritmos \\ \hline
+    \end{tabular}
+\end{adjustbox}
+    \vspace{0.3cm}
+
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{|c|c|}
+    \hline
+    \textbf{\underline{Professor}} & \textbf{\underline{Projeto}} \\ \hline
+    Carlos & Pesquisa IA \\ \hline
+    Carlos & Pesquisa Redes \\ \hline
+    Fernanda & Pesquisa IA \\ \hline
+    \end{tabular}
+\end{adjustbox}
+    \vspace{0.4cm}
+
+    \justify
+
+    Ao realizar a junção natural entre essas duas relações, obtém-se o seguinte resultado:
+
+    \centering
+    \vspace{0.4cm}
+
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{|c|c|c|}
+    \hline
+    \textbf{\underline{Professor}} & \textbf{\underline{Disciplina}} & \textbf{\underline{Projeto}} \\ \hline
+    Carlos & Banco de Dados & Pesquisa IA \\ \hline
+    \textcolor{red}{Carlos} & \textcolor{red}{Banco de Dados} & \textcolor{red}{Pesquisa Redes} \\ \hline
+    \textcolor{red}{Carlos} & \textcolor{red}{Redes} & \textcolor{red}{Pesquisa IA} \\ \hline
+    Carlos & Redes & Pesquisa Redes \\ \hline
+    Fernanda & Algoritmos & Pesquisa IA \\ \hline
+    \end{tabular}
+\end{adjustbox}
+    \vspace{0.3cm}
+    \captionof{table}{Junção das relações \texttt{(Professor, Disciplina)} e \texttt{(Professor, Projeto)}, com destaque para combinações inválidas.}
+
+    \vspace{0.4cm}
+
+    \justify
+
+    Perceba que surgem combinações espúrias, como \texttt{(Carlos, Banco de Dados, Pesquisa Redes)} e \texttt{(Carlos, Redes, Pesquisa IA)}, que não constavam na relação original e não representam situações reais do domínio modelado.
+
+    Isso ocorre porque a validade dos dados depende da associação simultânea entre os três atributos, e não apenas de pares isolados. Para preservar corretamente os dados, torna-se necessária a decomposição em três relações distintas:
+
+    \vspace{0.5cm}
+
+    \centering
+    \renewcommand{\arraystretch}{1.2}
+
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{|c|c|}
+    \hline
+    \textbf{\underline{Professor}} & \textbf{\underline{Disciplina}} \\ \hline
+    Carlos & Banco de Dados \\ \hline
+    Carlos & Redes \\ \hline
+    Fernanda & Algoritmos \\ \hline
+    \end{tabular}
+\end{adjustbox}
+    \vspace{0.3cm}
+
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{|c|c|}
+    \hline
+    \textbf{\underline{Professor}} & \textbf{\underline{Projeto}} \\ \hline
+    Carlos & Pesquisa IA \\ \hline
+    Carlos & Pesquisa Redes \\ \hline
+    Fernanda & Pesquisa IA \\ \hline
+    \end{tabular}
+\end{adjustbox}
+    \vspace{0.3cm}
+
+    \begin{adjustbox}{max width=\textwidth}
+    \begin{tabular}{|c|c|}
+    \hline
+    \textbf{\underline{Disciplina}} & \textbf{\underline{Projeto}} \\ \hline
+    Banco de Dados & Pesquisa IA \\ \hline
+    Redes & Pesquisa Redes \\ \hline
+    Algoritmos & Pesquisa IA \\ \hline
+    \end{tabular}
+\end{adjustbox}
+    \vspace{0.4cm}
+
+    \justify
+
+    A junção natural dessas três relações permite reconstruir exatamente os dados originais, sem gerar combinações inválidas. Dessa forma, elimina-se a dependência de junção presente na relação inicial.
+
+\end{tcolorbox}
+
+\section{Resumo Prático de Normalização}
+
+Nesta seção, realizaremos a normalização de uma planilha de empréstimos de uma biblioteca universitária até a FNBC, pois, considera-se que a FNBC seja suficiente para a maioria dos cenários práticos, embora existam situações em que ainda podem persistir redundâncias não resolvidas por ela.
+
+\vspace{0.4cm}
+\textbf{Problema:} A Ficha de Empréstimo de Livros (FNN), contendo as seguintes informações: matricula do aluno, nome do aluno, curso, data de emprestimo, data prevista de devolucao, ISBN do livro, titulo do livro, codigo da editora, nome da editora, categoria do livro.
+
+\vspace{0.4cm}
+
+\centering
+\renewcommand{\arraystretch}{1.2}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
+\hline
+\underline{Matricula} & Nome & Curso & \underline{Data\_Emp} & Data\_Dev & \underline{ISBN} & Título & Cod\_Ed & Editora & Categoria \\ \hline
+101 & João & Eng. de Software & 01/03 & 10/03 & L1 & Banco de Dados & E1 & Atlas & TI \\ 
+~ & ~ & ~ & ~ & ~ & L2 & Redes & E2 & Pearson & TI \\ \hline
+102 & Maria & Direito & 02/03 & 12/03 & L3 & Direito Civil & E3 & Saraiva & Jurídico \\ \hline
+\end{tabular}
+\end{adjustbox}
+
+\vspace{0.3cm}
+\captionof{table}{Tabela em forma não normalizada (FNN) com grupos repetitivos.}
+
+\vspace{0.4cm}
+
+\justify
+
+\textbf{Passo 1: Entender Atributos e Grupo Repetitivo.}
+
+Em um mesmo empréstimo, o estudante pode locar vários livros. Assim, os atributos \texttt{ISBN\_Livro, Titulo\_Livro, Codigo\_Editora, Nome\_Editora e Categoria} se repetem para cada item, caracterizando grupos repetitivos.
+
+Para adequar à 1FN, cada linha deve representar apenas um único livro por empréstimo, eliminando-se os grupos repetitivos. Para isso, a relação original é reorganizada em duas estruturas:
+
+\vspace{0.4cm}
+
+\centering
+\renewcommand{\arraystretch}{1.2}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\underline{Matricula\_Aluno}} & Nome\_Aluno & Curso & \textbf{\underline{Data\_Emprestimo}} & Data\_Devolucao\_Prevista \\ \hline
+101 & João & Eng. de Software & 01/03 & 10/03 \\ \hline
+102 & Maria & Direito & 02/03 & 12/03 \\ \hline
+\end{tabular}
+\end{adjustbox}
+
+\vspace{0.3cm}
+\captionof{table}{Relação EMPRESTIMO (estrutura intermediária).}
+
+\vspace{0.5cm}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\textbf{\underline{Matricula\_Aluno}} & \textbf{\underline{Data\_Emprestimo}} & \textbf{\underline{ISBN\_Livro}} & Titulo\_Livro & Codigo\_Editora & Nome\_Editora & Categoria \\ \hline
+101 & 01/03 & L1 & Banco de Dados & E1 & Atlas & TI \\ \hline
+101 & 01/03 & L2 & Redes & E2 & Pearson & TI \\ \hline
+102 & 02/03 & L3 & Direito Civil & E3 & Saraiva & Jurídico \\ \hline
+\end{tabular}
+\end{adjustbox}
+
+\vspace{0.3cm}
+\captionof{table}{Relação ITEM\_EMPRESTIMO.}
+
+\vspace{0.4cm}
+
+\justify
+
+Com essa reorganização, os grupos repetitivos são eliminados, pois cada linha da relação \texttt{ITEM\_EMPRESTIMO} passa a representar um único livro associado a um empréstimo específico. Dessa forma, a estrutura passa a atender aos requisitos da Primeira Forma Normal. Contudo, ainda permanecem dependências parciais na estrutura obtida.
+
+\vspace{0.4cm}
+
+\textbf{Passo 2: Aplicação da 2FN}
+
+Na relação \texttt{EMPRESTIMO}, os atributos \texttt{Nome\_Aluno} e \texttt{Curso} dependem exclusivamente de \texttt{Matricula\_Aluno}, não sendo atributos do evento de empréstimo propriamente dito.
+
+Na relação \texttt{ITEM\_EMPRESTIMO}, os atributos \texttt{Titulo\_Livro}, \texttt{Codigo\_Editora}, \texttt{Nome\_Editora} e \texttt{Categoria} dependem apenas de \texttt{ISBN\_Livro}.
+
+Dessa forma, para adequação à Segunda Forma Normal, torna-se necessária nova decomposição, separando-se os atributos que dependem apenas de parte da chave composta.
+
+\vspace{0.4cm}
+
+\centering
+\renewcommand{\arraystretch}{1.2}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{\underline{Matricula\_Aluno}} & Nome\_Aluno & Curso \\ \hline
+101 & João & Eng. de Software \\ \hline
+102 & Maria & Direito \\ \hline
+\end{tabular}
+\end{adjustbox}
+
+\vspace{0.3cm}
+\captionof{table}{Tabela ALUNO.}
+
+\vspace{0.5cm}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\underline{ISBN\_Livro}} & Titulo\_Livro & Codigo\_Editora & Nome\_Editora & Categoria \\ \hline
+L1 & Banco de Dados & E1 & Atlas & TI \\ \hline
+L2 & Redes & E2 & Pearson & TI \\ \hline
+L3 & Direito Civil & E3 & Saraiva & Jurídico \\ \hline
+\end{tabular}
+\end{adjustbox}
+
+\vspace{0.3cm}
+\captionof{table}{Tabela LIVRO.}
+
+\vspace{0.5cm}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{\underline{Matricula\_Aluno}} & \textbf{\underline{Data\_Emprestimo}} & Data\_Devolucao\_Prevista \\ \hline
+101 & 01/03 & 10/03 \\ \hline
+102 & 02/03 & 12/03 \\ \hline
+\end{tabular}
+\end{adjustbox}
+
+\vspace{0.3cm}
+\captionof{table}{Tabela EMPRESTIMO.}
+
+\vspace{0.5cm}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{\underline{Matricula\_Aluno}} & \textbf{\underline{Data\_Emprestimo}} & \textbf{\underline{ISBN\_Livro}} \\ \hline
+101 & 01/03 & L1 \\ \hline
+101 & 01/03 & L2 \\ \hline
+102 & 02/03 & L3 \\ \hline
+\end{tabular}
+\end{adjustbox}
+
+\vspace{0.3cm}
+\captionof{table}{Tabela ITEM\_EMPRESTIMO.}
+
+\vspace{0.4cm}
+
+\justify
+
+Com essa reorganização, eliminam-se as dependências parciais, atendendo aos requisitos da Segunda Forma Normal.
+
+\vspace{0.4cm}
+
+\textbf{Passo 3: Aplicação da 3FN}
+
+Observando a tabela \texttt{LIVRO} resultante do passo anterior, verifica-se a existência de uma dependência transitiva: o atributo \texttt{Nome\_Editora} depende de \texttt{Codigo\_Editora}, que, por sua vez, depende da chave primária \texttt{ISBN\_Livro}. Para atender à Terceira Forma Normal, atributos não-chave que dependem de outros atributos não-chave devem ser movidos para uma nova relação. 
+
+Vale ressaltar que o atributo \texttt{Categoria} depende diretamente da chave primária \texttt{ISBN\_Livro} e não determina outros atributos. Portanto, sua permanência não viola a 3FN, sendo mantido na tabela original. Ao realizar a extração da editora, é fundamental manter a chave estrangeira na tabela de origem para não perder o relacionamento.
+
+Com essa reorganização, eliminam-se as dependências transitivas, promovendo maior independência entre as entidades e preservando a integridade referencial através das chaves estrangeiras.
+
+Abaixo, apresenta-se o modelo de dados completo e consolidado após a aplicação da 3FN, refletindo todas as tabelas e relacionamentos extraídos até o momento:
+
+\vspace{0.4cm}
+
+\centering
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{\underline{Matricula\_Aluno}} & Nome\_Aluno & Curso \\ \hline
+101 & João & Eng. de Software \\ \hline
+102 & Maria & Direito \\ \hline
+\end{tabular}
+\end{adjustbox}
+
+\vspace{0.3cm}
+\captionof{table}{Tabela ALUNO.}
+
+\vspace{0.5cm}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|}
+\hline
+\textbf{\underline{Codigo\_Editora}} & Nome\_Editora \\ \hline
+E1 & Atlas \\ \hline
+E2 & Pearson \\ \hline
+E3 & Saraiva \\ \hline
+\end{tabular}
+\end{adjustbox}
+
+\vspace{0.3cm}
+\captionof{table}{Tabela EDITORA.}
+
+\vspace{0.5cm}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{\underline{ISBN\_Livro}} & Titulo\_Livro & Codigo\_Editora (FK) & Categoria \\ \hline
+L1 & Banco de Dados & E1 & TI \\ \hline
+L2 & Redes & E2 & TI \\ \hline
+L3 & Direito Civil & E3 & Jurídico \\ \hline
+\end{tabular}
+\end{adjustbox}
+
+\vspace{0.3cm}
+\captionof{table}{Tabela LIVRO após a adequação à 3FN.}
+
+\vspace{0.5cm}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{\underline{Matricula\_Aluno}} & \textbf{\underline{Data\_Emprestimo}} & Data\_Devolucao\_Prevista \\ \hline
+101 & 01/03 & 10/03 \\ \hline
+102 & 02/03 & 12/03 \\ \hline
+\end{tabular}
+\end{adjustbox}
+
+\vspace{0.3cm}
+\captionof{table}{Tabela EMPRESTIMO.}
+
+\vspace{0.5cm}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{\underline{Matricula\_Aluno}} & \textbf{\underline{Data\_Emprestimo}} & \textbf{\underline{ISBN\_Livro}} \\ \hline
+101 & 01/03 & L1 \\ \hline
+101 & 01/03 & L2 \\ \hline
+102 & 02/03 & L3 \\ \hline
+\end{tabular}
+\end{adjustbox}
+
+\vspace{0.3cm}
+\captionof{table}{Tabela ITEM\_EMPRESTIMO.}
+
+\vspace{0.4cm}
+
+\justify
+
+\textbf{Passo 4: Aplicação da FNBC}
+Considerando a estrutura já obtida, observa-se que as relações \texttt{ALUNO}, \texttt{EMPRESTIMO}, \texttt{ITEM\_EMPRESTIMO}, \texttt{LIVRO}, \texttt{EDITORA} e \texttt{CATEGORIA} não apresentam dependências funcionais em que o determinante deixe de ser chave.
+
+Assim, não se identifica, no modelo construído, violação à Forma Normal de Boyce-Codd. Dessa forma, conclui-se que a estrutura final já atende aos requisitos da FNBC.
+
+Com isso, conclui-se a normalização do modelo, garantindo a eliminação de redundâncias e a adequada organização das informações.
+
+\vspace{0.4cm}
+
+\textbf{Passo Extra: recomendação prática de mercado com chaves artificiais (IDs) e tabelas de domínio}
+
+Embora o modelo construído atenda integralmente aos requisitos teóricos até a FNBC, na prática de modelagem de bancos de dados relacionais e no desenvolvimento de software, adota-se comumente o uso de \textbf{chaves primárias artificiais} (IDs numéricos e autoincrementais) para entidades cujos atributos naturais podem sofrer alterações. 
+
+Essa prática visa identificar cada registro de forma única e imutável, simplificando os relacionamentos (\textit{Foreign Keys}) e protegendo o modelo contra mudanças nas regras de negócio externas (como a alteração no formato de um ISBN). Contudo, atributos naturais que já possuem controle interno estrito pelo próprio sistema ou instituição, como a \texttt{Matricula\_Aluno}, atuam de forma excelente como chaves primárias, dispensando a criação de IDs redundantes.
+
+Além disso, embora a extração do atributo \texttt{Categoria} não seja uma exigência da 3FN ou FNBC (pois este depende exclusivamente da chave do livro), separá-lo em uma tabela própria (conhecida como Tabela de Domínio ou \textit{Lookup Table}) é altamente recomendado. Isso garante a integridade de domínio, evitando anomalias de inserção causadas por digitação inconsistente (ex: "TI", "T.I." e "Tecnologia") e centralizando as opções disponíveis no sistema.
+
+Abaixo, apresenta-se o modelo final do banco de dados da biblioteca universitária, aplicando as chaves artificiais onde necessário, mantendo a chave natural controlada para os alunos, e isolando a categoria:
+
+\vspace{0.4cm}
+
+\centering
+\renewcommand{\arraystretch}{1.2}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{\underline{Matricula\_Aluno}} & Nome\_Aluno & Curso \\ \hline
+101 & João & Eng. de Software \\ \hline
+102 & Maria & Direito \\ \hline
+\end{tabular}
+\end{adjustbox}
+
+\vspace{0.3cm}
+\captionof{table}{Tabela ALUNO mantendo a Matrícula como chave primária natural controlada.}
+
+\vspace{0.5cm}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|}
+\hline
+\textbf{\underline{ID\_Categoria}} & Nome\_Categoria \\ \hline
+1 & TI \\ \hline
+2 & Jurídico \\ \hline
+\end{tabular}
+\end{adjustbox}
+
+\vspace{0.3cm}
+\captionof{table}{Tabela CATEGORIA (Tabela de Domínio).}
+
+\vspace{0.5cm}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{\underline{ID\_Editora}} & Codigo\_Editora & Nome\_Editora \\ \hline
+1 & E1 & Atlas \\ \hline
+2 & E2 & Pearson \\ \hline
+3 & E3 & Saraiva \\ \hline
+\end{tabular}
+\end{adjustbox}
+
+\vspace{0.3cm}
+\captionof{table}{Tabela EDITORA.}
+
+\vspace{0.5cm}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\underline{ID\_Livro}} & ISBN\_Livro & Titulo\_Livro & ID\_Editora (FK) & ID\_Categoria (FK) \\ \hline
+1 & L1 & Banco de Dados & 1 & 1 \\ \hline
+2 & L2 & Redes & 2 & 1 \\ \hline
+3 & L3 & Direito Civil & 3 & 2 \\ \hline
+\end{tabular}
+\end{adjustbox}
+
+\vspace{0.3cm}
+\captionof{table}{Tabela LIVRO referenciando Editora e Categoria via IDs.}
+
+\vspace{0.5cm}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{\underline{ID\_Emprestimo}} & Matricula\_Aluno (FK) & Data\_Emprestimo & Data\_Devolucao\_Prevista \\ \hline
+1 & 101 & 01/03 & 10/03 \\ \hline
+2 & 102 & 02/03 & 12/03 \\ \hline
+\end{tabular}
+\end{adjustbox}
+
+\vspace{0.3cm}
+\captionof{table}{Tabela EMPRESTIMO com chave artificial única e referenciando a Matrícula.}
+
+\vspace{0.5cm}
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|c|c|}
+\hline
+\textbf{\underline{ID\_Emprestimo (FK)}} & \textbf{\underline{ID\_Livro (FK)}} \\ \hline
+1 & 1 \\ \hline
+1 & 2 \\ \hline
+2 & 3 \\ \hline
+\end{tabular}
+\end{adjustbox}
+
+\vspace{0.3cm}
+\captionof{table}{Tabela associativa ITEM\_EMPRESTIMO simplificada pelas chaves artificiais e de empréstimo.}
+
+\vspace{0.4cm}
+
+\justify
+
+Com essa estrutura final, o modelo ganha resiliência, organização e obedece rigorosamente aos padrões de qualidade para o desenvolvimento de sistemas comerciais modernos.
+
+\section{Exercícios Propostos}
+Abaixo temos uma visão geral de informações mantidas, tradicionalmente em Excel, pela coordenação de estágios de um instituto universitário. Uma mesma empresa fornecedora de estágio pode ofertar vagas com orientadores distintos.
+
+\textbf{Planilha de Estágio}:
+(CNPJ\_Empresa, Nome\_Empresa, Endereco\_Empresa, Matrícula\_Aluno, Nome\_Aluno, Curso\_Aluno, Id\_Orientador, Nome\_Orientador, Titulacao\_Orientador, Data\_Inicio\_Estagio, Horas\_Mensais)
+
+\textbf{Questão 1:} Descreva, com um exemplo em papel, quais tipos de Anomalia de Atualização e Anomalia de Exclusão poderiam ocorrer exatamente devido à estrutura acima, caso a empresa precisasse mudar de endereço em São Paulo.
+
+\textbf{Questão 2:} Identifique os Grupos Repetitivos e liste qual seria a chave candidata composta ideal para normalizar o formulário diretamente para a sua Primeira Forma Normal (1FN). Apresente o resultado.
+
+\textbf{Questão 3:} Conduza os dados gerados da 1FN aos moldes da Segunda Forma Normal (2FN). Quantas e quais tabelas resultaram deste processo de eliminação de dependências funcionais parciais? Elenque as chaves de tabela (PK e FK).
+
+\textbf{Questão 4:} Prossiga com as tabelas geradas na Questão 3 e promova o projeto à sua Terceira Forma Normal (3FN), removendo quaisquer dependências transitivas. Especifique com clareza quais tabelas extras surgiram para alocar a entidade responsável. O seu Diagrama Final representará de fato uma modelagem íntegra e sem distorções operacionais.
+
+\vspace{0.5cm}
+
+\textit{Conclusão: A proficiência no uso da normalização de dados separará engenheiros medianos de profissionais capazes de escalar, modernizar ou remodelar enormes cargas de responsabilidade estrutural. Lembre-se, normalizar primeiro e desnormalizar na arquitetura, sempre quando necessário.}
