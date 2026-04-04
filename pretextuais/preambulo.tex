@@ -20,6 +20,11 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{ragged2e}
+\usepackage{longtable}
+
+\usepackage{comment}
+\usetikzlibrary{shapes.symbols, shapes.geometric, arrows.meta, positioning}
+
 % =======================
 % Cores personalizadas
 % =======================
@@ -75,6 +80,7 @@
     minted language=sql,
     colback=bgsql,
     colframe=verdeuni,
+    breakable,                  % permite quebrar páginas
     listing only,               % só mostra código
     title=SQL,                  % título visível
     fonttitle=\bfseries\color{white},
