@@ -7,21 +7,28 @@
 \usepackage[brazilian]{babel}
 \usepackage{amsmath,amssymb}
 \usepackage{geometry}
-\geometry{a4paper, top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
-
+\geometry{
+    a4paper, 
+    top=3.0cm,    % Aumentei um pouco para caber o cabeçalho de 3 linhas
+    bottom=2.5cm, 
+    left=2.5cm, 
+    right=2.5cm,
+    headheight=46pt % Valor corrigido para eliminar o aviso do fancyhdr
+}
 \usepackage{graphicx}    % Para inserir logo/imagens
 \usepackage{adjustbox}   % Para ajustar tabelas
 \usepackage{xcolor}      % Cores
 \usepackage{hyperref}    % Links clicáveis
 \usepackage{minted}      % Código com destaque (compilar com -shell-escape)
-\usepackage[most]{tcolorbox}\usepackage{titlesec}    % Para customizar títulos
+\usepackage[most]{tcolorbox}
+\usepackage{titlesec}    % Para customizar títulos
 \usepackage{fancyhdr}    % Cabeçalho e rodapé
 \usepackage{tikz}        % Para desenhar capa com moldura colorida
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{ragged2e}
 \usepackage{longtable}
-
+\usetikzlibrary{matrix}
 \usepackage{comment}
 \usetikzlibrary{shapes.symbols, shapes.geometric, arrows.meta, positioning}
 
@@ -31,8 +38,8 @@
 \definecolor{verdeuni}{RGB}{0,70,40} % Verde do logo UniRV
 \definecolor{bgsql}{rgb}{0.95,0.95,0.95}
 % FIX: Para o erro do fancyhdr headheight
-\setlength{\headheight}{26pt} 
-\addtolength{\topmargin}{-1.5pt}
+\setlength{\headheight}{46pt} 
+\addtolength{\topmargin}{-20pt}
 % =======================
 % Cabeçalho e rodapé
 % =======================
@@ -133,8 +140,34 @@
   bottom=6pt
 }
 
- \usepackage[most]{tcolorbox}
-\usepackage{ragged2e}
+\newtcolorbox{quadro_dica}{
+    colback=blue!5,
+    colframe=blue!50!black,
+    title=Dica/Curiosidade,
+    fonttitle=\bfseries,
+    arc=2mm,
+    breakable,
+    left=4mm,
+    right=4mm,
+    top=3mm,
+    bottom=3mm
+}
+
+\newtcolorbox{danger}{
+    colback=red!5,
+    colframe=red!75!black,
+    title=Cuidado / Erro Comum,
+    fonttitle=\bfseries,
+    arc=2mm,
+    breakable,
+    left=4mm,
+    right=4mm,
+    top=3mm,
+    bottom=3mm
+}
+
+ 
+
 
 \newtcolorbox{authorcard}{
   colback=white,

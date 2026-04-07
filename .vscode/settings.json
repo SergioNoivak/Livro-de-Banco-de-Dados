@@ -1,7 +1,16 @@
 {
+    "latex-workshop.formatting.latex": "latexindent",
+    "latex-workshop.formatting.latexindent.args": [
+        "-c",
+        "%DIR%/",
+        "%ITMP_DEFAULTS%",
+        "-m"
+    ],
     "[latex]": {
+        "editor.formatOnSave": true,
         "editor.wordWrap": "wordWrapColumn",
-        "editor.wordWrapColumn": 100
+        "editor.wordWrapColumn": 100,
+        "editor.defaultFormatter": "James-Yu.latex-workshop"
     },
     "[tex]": {
         "editor.wordWrap": "wordWrapColumn",
@@ -13,13 +22,12 @@
             "name": "pdflatex",
             "command": "pdflatex",
             "args": [
+                "-shell-escape",
                 "-synctex=1",
                 "-interaction=nonstopmode",
                 "-file-line-error",
-                "-shell-escape",
                 "%DOC%"
-            ],
-            "env": {}
+            ]
         },
         {
             "name": "latexmk",
@@ -30,10 +38,22 @@
                 "-file-line-error",
                 "-pdf",
                 "-outdir=%OUTDIR%",
-                "-shell-escape",
                 "%DOC%"
-            ],
-            "env": {}
+            ]
+        }
+    ],
+    "latex-workshop.latex.recipes": [
+        {
+            "name": "pdflatex",
+            "tools": [
+                "pdflatex"
+            ]
+        },
+        {
+            "name": "latexmk",
+            "tools": [
+                "latexmk"
+            ]
         }
     ]
 }

@@ -1,0 +1,368 @@
+\chapter{Modelo Lógico e Relacional}
+
+Imagine que você já desenhou o mapa da sua casa (Modelo Conceitual/DER), definindo onde ficam os quartos e a sala. Agora, é hora de criar a \textbf{planta técnica}: definir o material das paredes, a fiação e o encanamento. No banco de dados, essa etapa é o \textbf{Modelo Lógico}.
+
+O objetivo aqui é transformar aquelas figuras (elipses e retângulos) em algo que o computador entenda: \textbf{Tabelas}. O Modelo Lógico é o guia final para o desenvolvedor e para o Administrador de Banco de Dados (DBA).
+
+\section{Fundamentos do Projeto Lógico}
+
+O projeto lógico é a ponte entre a ideia (conceitual) e a prática (física). Ele descreve exatamente como as informações serão organizadas, sem ainda se preocupar com qual software (MySQL, Oracle, etc.) será usado.
+
+\subsection{História: A Revolução de Edgar F. Codd}
+
+Até 1970, os bancos de dados eram bagunçados e difíceis de manter. Tudo mudou quando \textbf{Edgar Frank Codd}, um pesquisador da IBM, publicou um artigo revolucionário propondo o \textbf{Modelo Relacional}. Codd sugeriu que os dados deveriam ser vistos como "relações" (tabelas) matemáticas. Para garantir que um banco de dados fosse realmente "relacional", ele criou as famosas \textbf{12 Regras de Codd}. 
+
+\begin{quadro_dica}
+\textbf{Curiosidade:} Embora sejam chamadas de 12 regras, na verdade são 13 (numeradas de 0 a 12). A "Regra 0" diz que para ser relacional, o sistema deve gerenciar o banco de dados inteiramente pelas suas capacidades relacionais.
+\end{quadro_dica}
+
+\section{O Coração do Modelo: As Tabelas}
+
+No modelo relacional, \textbf{tudo é tabela}. Se você tem um dado, ele deve estar dentro de uma célula de uma tabela.
+
+\subsection{Estrutura de uma Tabela (Relação)}
+
+Uma tabela é composta por dois elementos principais que você já conhece:
+\begin{itemize}
+    \item \textbf{Tuplas (Linhas)}: Representam cada registro individual. Exemplo: os dados do "Aluno João".
+    \item \textbf{Atributos (Colunas)}: Representam as características (ex: ``Nome'', ``CPF'', ``Nascimento'').
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        node distance=0cm,
+        table/.style={matrix of nodes, nodes={draw, minimum width=2.5cm, minimum height=0.8cm, align=center, fill=white}, column 1/.style={nodes={fill=black!10, font=\bfseries}}, row 1/.style={nodes={fill=blue!20, font=\bfseries}}}
+    ]
+    \matrix (mat) [table] {
+        ID & Nome & Cidade \\
+        1 & Ana & Rio Verde \\
+        2 & Beto & Jataí \\
+        3 & Caio & Goiânia \\
+    };
+    
+    \node[above=0.2cm of mat] {\textbf{Exemplo de Tabela (Relação)}};
+    
+    % Seta apontando para coluna
+    \draw[stealth-](mat-1-2.north) -- ++(0,0.5) node[above]{Atributo (Coluna)};
+    
+    % Seta apontando para linha
+    \draw[stealth-](mat-3-1.west) -- ++(-0.5,0) node[left]{Tupla (Linha)};
+    \end{tikzpicture}
+    \caption{Visualização básica de uma tabela no modelo relacional.}
+\end{figure}
+
+\subsection{As 3 Propriedades de Ouro}
+
+Para que uma tabela seja válida no modelo lógico, ela deve seguir estas regras:
+
+\begin{enumerate}
+    \item \textbf{Não importa a ordem}: Não faz diferença se o João é a primeira ou a última linha da tabela. O que importa é que o dado está lá.
+    \item \textbf{Diga não à repetição}: Não podem existir duas linhas exatamente iguais em uma tabela. Cada registro deve ser único (veremos como garantir isso com Chaves).
+    \item \textbf{Valores Atômicos}: Esta é a regra mais importante! Cada célula da tabela deve conter apenas um valor indivisível .
+\end{enumerate}
+
+\begin{danger}
+\textbf{Erro comum:} Colocar dois números de telefone no mesmo campo separado por vírgula. Isso quebra a regra da atomicidade e dificulta muito a busca por dados depois!
+\end{danger}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        scale=0.8,
+        estilo_errado/.style={matrix of nodes, nodes={draw, minimum width=3cm, minimum height=0.7cm, align=center}, row 1/.style={nodes={fill=red!20, font=\bfseries}}},
+        estilo_correto/.style={matrix of nodes, nodes={draw, minimum width=3cm, minimum height=0.7cm, align=center}, row 1/.style={nodes={fill=green!20, font=\bfseries}}}
+    ]
+    
+    \matrix (m1) [estilo_errado] {
+        Nome & Telefones (ERRADO) \\
+        José & 9999-1111, 8888-2222 \\
+    };
+    \node[above=0.2cm of m1] {Violação da Atomicidade};
+    
+    \matrix (m2) [estilo_correto, below=1.5cm of m1] {
+        Nome & Telefone (CORRETO) \\
+        José & 9999-1111 \\
+        José & 8888-2222 \\
+    };
+    \node[above=0.2cm of m2] {Forma Atômica};
+    
+    \draw[->, ultra thick, blue!50] (m1.south) -- (m2.north) node[midway, right]{Corre\c{c}\~{a}o};
+    \end{tikzpicture}
+    \caption{Exemplo de como transformar valores não-atômicos em atômicos.}
+\end{figure}
+
+% -------------------------------------------------
+\section{Tipos de Chaves: Os Identificadores}
+% -------------------------------------------------
+
+Como vimos, não podem existir linhas repetidas. Para garantir isso, usamos as \textbf{Chaves}. Elas são como o CPF de uma pessoa: algo que não muda e que é único.
+
+\subsection{Chave Primária (Primary Key - PK)}
+
+É a chave "oficial" da tabela. Toda tabela \textbf{precisa} ter uma (e apenas uma) chave primária.
+\begin{itemize}
+    \item \textbf{Não aceita repetição}: Se o ID 1 já existe, ninguém mais pode ser o ID 1.
+    \item \textbf{Não aceita vazio (NULL)}: O campo da PK nunca pode estar em branco.
+\end{itemize}
+
+\subsection{Chaves Candidatas e Alternativas}
+
+Às vezes, uma tabela tem vários campos que poderiam ser a PK. Por exemplo, na tabela \texttt{Usuario}, tanto o \texttt{Email} quanto o \texttt{CPF} são únicos.
+\begin{itemize}
+    \item \textbf{Chaves Candidatas}: São todas as opções que podem ser PK.
+    \item \textbf{Chave Alternativa}: É aquela que sobraram depois que escolhemos a PK oficial.
+\end{itemize}
+
+\subsection{Chave Estrangeira (Foreign Key - FK)}
+
+Esta é a chave que faz a "mágica" do relacionamento acontecer. Ela é um campo em uma tabela que aponta para a Chave Primária de outra  tabela.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        table/.style={matrix of nodes, nodes={draw, minimum width=2.5cm, minimum height=0.7cm, align=center, fill=white}, row 1/.style={nodes={fill=black!10, font=\bfseries}}}
+    ]
+    
+    \matrix (departamento) [table] {
+        \underline{ID\_Dept} & Nome\_Dept \\
+        10 & TI \\
+        20 & RH \\
+    };
+    \node[above=0.2cm of departamento] {\textbf{Tabela Departamento (Pai)}};
+    
+    \matrix (funcionario) [table, below=2cm of departamento] {
+        ID\_Func & Nome & FK\_Dept \\
+        101 & Carlos & 10 \\
+        102 & Maria & 20 \\
+        103 & José & 10 \\
+    };
+    \node[above=0.2cm of funcionario] {\textbf{Tabela Funcionário (Filho)}};
+    
+    % Seta da FK para a PK
+    \draw[->, ultra thick, red!60, bend right=45] (funcionario-2-3.east) to node[midway, right]{Referência} (departamento-2-1.east);
+    \draw[->, ultra thick, red!60, bend right=45] (funcionario-3-3.east) to (departamento-3-1.east);
+    \end{tikzpicture}
+    \caption{A Chave Estrangeira (FK\_Dept) ligando o funcionário ao seu departamento.}
+\end{figure}
+
+% -------------------------------------------------
+\section{Restrições de Integridade: As Regras do Jogo}
+% -------------------------------------------------
+
+Para o banco de dados não virar um caos, o SGBD aplica regras automáticas chamadas \textbf{Restrições de Integridade}.
+
+\begin{enumerate}
+    \item \textbf{Integridade de Domínio}: Garante que o valor digitado faz sentido. Exênto: Se o campo é "Idade", você não pode digitar "Banana".
+    \item \textbf{Integridade de Vazio (NOT NULL)}: Define se um campo pode ou não ficar em branco. O Nome de um cliente deve ser obrigatório, mas o Complemento do endereço pode ser opcional.
+    \item \textbf{Integridade de Entidade}: É a regra que diz que a Chave Primária não pode ser nula e deve ser única.
+    \item \textbf{Integridade Referencial}: Esta é crucial! Ela diz que você não pode ter uma Chave Estrangeira apontando para um lugar que não existe.
+\end{enumerate}
+
+\begin{quadro_dica}
+\textbf{Exemplo de Integridade Referencial:} Se você tem um funcionário no Departamento 10, você não pode apagar o Departamento 10 da lista de departamentos sem antes decidir o que fazer com aquele funcionário.
+\end{quadro_dica}
+
+% -------------------------------------------------
+\section{Fundamentos da Álgebra Relacional}
+% -------------------------------------------------
+
+Para manipular as tabelas que criamos, o modelo relacional utiliza uma linguagem matemática chamada \textbf{Álgebra Relacional}. Não se assuste com o nome! Ela apenas define operações básicas para consultar dados.
+
+As três operações mais importantes que você verá depois no SQL são:
+
+\begin{enumerate}
+    \item \textbf{Seleção ($\sigma$)}: Filtra as \textbf{linhas} (tuplas). Exemplo: "Selecione apenas os alunos de Rio Verde".
+    \item \textbf{Projeção ($\pi$)}: Filtra as \textbf{colunas} (atributos). Exemplo: "Mostre apenas o Nome e o Email de todos".
+    \item \textbf{Junção ($\bowtie$)}: Conecta duas tabelas através de suas chaves (PK e FK).
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        table/.style={matrix of nodes, nodes={draw, minimum width=2cm, minimum height=0.6cm, align=center, fill=white}, row 1/.style={nodes={fill=black!10, font=\bfseries}}}
+    ]
+    \matrix (origem) [table] {
+        ID & Nome & Cidade \\
+        1 & Ana & RV \\
+        2 & Beto & GO \\
+        3 & Caio & RV \\
+    };
+    \node[above=0.2cm of origem] {Tabela Original};
+
+    \matrix (selecao) [table, right=2cm of origem] {
+        ID & Nome & Cidade \\
+        1 & Ana & RV \\
+        3 & Caio & RV \\
+    };
+    \node[above=0.2cm of selecao] {Seleção (Cidade='RV')};
+    
+    \draw[->, thick] (origem) -- (selecao);
+    \end{tikzpicture}
+    \caption{Operação de Seleção filtrando apenas as linhas desejadas.}
+\end{figure}
+\section{As 12 Regras de Codd}
+
+As 12 Regras de Codd foram propostas por Edgar F. Codd com o objetivo de definir o que realmente caracteriza um Sistema Gerenciador de Banco de Dados Relacional (SGBDR). Essas regras funcionam como um conjunto de critérios teóricos que garantem consistência, integridade e independência dos dados.
+
+A \textbf{Regra 1, conhecida como Regra da Informação}, estabelece que todos os dados devem ser representados exclusivamente na forma de valores em tabelas. Isso significa que não deve existir armazenamento de dados fora dessa estrutura, como arquivos paralelos ou formatos proprietários ocultos.
+
+A \textbf{Regra 2, chamada de Acesso Garantido}, afirma que qualquer dado armazenado deve ser acessível de forma única por meio da combinação do nome da tabela, da chave primária da linha e do nome da coluna. Essa regra garante precisão e elimina ambiguidades no acesso aos dados.
+
+A \textbf{Regra 3 trata do Tratamento Sistemático de Valores Nulos}. O sistema deve oferecer suporte adequado para valores nulos, que representam ausência de informação. Esses valores devem ser tratados de forma distinta de zero, espaços em branco ou quaisquer outros valores válidos.
+
+A \textbf{Regra 4, conhecida como Catálogo Dinâmico Online}, determina que a estrutura do banco de dados (metadados) deve ser armazenada como tabelas acessíveis aos usuários autorizados. Isso permite consultar a própria estrutura do banco utilizando a mesma linguagem usada para manipular dados.
+
+A \textbf{Regra 5 estabelece a Linguagem de Dados Abrangente}. O sistema deve suportar pelo menos uma linguagem relacional completa que permita definir, manipular, consultar, controlar acesso e gerenciar transações. Na prática, essa linguagem é o SQL.
+
+A \textbf{Regra 6, Atualização de Visões}, afirma que todas as visões (views) que sejam teoricamente atualizáveis devem permitir operações de inserção, alteração e exclusão, refletindo corretamente nas tabelas base.
+
+A \textbf{Regra 7 trata da Inserção, Atualização e Exclusão de Alto Nível}. O sistema deve permitir que essas operações sejam realizadas sobre conjuntos de dados (múltiplas linhas), e não apenas registro por registro, garantindo eficiência e aderência ao modelo relacional.
+
+A \textbf{Regra 8, Independência Física dos Dados}, estabelece que mudanças na forma de armazenamento físico (como índices ou organização em disco) não devem afetar o funcionamento das aplicações.
+
+A \textbf{Regra 9, Independência Lógica dos Dados}, afirma que alterações na estrutura lógica das tabelas (como adicionar colunas) não devem impactar aplicações já existentes, desde que não alterem os dados previamente utilizados.
+
+A \textbf{Regra 10 trata da Independência de Integridade}. As restrições de integridade devem ser definidas no próprio banco de dados, e não no código das aplicações, garantindo centralização e consistência das regras de negócio.
+
+A \textbf{Regra 11, Independência de Distribuição}, determina que o usuário não deve precisar saber se os dados estão distribuídos em diferentes locais ou servidores. O sistema deve ocultar essa complexidade.
+
+Por fim, a \textbf{Regra 12, Regra da Não Subversão}, afirma que não deve existir nenhum meio de acessar ou manipular dados que ignore as regras de integridade definidas no sistema. Ou seja, mesmo acessos de baixo nível devem respeitar todas as restrições do banco.
+
+Essas regras, embora teóricas e nem sempre completamente implementadas na prática, servem como base conceitual para entender o funcionamento e a qualidade de um sistema de banco de dados relacional.
+% -------------------------------------------------
+\section{Regras de Mapeamento: Do DER para as Tabelas}
+% -------------------------------------------------
+
+Após a construção do Diagrama Entidade-Relacionamento (DER), é necessário realizar sua transformação para o modelo lógico relacional, isto é, converter o diagrama em um conjunto de tabelas que possam ser implementadas em um sistema de banco de dados. Esse processo é conhecido como mapeamento do DER para o modelo relacional e segue um conjunto de regras bem definidas, cujo objetivo é preservar tanto a estrutura quanto os relacionamentos representados no modelo conceitual.
+
+A primeira regra trata das entidades simples. No DER, as entidades são representadas por retângulos e correspondem a objetos do mundo real, como Aluno, Cliente ou Produto. No modelo relacional, cada entidade é convertida diretamente em uma tabela. Os atributos da entidade tornam-se as colunas dessa tabela, e o atributo identificador — aquele que distingue unicamente cada ocorrência — passa a ser a chave primária. Por exemplo, uma entidade Aluno com atributos id\_aluno, nome e idade será transformada em uma tabela Aluno, onde id\_aluno é definido como chave primária. É importante garantir que toda tabela possua uma chave primária válida, ou seja, um atributo que seja único e não nulo, assegurando a integridade dos dados.
+
+A segunda regra aborda os atributos compostos. Um atributo composto é aquele que pode ser subdividido em partes menores com significado próprio. Um exemplo clássico é o atributo Endereço, que pode ser decomposto em rua, número, bairro, cidade e CEP. No modelo relacional, atributos compostos não devem ser mantidos como uma única coluna. Em vez disso, eles devem ser decompostos, e cada uma de suas partes deve ser representada como uma coluna individual na tabela. Dessa forma, o atributo agrupador deixa de existir no modelo lógico, permanecendo apenas seus componentes. Por exemplo, uma entidade Cliente que possui o atributo endereço será transformada em uma tabela onde aparecem diretamente os campos rua, número, bairro, cidade e CEP.
+
+Essa abordagem traz diversas vantagens. Primeiramente, ela facilita a realização de consultas mais específicas, como buscar todos os clientes de uma determinada cidade ou bairro. Além disso, evita ambiguidades no armazenamento dos dados e está alinhada com o princípio da atomicidade, que é um dos fundamentos da Primeira Forma Normal (1FN). Em termos práticos, sempre que um atributo puder ser dividido em partes menores que possuam significado independente, ele deve ser tratado como composto e decomposto no processo de mapeamento.
+\subsection{Atributos Multivalorados}
+
+Este caso é especial no modelo relacional. Um atributo multivalorado ocorre quando uma entidade pode possuir mais de um valor para o mesmo atributo, como por exemplo vários telefones ou vários e-mails associados a uma única pessoa.
+
+Entretanto, de acordo com o princípio da \textbf{Atomicidade} (Primeira Forma Normal - 1FN), cada célula de uma tabela deve conter apenas um único valor indivisível. Ou seja, não é permitido armazenar múltiplos valores em um mesmo campo.
+
+Para resolver esse problema, o atributo multivalorado deve ser transformado em uma nova tabela. Essa nova tabela geralmente contém:
+\begin{itemize}
+    \item Uma chave estrangeira referenciando a entidade original
+    \item O atributo multivalorado em si
+\end{itemize}
+
+Dessa forma, cada valor do atributo multivalorado passa a ocupar uma linha separada, garantindo a conformidade com as regras do modelo relacional e evitando redundâncias ou inconsistências nos dados.
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[scale=0.8]
+        % Antes: DER
+        \node[draw, rectangle, minimum width=2cm, minimum height=1cm, fill=blue!10] (e) at (0,0) {Pessoa};
+        \node[draw, ellipse, double, double distance=1pt, minimum width=1.5cm] (a) at (3,0) {Fone};
+        \draw (e) -- (a);
+        \node[above] at (1.5,1) {\textbf{Antes (DER)}};
+        
+        % Seta de conversão
+        \draw[->, ultra thick] (4.5,0) -- (6,0) node[midway, above]{Mapeia};
+        
+        % Depois: Tabelas
+        \node[draw, rectangle, fill=gray!20, minimum width=3cm] (t1) at (9,1.2) {Tabela Pessoa};
+        \node[draw, rectangle, minimum width=3cm] at (9,0.3) {\underline{id\_pessoa}, nome};
+        
+        \node[draw, rectangle, fill=gray!20, minimum width=3cm] (t2) at (9,-0.8) {Tabela Fone};
+        \node[draw, rectangle, minimum width=3cm] at (9,-1.6) {\underline{id\_pessoa}, \underline{fone}};
+    \end{tikzpicture}
+    \caption{Mapeamento de atributo multivalorado gerando uma nova tabela.}
+\end{figure}
+\subsection{Relacionamento 1:N (Um para Muitos)}
+
+O relacionamento do tipo \textbf{1:N (um para muitos)} é o mais comum em modelagem de dados. Ele ocorre quando uma única instância de uma entidade pode estar associada a várias instâncias de outra entidade, enquanto cada instância do lado ``N'' está associada a apenas uma instância do lado ``1''.
+
+\bigskip
+
+\textbf{Definição formal:}
+\begin{itemize}
+    \item Uma entidade do lado ``1'' pode se relacionar com várias entidades do lado ``N''.
+    \item Uma entidade do lado ``N'' se relaciona com apenas uma entidade do lado ``1''.
+\end{itemize}
+
+\bigskip
+
+\textbf{Regra de implementação no modelo relacional:}
+
+Para implementar esse tipo de relacionamento em um banco de dados relacional, aplica-se a seguinte regra:
+
+\begin{quote}
+A \textbf{Chave Primária (PK)} da entidade do lado ``1'' é adicionada na tabela da entidade do lado ``N'', tornando-se uma \textbf{Chave Estrangeira (FK)}.
+\end{quote}
+
+Essa chave estrangeira é responsável por estabelecer o vínculo entre as tabelas, garantindo a integridade referencial.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[scale=0.8]
+        % Antes: DER
+        \node[draw, rectangle] (e1) at (0,0) {Departamento};
+        \node[draw, diamond, aspect=2] (r) at (4,0) {Possui};
+        \node[draw, rectangle] (e2) at (8,0) {Funcionário};
+        \draw (e1) -- node[above]{1} (r) -- node[above]{N} (e2);
+        
+        % Depois: Tabelas (em estilo simplificado)
+        \node[draw, rectangle, fill=green!10, text width=5cm, align=left] at (4,-3.5) {
+            \textbf{Tabela Departamento}\\
+            \underline{id\_dept}, nome\_dept \\
+            \vspace{0.3cm}
+            \textbf{Tabela Funcionário}\\
+            \underline{id\_func}, nome, \textbf{fk\_dept} (Aponta p/ Dept)
+        };
+    \end{tikzpicture}
+    \caption{Mapeamento 1:N: a chave do "1" vira FK no lado "N".}
+\end{figure}
+
+\subsection{Relacionamento N:N (Muitos para Muitos)}
+
+Quando temos N:N, não podemos colocar a chave em nenhum dos lados originais sem quebrar regras. A solução é criar uma Tabela Associativa  (uma terceira tabela) para guardar as chaves dos dois lados.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[scale=0.8]
+        % Antes: DER
+        \node[draw, rectangle] (a) at (0,0) {Aluno};
+        \node[draw, diamond, aspect=2] (r) at (4,0) {Estuda};
+        \node[draw, rectangle] (d) at (8,0) {Disciplina};
+        \draw (a) -- node[above]{N} (r) -- node[above]{N} (d);
+        
+        % Depois: Tabelas
+        \node[draw, rectangle, fill=yellow!10, text width=6cm, align=left] at (4,-3.5) {
+            \textbf{Tabela Aluno}: \underline{id\_aluno}, nome\\
+            \textbf{Tabela Disciplina}: \underline{id\_disc}, nome\_disc\\
+            \textbf{Tabela Aluno\_Disciplina} (Nova):\\
+            \underline{id\_aluno} (FK), \underline{id\_disc} (FK)
+        };
+    \end{tikzpicture}
+    \caption{Mapeamento N:N gerando uma tabela intermediária.}
+\end{figure}
+
+\subsection{Entidades Fracas}
+
+A entidade fraca vira uma tabela, mas sua Chave Primária será Composta : a junção da chave da entidade forte com o seu próprio identificador parcial.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[scale=0.8]
+        % Antes: DER
+        \node[draw, rectangle] (f) at (0,0) {Funcionário};
+        \node[draw, diamond, double, double distance=1pt, aspect=2] (r) at (4,0) {Tem};
+        \node[draw, rectangle, double, double distance=1pt] (d) at (8,0) {Dependente};
+        \draw (f) -- node[above]{1} (r) -- node[above]{N} (d);
+        
+        % Tabelas
+        \node[draw, rectangle, fill=orange!10, text width=6cm, align=left] at (4,-3.5) {
+            \textbf{Tabela Funcionário}: \underline{id\_func}, nome\\
+            \textbf{Tabela Dependente}:\\
+            \underline{id\_func} (FK), \underline{nome\_dep}, parentesco
+        };
+    \end{tikzpicture}
+    \caption{Mapeamento de Entidade Fraca com PK Composta.}
+\end{figure}

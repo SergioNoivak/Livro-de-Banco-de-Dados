@@ -1,0 +1,547 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nty/global//global/global}
+    \entry{sequel}{inproceedings}{}
+      \name{editora}{1}{}{%
+        {{hash=a466783782bbb246d1f4a999cbdf9865}{%
+           family={Computing\bibnamedelima Machinery},
+           familyi={C\bibinitperiod\bibinitdelim M\bibinitperiod},
+           given={Association},
+           giveni={A\bibinitperiod},
+           prefix={for},
+           prefixi={f\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Nova York, NY, EUA}%
+      }
+      \strng{editorabibnamehash}{a466783782bbb246d1f4a999cbdf9865}
+      \strng{editoranamehash}{a466783782bbb246d1f4a999cbdf9865}
+      \strng{editorafullhash}{a466783782bbb246d1f4a999cbdf9865}
+      \field{sortinit}{0}
+      \field{sortinithash}{c5602f03f17cc894ea7a6362c3cb0e13}
+      \field{booktitle}{Anais do Workshop ACM SIGFIDET (agora SIGMOD) de 1974 sobre Descrição, Acesso e Controle de Dados}
+      \field{isbn}{9781450374156}
+      \field{pages}{249\bibrangedash 264}
+      \range{pages}{16}
+      \verb{doi}
+      \verb 10.1145/800296.811515
+      \endverb
+    \endentry
+    \entry{angelotti2010banco}{book}{}
+      \name{author}{1}{}{%
+        {{hash=30e383360c32e43759ad975676b88423}{%
+           family={Angelotti},
+           familyi={A\bibinitperiod},
+           given={Elaini\bibnamedelima Simoni},
+           giveni={E\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Curitiba}%
+      }
+      \list{publisher}{1}{%
+        {Editora do Livro Técnico}%
+      }
+      \strng{namehash}{30e383360c32e43759ad975676b88423}
+      \strng{fullhash}{30e383360c32e43759ad975676b88423}
+      \strng{bibnamehash}{30e383360c32e43759ad975676b88423}
+      \strng{authorbibnamehash}{30e383360c32e43759ad975676b88423}
+      \strng{authornamehash}{30e383360c32e43759ad975676b88423}
+      \strng{authorfullhash}{30e383360c32e43759ad975676b88423}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{isbn}{978-85-63687-02-9}
+      \field{title}{Banco de dados}
+      \field{year}{2010}
+      \field{pages}{120}
+      \range{pages}{1}
+    \endentry
+    \entry{chamberlin2012early}{article}{}
+      \name{author}{1}{}{%
+        {{hash=0d8010431671d34bdbf3a655683bb50c}{%
+           family={Chamberlin},
+           familyi={C\bibinitperiod},
+           given={Donald\bibnamedelima D.},
+           giveni={D\bibinitperiod\bibinitdelim D\bibinitperiod}}}%
+      }
+      \strng{namehash}{0d8010431671d34bdbf3a655683bb50c}
+      \strng{fullhash}{0d8010431671d34bdbf3a655683bb50c}
+      \strng{bibnamehash}{0d8010431671d34bdbf3a655683bb50c}
+      \strng{authorbibnamehash}{0d8010431671d34bdbf3a655683bb50c}
+      \strng{authornamehash}{0d8010431671d34bdbf3a655683bb50c}
+      \strng{authorfullhash}{0d8010431671d34bdbf3a655683bb50c}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Annals of the History of Computing}
+      \field{number}{4}
+      \field{title}{Early History of SQL}
+      \field{volume}{34}
+      \field{year}{2012}
+      \field{pages}{78\bibrangedash 82}
+      \range{pages}{5}
+      \verb{doi}
+      \verb 10.1109/MAHC.2012.61
+      \endverb
+    \endentry
+    \entry{codd1972recent}{inproceedings}{}
+      \name{author}{1}{}{%
+        {{hash=575e6ec8dab1a34c19f7021664baaccc}{%
+           family={Codd},
+           familyi={C\bibinitperiod},
+           given={E.\bibnamedelimi F.},
+           giveni={E\bibinitperiod\bibinitdelim F\bibinitperiod}}}%
+      }
+      \strng{namehash}{575e6ec8dab1a34c19f7021664baaccc}
+      \strng{fullhash}{575e6ec8dab1a34c19f7021664baaccc}
+      \strng{bibnamehash}{575e6ec8dab1a34c19f7021664baaccc}
+      \strng{authorbibnamehash}{575e6ec8dab1a34c19f7021664baaccc}
+      \strng{authornamehash}{575e6ec8dab1a34c19f7021664baaccc}
+      \strng{authorfullhash}{575e6ec8dab1a34c19f7021664baaccc}
+      \field{extraname}{1}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the IFIP Congress 1974}
+      \field{title}{Recent Investigations into Relational Data Base Systems}
+      \field{year}{1974}
+      \field{pages}{1017\bibrangedash 1021}
+      \range{pages}{5}
+    \endentry
+    \entry{codd1970relational}{article}{}
+      \name{author}{1}{}{%
+        {{hash=c552998e91db89e2df26934a1818d37f}{%
+           family={Codd},
+           familyi={C\bibinitperiod},
+           given={Edgar\bibnamedelima F.},
+           giveni={E\bibinitperiod\bibinitdelim F\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Association for Computing Machinery}%
+      }
+      \strng{namehash}{c552998e91db89e2df26934a1818d37f}
+      \strng{fullhash}{c552998e91db89e2df26934a1818d37f}
+      \strng{bibnamehash}{c552998e91db89e2df26934a1818d37f}
+      \strng{authorbibnamehash}{c552998e91db89e2df26934a1818d37f}
+      \strng{authornamehash}{c552998e91db89e2df26934a1818d37f}
+      \strng{authorfullhash}{c552998e91db89e2df26934a1818d37f}
+      \field{extraname}{2}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Communications of the ACM}
+      \field{number}{6}
+      \field{title}{A Relational Model of Data for Large Shared Data Banks}
+      \field{volume}{13}
+      \field{year}{1970}
+      \field{pages}{377\bibrangedash 387}
+      \range{pages}{11}
+      \verb{doi}
+      \verb 10.1145/362384.362685
+      \endverb
+    \endentry
+    \entry{codd1971normalization}{report}{}
+      \name{author}{1}{}{%
+        {{hash=c552998e91db89e2df26934a1818d37f}{%
+           family={Codd},
+           familyi={C\bibinitperiod},
+           given={Edgar\bibnamedelima F.},
+           giveni={E\bibinitperiod\bibinitdelim F\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {IBM Research Laboratory}%
+      }
+      \list{location}{1}{%
+        {San Jose, California}%
+      }
+      \strng{namehash}{c552998e91db89e2df26934a1818d37f}
+      \strng{fullhash}{c552998e91db89e2df26934a1818d37f}
+      \strng{bibnamehash}{c552998e91db89e2df26934a1818d37f}
+      \strng{authorbibnamehash}{c552998e91db89e2df26934a1818d37f}
+      \strng{authornamehash}{c552998e91db89e2df26934a1818d37f}
+      \strng{authorfullhash}{c552998e91db89e2df26934a1818d37f}
+      \field{extraname}{3}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{number}{RJ909}
+      \field{title}{Further Normalization of the Data Base Relational Model}
+      \field{type}{techreport}
+      \field{year}{1971}
+    \endentry
+    \entry{date2003introducao}{book}{}
+      \name{author}{1}{}{%
+        {{hash=c09e33f0c9dc5770fb91e75cdc21d569}{%
+           family={Date},
+           familyi={D\bibinitperiod},
+           given={C.\bibnamedelimi J.},
+           giveni={C\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+      }
+      \name{translator}{1}{}{%
+        {{hash=52b647ce35e6ac65c69dc5054cf3c01b}{%
+           family={Vieira},
+           familyi={V\bibinitperiod},
+           given={Daniel},
+           giveni={D\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Rio de Janeiro}%
+      }
+      \list{publisher}{1}{%
+        {Elsevier}%
+      }
+      \strng{namehash}{c09e33f0c9dc5770fb91e75cdc21d569}
+      \strng{fullhash}{c09e33f0c9dc5770fb91e75cdc21d569}
+      \strng{bibnamehash}{c09e33f0c9dc5770fb91e75cdc21d569}
+      \strng{authorbibnamehash}{c09e33f0c9dc5770fb91e75cdc21d569}
+      \strng{authornamehash}{c09e33f0c9dc5770fb91e75cdc21d569}
+      \strng{authorfullhash}{c09e33f0c9dc5770fb91e75cdc21d569}
+      \strng{translatorbibnamehash}{52b647ce35e6ac65c69dc5054cf3c01b}
+      \strng{translatornamehash}{52b647ce35e6ac65c69dc5054cf3c01b}
+      \strng{translatorfullhash}{52b647ce35e6ac65c69dc5054cf3c01b}
+      \field{sortinit}{D}
+      \field{sortinithash}{6f385f66841fb5e82009dc833c761848}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{isbn}{978-85-352-8445-4}
+      \field{note}{Tradução de: Introduction to Database Systems, 8th ed.}
+      \field{title}{Introdução a Sistemas de Banco de Dados}
+      \field{year}{2003}
+    \endentry
+    \entry{heath1971unacceptable}{inproceedings}{}
+      \name{author}{1}{}{%
+        {{hash=1ee0296995a98a0d85b46bc6422f1d0c}{%
+           family={Heath},
+           familyi={H\bibinitperiod},
+           given={I.\bibnamedelimi J.},
+           giveni={I\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {San Diego, California}%
+      }
+      \strng{namehash}{1ee0296995a98a0d85b46bc6422f1d0c}
+      \strng{fullhash}{1ee0296995a98a0d85b46bc6422f1d0c}
+      \strng{bibnamehash}{1ee0296995a98a0d85b46bc6422f1d0c}
+      \strng{authorbibnamehash}{1ee0296995a98a0d85b46bc6422f1d0c}
+      \strng{authornamehash}{1ee0296995a98a0d85b46bc6422f1d0c}
+      \strng{authorfullhash}{1ee0296995a98a0d85b46bc6422f1d0c}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the 1971 ACM SIGFIDET Workshop on Data Description, Access, and Control}
+      \field{month}{11}
+      \field{title}{Unacceptable File Operations in a Relational Database}
+      \field{year}{1971}
+    \endentry
+    \entry{kent1983simple}{article}{}
+      \name{author}{1}{}{%
+        {{hash=3218567708b7a236b519149892dd194e}{%
+           family={Kent},
+           familyi={K\bibinitperiod},
+           given={William},
+           giveni={W\bibinitperiod}}}%
+      }
+      \strng{namehash}{3218567708b7a236b519149892dd194e}
+      \strng{fullhash}{3218567708b7a236b519149892dd194e}
+      \strng{bibnamehash}{3218567708b7a236b519149892dd194e}
+      \strng{authorbibnamehash}{3218567708b7a236b519149892dd194e}
+      \strng{authornamehash}{3218567708b7a236b519149892dd194e}
+      \strng{authorfullhash}{3218567708b7a236b519149892dd194e}
+      \field{sortinit}{K}
+      \field{sortinithash}{c02bf6bff1c488450c352b40f5d853ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Communications of the ACM}
+      \field{month}{2}
+      \field{number}{2}
+      \field{title}{A Simple Guide to Five Normal Forms in Relational Database Theory}
+      \field{volume}{26}
+      \field{year}{1983}
+      \field{pages}{120\bibrangedash 125}
+      \range{pages}{6}
+      \verb{doi}
+      \verb 10.1145/358061.358064
+      \endverb
+    \endentry
+    \entry{oracle_sql_history}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=30162ed78b6c10f731411f2fc440c24f}{%
+           family={{Oracle}},
+           familyi={O\bibinitperiod}}}%
+      }
+      \strng{namehash}{30162ed78b6c10f731411f2fc440c24f}
+      \strng{fullhash}{30162ed78b6c10f731411f2fc440c24f}
+      \strng{bibnamehash}{30162ed78b6c10f731411f2fc440c24f}
+      \strng{authorbibnamehash}{30162ed78b6c10f731411f2fc440c24f}
+      \strng{authornamehash}{30162ed78b6c10f731411f2fc440c24f}
+      \strng{authorfullhash}{30162ed78b6c10f731411f2fc440c24f}
+      \field{sortinit}{O}
+      \field{sortinithash}{2cd7140a07aea5341f9e2771efe90aae}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/History-of-SQL.html}}
+      \field{note}{Acesso em: 2 abr. 2026}
+      \field{title}{History of SQL}
+      \field{year}{2025}
+    \endentry
+    \entry{postgresql_about}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=36423acfb135ffe286ea438eafcb0bc6}{%
+           family={{PostgreSQL Global Development Group}},
+           familyi={P\bibinitperiod}}}%
+      }
+      \strng{namehash}{36423acfb135ffe286ea438eafcb0bc6}
+      \strng{fullhash}{36423acfb135ffe286ea438eafcb0bc6}
+      \strng{bibnamehash}{36423acfb135ffe286ea438eafcb0bc6}
+      \strng{authorbibnamehash}{36423acfb135ffe286ea438eafcb0bc6}
+      \strng{authornamehash}{36423acfb135ffe286ea438eafcb0bc6}
+      \strng{authorfullhash}{36423acfb135ffe286ea438eafcb0bc6}
+      \field{extraname}{1}
+      \field{sortinit}{P}
+      \field{sortinithash}{ff3bcf24f47321b42cb156c2cc8a8422}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{About {PostgreSQL}}
+      \field{year}{2026}
+      \verb{urlraw}
+      \verb https://www.postgresql.org/about/
+      \endverb
+      \verb{url}
+      \verb https://www.postgresql.org/about/
+      \endverb
+      \warn{\item misc entry 'postgresql_about' (bibliografia/normalizacao.bib): Invalid format '04 abr. 2026' of date field 'urldate' - ignoring}
+    \endentry
+    \entry{postgresql_docs}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=36423acfb135ffe286ea438eafcb0bc6}{%
+           family={{PostgreSQL Global Development Group}},
+           familyi={P\bibinitperiod}}}%
+      }
+      \strng{namehash}{36423acfb135ffe286ea438eafcb0bc6}
+      \strng{fullhash}{36423acfb135ffe286ea438eafcb0bc6}
+      \strng{bibnamehash}{36423acfb135ffe286ea438eafcb0bc6}
+      \strng{authorbibnamehash}{36423acfb135ffe286ea438eafcb0bc6}
+      \strng{authornamehash}{36423acfb135ffe286ea438eafcb0bc6}
+      \strng{authorfullhash}{36423acfb135ffe286ea438eafcb0bc6}
+      \field{extraname}{2}
+      \field{sortinit}{P}
+      \field{sortinithash}{ff3bcf24f47321b42cb156c2cc8a8422}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{PostgreSQL} Documentation}
+      \field{year}{2026}
+      \verb{urlraw}
+      \verb https://www.postgresql.org/docs/
+      \endverb
+      \verb{url}
+      \verb https://www.postgresql.org/docs/
+      \endverb
+      \warn{\item misc entry 'postgresql_docs' (bibliografia/normalizacao.bib): Invalid format '04 abr. 2026' of date field 'urldate' - ignoring}
+    \endentry
+    \entry{ramakrishnan2011}{book}{}
+      \name{author}{2}{}{%
+        {{hash=5fd2a1e92f74585d94de45092d5794a5}{%
+           family={Ramakrishnan},
+           familyi={R\bibinitperiod},
+           given={Raghu},
+           giveni={R\bibinitperiod}}}%
+        {{hash=89173e109d33053942397c24c048f5c2}{%
+           family={Gehrke},
+           familyi={G\bibinitperiod},
+           given={Johannes},
+           giveni={J\bibinitperiod}}}%
+      }
+      \name{translator}{1}{}{%
+        {{hash=da29f5eee5e59c20b88914a8c4d1d618}{%
+           family={Taniawake},
+           familyi={T\bibinitperiod},
+           given={Célia},
+           giveni={C\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Porto Alegre}%
+      }
+      \list{publisher}{1}{%
+        {AMGH}%
+      }
+      \strng{namehash}{1a7cb1ad855b47feb3c17beac8da2feb}
+      \strng{fullhash}{1a7cb1ad855b47feb3c17beac8da2feb}
+      \strng{bibnamehash}{1a7cb1ad855b47feb3c17beac8da2feb}
+      \strng{authorbibnamehash}{1a7cb1ad855b47feb3c17beac8da2feb}
+      \strng{authornamehash}{1a7cb1ad855b47feb3c17beac8da2feb}
+      \strng{authorfullhash}{1a7cb1ad855b47feb3c17beac8da2feb}
+      \strng{translatorbibnamehash}{da29f5eee5e59c20b88914a8c4d1d618}
+      \strng{translatornamehash}{da29f5eee5e59c20b88914a8c4d1d618}
+      \strng{translatorfullhash}{da29f5eee5e59c20b88914a8c4d1d618}
+      \field{sortinit}{R}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{edition}{3}
+      \field{isbn}{978-85-63308-77-1}
+      \field{note}{Recurso eletrônico. Editado também como livro impresso em 2008}
+      \field{title}{Sistemas de Gerenciamento de Banco de Dados}
+      \field{year}{2011}
+    \endentry
+    \entry{ston87a}{inproceedings}{}
+      \name{author}{3}{}{%
+        {{hash=9a603143e19a2dddd58e683838417ea3}{%
+           family={Stonebraker},
+           familyi={S\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod}}}%
+        {{hash=f274c5f42daa8057d638ccf8f0c4564c}{%
+           family={Hanson},
+           familyi={H\bibinitperiod},
+           given={Eric},
+           giveni={E\bibinitperiod}}}%
+        {{hash=98940bcb8cb3dbddf56dbf59a370c07d}{%
+           family={Hong},
+           familyi={H\bibinitperiod},
+           given={C.\bibnamedelimi H.},
+           giveni={C\bibinitperiod\bibinitdelim H\bibinitperiod}}}%
+      }
+      \strng{namehash}{b43031547cc63673c4caaeeeecd11691}
+      \strng{fullhash}{b43031547cc63673c4caaeeeecd11691}
+      \strng{bibnamehash}{b43031547cc63673c4caaeeeecd11691}
+      \strng{authorbibnamehash}{b43031547cc63673c4caaeeeecd11691}
+      \strng{authornamehash}{b43031547cc63673c4caaeeeecd11691}
+      \strng{authorfullhash}{b43031547cc63673c4caaeeeecd11691}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the IEEE Conference on Data Engineering}
+      \field{month}{2}
+      \field{title}{The Design of the POSTGRES Rules System}
+      \field{year}{1987}
+    \endentry
+    \entry{ston86}{inproceedings}{}
+      \name{author}{2}{}{%
+        {{hash=9a603143e19a2dddd58e683838417ea3}{%
+           family={Stonebraker},
+           familyi={S\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod}}}%
+        {{hash=087921725ffc793b07acd9087a0fc24b}{%
+           family={Rowe},
+           familyi={R\bibinitperiod},
+           given={Lawrence\bibnamedelima A.},
+           giveni={L\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+      }
+      \strng{namehash}{ed8460e18ab7418c150d19db5644f29c}
+      \strng{fullhash}{ed8460e18ab7418c150d19db5644f29c}
+      \strng{bibnamehash}{ed8460e18ab7418c150d19db5644f29c}
+      \strng{authorbibnamehash}{ed8460e18ab7418c150d19db5644f29c}
+      \strng{authornamehash}{ed8460e18ab7418c150d19db5644f29c}
+      \strng{authorfullhash}{ed8460e18ab7418c150d19db5644f29c}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the ACM SIGMOD International Conference on Management of Data}
+      \field{month}{5}
+      \field{title}{The Design of POSTGRES}
+      \field{year}{1986}
+    \endentry
+    \entry{ston90a}{article}{}
+      \name{author}{3}{}{%
+        {{hash=9a603143e19a2dddd58e683838417ea3}{%
+           family={Stonebraker},
+           familyi={S\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod}}}%
+        {{hash=087921725ffc793b07acd9087a0fc24b}{%
+           family={Rowe},
+           familyi={R\bibinitperiod},
+           given={Lawrence\bibnamedelima A.},
+           giveni={L\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+        {{hash=fe552296c188c0baa097112fbbd135fb}{%
+           family={Hirohama},
+           familyi={H\bibinitperiod},
+           given={M.},
+           giveni={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{e6087b9f1a451ce7781084ef62732559}
+      \strng{fullhash}{e6087b9f1a451ce7781084ef62732559}
+      \strng{bibnamehash}{e6087b9f1a451ce7781084ef62732559}
+      \strng{authorbibnamehash}{e6087b9f1a451ce7781084ef62732559}
+      \strng{authornamehash}{e6087b9f1a451ce7781084ef62732559}
+      \strng{authorfullhash}{e6087b9f1a451ce7781084ef62732559}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Transactions on Knowledge and Data Engineering}
+      \field{month}{3}
+      \field{number}{1}
+      \field{title}{The Implementation of POSTGRES}
+      \field{volume}{2}
+      \field{year}{1990}
+    \endentry
+    \entry{ston90b}{inproceedings}{}
+      \name{author}{4}{}{%
+        {{hash=9a603143e19a2dddd58e683838417ea3}{%
+           family={Stonebraker},
+           familyi={S\bibinitperiod},
+           given={Michael},
+           giveni={M\bibinitperiod}}}%
+        {{hash=54437038d988e06800a5e1ae33b8a44a}{%
+           family={Jhingran},
+           familyi={J\bibinitperiod},
+           given={Anil},
+           giveni={A\bibinitperiod}}}%
+        {{hash=f3bb298e49b6d6c8b5c79d61ce34d33b}{%
+           family={Goh},
+           familyi={G\bibinitperiod},
+           given={Jeffrey},
+           giveni={J\bibinitperiod}}}%
+        {{hash=e94b71f8675269a94739a510058b2e32}{%
+           family={Potamianos},
+           familyi={P\bibinitperiod},
+           given={Spyros},
+           giveni={S\bibinitperiod}}}%
+      }
+      \strng{namehash}{b450100a596baed6e70153cc325cf953}
+      \strng{fullhash}{35e845cd0751bef1f21057ffaff8b34c}
+      \strng{bibnamehash}{b450100a596baed6e70153cc325cf953}
+      \strng{authorbibnamehash}{b450100a596baed6e70153cc325cf953}
+      \strng{authornamehash}{b450100a596baed6e70153cc325cf953}
+      \strng{authorfullhash}{35e845cd0751bef1f21057ffaff8b34c}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the ACM SIGMOD International Conference on Management of Data}
+      \field{month}{6}
+      \field{title}{On Rules, Procedures, Caching and Views in Database Systems}
+      \field{year}{1990}
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

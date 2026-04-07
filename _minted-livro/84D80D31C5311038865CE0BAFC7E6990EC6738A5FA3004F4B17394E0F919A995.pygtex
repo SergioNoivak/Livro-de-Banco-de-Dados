@@ -1,6 +1,12 @@
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{c+c1}{\PYGZhy{}\PYGZhy{} Consulta A: Contagem por grupo}
-\PYG{k}{SELECT}\PYG{+w}{ }\PYG{n}{ATIVO}\PYG{p}{,}\PYG{+w}{ }\PYG{k}{COUNT}\PYG{p}{(}\PYG{n}{ID}\PYG{p}{)}\PYG{+w}{ }\PYG{k}{AS}\PYG{+w}{ }\PYG{n}{TOTAL\PYGZus{}PESSOAS}
-\PYG{k}{FROM}\PYG{+w}{ }\PYG{n}{PESSOA}
-\PYG{k}{GROUP}\PYG{+w}{ }\PYG{k}{BY}\PYG{+w}{ }\PYG{n}{ATIVO}\PYG{p}{;}
+\PYG{k}{CREATE}\PYG{+w}{ }\PYG{k}{TABLE}\PYG{+w}{ }\PYG{n}{Clientes}\PYG{+w}{ }\PYG{p}{(}
+\PYG{+w}{    }\PYG{c+c1}{\PYGZhy{}\PYGZhy{} Identificador único do cliente (auto incremento). Não repete e não fica nulo}
+\PYG{+w}{    }\PYG{n}{id\PYGZus{}cliente}\PYG{+w}{ }\PYG{n+nb}{SERIAL}\PYG{+w}{ }\PYG{k}{PRIMARY}\PYG{+w}{ }\PYG{k}{KEY}\PYG{p}{,}
+
+\PYG{+w}{    }\PYG{c+c1}{\PYGZhy{}\PYGZhy{} Nome do cliente (pode ser nulo neste exemplo)}
+\PYG{+w}{    }\PYG{n}{nome\PYGZus{}cliente}\PYG{+w}{ }\PYG{n+nb}{VARCHAR}\PYG{p}{(}\PYG{l+m+mi}{100}\PYG{p}{),}
+
+\PYG{+w}{    }\PYG{c+c1}{\PYGZhy{}\PYGZhy{} Email do cliente (sem restrição de unicidade neste exemplo)}
+\PYG{+w}{    }\PYG{n}{email\PYGZus{}cliente}\PYG{+w}{ }\PYG{n+nb}{VARCHAR}\PYG{p}{(}\PYG{l+m+mi}{100}\PYG{p}{)}
+\PYG{p}{);}
 \end{Verbatim}

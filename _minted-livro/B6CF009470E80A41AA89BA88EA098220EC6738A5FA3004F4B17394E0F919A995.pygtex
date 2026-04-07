@@ -1,4 +1,5 @@
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k}{INSERT}\PYG{+w}{ }\PYG{k}{INTO}\PYG{+w}{ }\PYG{n}{nome\PYGZus{}da\PYGZus{}tabela}\PYG{+w}{ }\PYG{p}{(}\PYG{n}{coluna1}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{coluna2}\PYG{p}{,}\PYG{+w}{ }\PYG{p}{...)}
-\PYG{k}{VALUES}\PYG{+w}{ }\PYG{p}{(}\PYG{n}{valor1}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{valor2}\PYG{p}{,}\PYG{+w}{ }\PYG{p}{...);}
+\PYG{c+c1}{\PYGZhy{}\PYGZhy{} Aumentando as premissas de capacidade da coluna}
+\PYG{k}{ALTER}\PYG{+w}{ }\PYG{k}{TABLE}\PYG{+w}{ }\PYG{n}{Produtos}
+\PYG{k}{ALTER}\PYG{+w}{ }\PYG{k}{COLUMN}\PYG{+w}{ }\PYG{n}{nome\PYGZus{}produto}\PYG{+w}{ }\PYG{k}{TYPE}\PYG{+w}{ }\PYG{n+nb}{VARCHAR}\PYG{p}{(}\PYG{l+m+mi}{200}\PYG{p}{);}
 \end{Verbatim}
