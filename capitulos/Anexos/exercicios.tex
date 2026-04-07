@@ -13,3 +13,60 @@ Abaixo temos uma visão geral de informações mantidas, tradicionalmente em Exc
 \textbf{Questão 3:} Conduza os dados gerados da 1FN aos moldes da Segunda Forma Normal (2FN). Quantas e quais tabelas resultaram deste processo de eliminação de dependências funcionais parciais? Elenque as chaves de tabela (PK e FK).
 
 \textbf{Questão 4:} Prossiga com as tabelas geradas na Questão 3 e promova o projeto à sua Forma Normal de Boyce-Codd (FNBC), removendo quaisquer dependências transitivas. Especifique com clareza quais tabelas extras surgiram para alocar a entidade responsável. O seu Diagrama Final representará de fato uma modelagem íntegra e sem distorções operacionais.
+
+\section{Exercícios de DDL (Data Definition Language)}
+
+\subsection{Criação de Tabelas}
+\begin{enumerate}
+    \item Escreva o comando SQL para criar uma tabela \texttt{biblioteca} com as seguintes especificações:
+    \begin{itemize}
+        \item \texttt{id}: Inteiro, chave primária e autoincremento.
+        \item \texttt{nome\_livro}: Texto (limite de 150 caracteres), preenchimento obrigatório.
+        \item \texttt{ano\_lancamento}: Inteiro.
+        \item \texttt{disponivel}: Booleano, com valor padrão verdadeiro.
+    \end{itemize}
+
+    \item Crie uma tabela chamada \texttt{autor} contendo:
+    \begin{itemize}
+        \item \texttt{id\_autor}: Inteiro, chave primária e autoincremento.
+        \item \texttt{nome}: Texto (limite de 100 caracteres), preenchimento obrigatório.
+        \item \texttt{nacionalidade}: Texto (limite de 50 caracteres), com valor padrão Brasileiro.
+    \end{itemize}
+
+    \item Crie uma tabela chamada \texttt{editora} contendo:
+    \begin{itemize}
+        \item \texttt{id\_editora}: Inteiro, chave primária e autoincremento.
+        \item \texttt{nome\_fantasia}: Texto (limite de 100 caracteres), preenchimento obrigatório.
+    \end{itemize}
+
+    \item Crie uma tabela chamada \texttt{leitor} para registrar os usuários, contendo:
+    \begin{itemize}
+        \item \texttt{id\_leitor}: Inteiro, chave primária e autoincremento.
+        \item \texttt{nome\_completo}: Texto (limite de 150 caracteres), preenchimento obrigatório.
+        \item \texttt{data\_cadastro}: Data e hora, preenchimento obrigatório, com valor padrão a data e hora do sistema
+    \end{itemize}
+
+    \item Crie uma tabela de relacionamento chamada \texttt{emprestimo} contendo:
+    \begin{itemize}
+        \item \texttt{id\_emprestimo}: Inteiro, chave primária e autoincremento.
+        \item \texttt{id\_livro}: Inteiro, chave estrangeira referenciando a tabela \texttt{biblioteca}.
+        \item \texttt{id\_leitor}: Inteiro, chave estrangeira referenciando a tabela \texttt{leitor}.
+        \item \texttt{data\_retirada}: Data e hora, preenchimento obrigatório, com valor padrão a data e hora do sistema.
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Alteração de Tabelas (\texttt{ALTER TABLE})}
+\begin{enumerate}
+    \item Adicione à tabela \texttt{biblioteca} a coluna \texttt{isbn}, definindo o tipo de dado para aceitar exatamente 13 caracteres.
+    \item Modifique a coluna \texttt{nome\_livro} na tabela \texttt{biblioteca} para ampliar sua capacidade máxima para 250 caracteres.
+    \item Adicione uma coluna \texttt{id\_autor} na tabela \texttt{biblioteca} e configure-a como chave estrangeira (\texttt{FOREIGN KEY}) referenciando a tabela \texttt{autor}.
+    \item Adicione uma coluna \texttt{id\_editora} na tabela \texttt{biblioteca} e configure-a como chave estrangeira referenciando a tabela \texttt{editora}.
+    \item Remova a coluna \texttt{ano\_lancamento} da tabela \texttt{biblioteca}.
+\end{enumerate}
+
+\subsection{Restrições e Exclusão}
+\begin{enumerate}
+    \item Adicione uma restrição (\texttt{CONSTRAINT}) de unicidade (\texttt{UNIQUE}) à coluna \texttt{isbn} da tabela \texttt{biblioteca}.
+    \item Escreva o comando seguro para excluir a tabela \texttt{autor} garantindo que não ocorra erro caso ela não exista, mas não execute.
+    \item Qual seria o impacto de tentar executar o comando do exercício anterior se já existirem livros cadastrados na tabela \texttt{biblioteca} associados a esses autores?
+\end{enumerate}

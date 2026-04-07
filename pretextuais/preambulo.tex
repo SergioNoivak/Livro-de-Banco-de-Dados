@@ -171,13 +171,9 @@ keepaspectratio]{#1}
 % Bibliografia (BibLaTeX)
 % =======================
 \usepackage[
-    style=abnt, % Use ABNT style or authoryear for full references
+    style=abnt-numeric,
     backend=biber
 ]{biblatex}
-
-% Comando para gerar a citação bibliográfica completa na nota de rodapé
-\let\cite\footfullcite
-\let\autocite\footfullcite
 
 % Remover cores dos links na bibliografia (Hiperlinks ocultos/pretos)
 \AtBeginBibliography{\hypersetup{hidelinks}}

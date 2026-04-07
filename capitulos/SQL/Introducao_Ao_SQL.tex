@@ -720,21 +720,3 @@ ALTER TABLE Entregas
 ADD CONSTRAINT entregas_pkey 
 PRIMARY KEY (id_entrega, id_pedido);
 \end{sqlcode}
-
-\begin{tcolorbox}[colback=green!5,colframe=green!40!black,title=Exercício de Fixação 2: Retífica nas Tabelas]
-Recorrendo à mesma tabela de \texttt{biblioteca} gerida há pouco, cumpra as metas requisitadas abaixo num cenário dinâmico de produção da universidade:
-\begin{enumerate}
-    \item Execute um script formal de alteração visando apensar a coluna nova identificada por \texttt{isbn} para forçar a limitação total de exatos e absolutos treze caracteres literais no preenchimento do volume.
-    \item Elabore a linha relacional exigida para aumentar a aceitação nominal limite hospedada no \texttt{nome\_livro} a fim de passar sua dimensão originária restrita rumo às casas das grandiosas 250 letras.
-\end{enumerate}
-\end{tcolorbox}
-
-\begin{tcolorbox}[colback=green!5,colframe=green!40!black,title=Exercício de Fixação 1: Criação de Entidades]
-Com base no aprendizado de Sintaxe e Tipagem:
-\begin{enumerate}
-    \item Escreva o comando \texttt{CREATE TABLE} completo para criar uma tabela chamada \texttt{biblioteca}.
-    \item A tabela deverá possuir a coluna \texttt{id} autoincrementada (sendo chave primária).
-    \item Crie uma coluna \texttt{nome\_livro} usando tipo de dado texto com limite de 150 caracteres, de preenchimento fortemente obrigatório.
-    \item Construa a coluna \texttt{ano\_lancamento} focada em números inteiros, somada a uma coluna \texttt{disponivel} como booleano figurando valor verdadeiro (\texttt{TRUE}) por padrão na falta de sua citação formal.
-\end{enumerate}
-\end{tcolorbox}
