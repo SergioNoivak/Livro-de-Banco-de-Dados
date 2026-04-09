@@ -1,8 +1,8 @@
 \chapter{Modelo Entidade-Relacionamento (MER)}
 
-Antes de começar a criar as tabelas de um banco de dados, precisamos entender como as informações estão organizadas na vida real. Para isso, utilizamos o \textbf{Modelo Entidade-Relacionamento (MER)}, que é uma forma visual de representar os dados de um sistema através do \textbf{Diagrama Entidade-Relacionamento (DER)}.
+Antes de iniciar a criação de um banco de dados, é necessário compreender como as informações estão organizadas na vida real. Para isso, utiliza-se o \textbf{Modelo Entidade-Relacionamento (MER)}, que é uma abordagem conceitual e lógica para abstrair os dados de um sistema e suas regras de negócio. A representação visual e gráfica desse modelo é feita através do \textbf{Diagrama Entidade-Relacionamento (DER)}. Neste capítulo, será adotada especificamente a Notação de Peter P. Chen.
 
-O DER ajuda a equipe a identificar:
+O MER ajuda a equipe de desenvolvimento a identificar pilares fundamentais do sistema:
 \begin{itemize}
     \item Quais informações o sistema precisa guardar;
     \item Quais são os principais objetos (entidades) do sistema;
@@ -10,275 +10,750 @@ O DER ajuda a equipe a identificar:
     \item Como esses objetos se conectam entre si (relacionamentos).
 \end{itemize}
 
+Importa destacar que a negligência em relação a uma modelagem adequada frequentemente resulta em sistemas rígidos, com redundância de dados e inconsistências que prejudicam a tomada de decisão organizacional. Para evitar tais problemas, o desenvolvimento de um banco de dados deve ser compreendido como um processo cíclico e dividido em etapas bem definidas, garantindo que a tecnologia atenda às reais necessidades do usuário \cite{angelotti2010banco}.
+
+A etapa inicial, foco deste capítulo, é a \textbf{Modelagem Conceitual}. Nela, o objetivo primordial é identificar quais dados devem ser persistidos e como eles interagem entre si, estabelecendo uma visão abstrata da base de dados. Para que este modelo seja fidedigno, o projetista deve realizar um levantamento de requisitos — frequentemente via entrevistas — para mapear as expectativas e os objetivos do usuário final \cite{angelotti2010banco}.
+
+Sequencialmente, avança-se para a \textbf{Modelagem Lógica}, detalhada no Capítulo \ref{cap:modelo_logico}. Neste estágio, o foco desloca-se para a estruturação sistêmica das informações: o modelo conceitual é traduzido para um formato compatível com a tecnologia de implementação. No contexto de bancos de dados relacionais, adota-se o modelo relacional e aplicam-se técnicas de normalização para mitigar redundâncias, conforme será discutido no Capítulo \ref{cap:normalizacao} \cite{angelotti2010banco}.
+
+Por fim, ocorre a \textbf{Modelagem Física}, tratada no Capítulo \ref{cap:modelo_fisico}. É neste momento que o projeto se materializa no ambiente computacional, definindo-se tipos de dados, alocação de espaço em disco, criação de índices e restrições de armazenamento. Com a estrutura validada, a base de dados é efetivamente instanciada em um Sistema Gerenciador de Banco de Dados (SGBD), tarefa que exige domínio da linguagem SQL e das especificidades técnicas do software escolhido \cite{angelotti2010banco}.
+
 \section{Aspectos Históricos}
 
-O MER foi criado em 1976 por \textbf{Peter P. Chen}. Ele percebeu que a melhor forma de modelar um banco de dados era olhar para o mundo real como um conjunto de \textbf{objetos} (entidades) que possuem \textbf{características} (atributos) e que se \textbf{relacionam} entre si.
+Historicamente, o Modelo Entidade-Relacionamento (MER) foi formalizado em 1976 por Peter P. Chen em seu célebre artigo \textit{"The Entity-Relationship Model - Toward a Unified View of Data"} \cite{peterchen}. 
 
-Hoje, esse modelo é o padrão mundial para o início de qualquer projeto de banco de dados, pois facilita a conversa entre os desenvolvedores e os clientes.
+Antes da consolidação desta abordagem, o projeto de bancos de dados baseava-se predominantemente em modelos hierárquicos e de rede, cujas estruturas eram excessivamente rígidas, complexas e de difícil compreensão para profissionais que não detivessem profundo conhecimento técnico.
+
+É importante notar que, à época da formalização do MER, o cenário tecnológico já havia sido revolucionado pela proposta do Modelo Relacional, apresentado por Edgar F. Codd em 1970 \cite{codd1970relational}. No entanto, o modelo de Codd, embora matematicamente rigoroso e superior aos antigos modelos hierárquicos e de rede, carecia de uma forma semântica e visual para representar as regras de negócio antes da implementação em tabelas.
+
+A grande inovação de Chen residiu na percepção de que a modelagem de dados seria mais eficiente se espelhasse a percepção humana do mundo real \cite{peterchen}. Ele propôs que a realidade fosse mapeada como um conjunto de \textbf{entidades} (coisas ou conceitos abstratos), que possuem \textbf{atributos} (características) e que estabelecem \textbf{relacionamentos} entre si de maneira lógica e natural \cite{peterchen}.
+
+Atualmente, este modelo permanece como o padrão global para a fase inicial de qualquer projeto de banco de dados. Sua representação gráfica funciona como uma linguagem universal, eliminando barreiras de comunicação entre desenvolvedores e \textit{stakeholders}.
+
+A Figura~\ref{fig:der_historico} exemplifica um DER clássico para um sistema de e-commerce, empregando a notação de Chen.
 
 \begin{diagramER}
-\begin{center}
-\includegraphics[width = 15.3cm]{er1.png}
-\end{center}
+    \begin{center}
+    \begin{adjustbox}{max width=\linewidth, max height=0.35\textheight, keepaspectratio}
+\begin{tikzpicture}[
+        entidade/.style={rectangle, draw=black, thick, minimum width=2.5cm, minimum height=1cm, fill=black!10, text centered},
+        atributo/.style={ellipse, draw=black, thick, minimum width=2cm, minimum height=0.8cm, fill=white, text centered, font=\scriptsize},
+        relacional/.style={diamond, aspect=2, draw=black, thick, minimum width=2.5cm, fill=white, text centered, font=\scriptsize},
+        linha/.style={draw=black, thick},
+        atributoPK/.style={ellipse, draw=black, thick, minimum width=2cm, minimum height=0.8cm, fill=white, text centered, font=\scriptsize}
+    ]
+
+        % Entidade Cliente e Atributos
+        \node[entidade] (cliente) {CLIENTE};
+        \node[atributoPK] (cli_id) [above left=0.8cm and 0.1cm of cliente] {\underline{ID\_Cliente}};
+        \node[atributo] (cli_nome) [above=1cm of cliente] {Nome};
+        \node[atributo] (cli_email) [above right=0.8cm and 0.1cm of cliente] {Email};
+        
+        \draw[linha] (cliente) -- (cli_id);
+        \draw[linha] (cliente) -- (cli_nome);
+        \draw[linha] (cliente) -- (cli_email);
+
+        % Relacionamento Realiza
+        \node[relacional] (realiza) [right=2cm of cliente] {Realiza};
+        \draw[linha] (cliente) -- node[above, font=\scriptsize] {1} (realiza);
+
+        % Entidade Pedido e Atributos
+        \node[entidade] (pedido) [right=2cm of realiza] {PEDIDO};
+        \node[atributoPK] (ped_id) [above left=0.8cm and 0.1cm of pedido] {\underline{ID\_Pedido}};
+        \node[atributo] (ped_data) [above=1cm of pedido] {Data};
+        \node[atributo] (ped_valor) [above right=0.8cm and 0.1cm of pedido] {Valor\_Total};
+        
+        \draw[linha] (pedido) -- (realiza) node[pos=0, xshift=-0.5cm, yshift=0.2cm, font=\scriptsize] {N};
+        \draw[linha] (pedido) -- (ped_id);
+        \draw[linha] (pedido) -- (ped_data);
+        \draw[linha] (pedido) -- (ped_valor);
+
+        % Relacionamento Contém
+        \node[relacional] (contem) [below=1.5cm of pedido] {Contém};
+        \draw[linha] (pedido) -- node[left, font=\scriptsize] {N} (contem);
+
+        % Entidade Produto e Atributos
+        \node[entidade] (produto) [below=1.5cm of contem] {PRODUTO};
+        \node[atributoPK] (prod_id) [below left=0.8cm and 0.1cm of produto] {\underline{ID\_Produto}};
+        \node[atributo] (prod_nome) [below=1cm of produto] {Nome};
+        \node[atributo] (prod_preco) [below right=0.8cm and 0.1cm of produto] {Preço};
+        
+        \draw[linha] (contem) -- node[left, font=\scriptsize] {N} (produto);
+        \draw[linha] (produto) -- (prod_id);
+        \draw[linha] (produto) -- (prod_nome);
+        \draw[linha] (produto) -- (prod_preco);
+    \end{tikzpicture}
+\end{adjustbox}
+    \captionof{figure}{Exemplo de Diagrama Entidade-Relacionamento histórico (Notação de Chen) para um domínio de E-commerce.}
+    \label{fig:der_historico}
+    \end{center}
 \end{diagramER}
 
-\section{Elementos do Diagrama (DER)}
+\section{Elementos do Diagrama Entidade-Relacionamento (DER)}
+Para a elaboração de um DER utilizando a clássica Notação de Peter Chen, adotam-se formas geométricas simples e intuitivas. A Tabela~\ref{tab:elementos_der} resume esses símbolos e suas funções:
 
-Para desenhar um DER, utilizamos formas geométricas simples. A Tabela~\ref{tab:elementos_der} resume esses símbolos:
-
-\begin{table}[h!]
-\centering
+\begin{center}
 \renewcommand{\arraystretch}{1.4}
-\begin{tabular}{|l|p{10cm}|}
+\begin{longtable}{|l|p{10cm}|}
+\caption{Principais elementos do Diagrama Entidade-Relacionamento.}
+\label{tab:elementos_der} \\
+
 \hline
 \textbf{Símbolo} & \textbf{Descrição} \\ \hline
-\textbf{Retângulo} & Representa uma \textbf{Entidade} (objetos do mundo real, como Aluno, Professor ou Carro). \\ \hline
-\textbf{Elipse} & Representa um \textbf{Atributo} (características da entidade, como Nome, Idade ou CPF). \\ \hline
-\textbf{Losango} & Representa um \textbf{Relacionamento} (a ligação entre duas entidades, como "Aluno \textit{estuda} Disciplina"). \\ \hline
-\textbf{Linha} & Faz a conexão entre os elementos do diagrama. \\ \hline
-\end{tabular}
-\caption{Principais elementos do Diagrama Entidade-Relacionamento.}
-\label{tab:elementos_der}
-\end{table}
+\endfirsthead
 
-\section{Tipos de Atributos}
+\hline
+\textbf{Símbolo} & \textbf{Descrição} \\ \hline
+\endhead
 
-Os atributos são as informações que queremos guardar sobre uma entidade. Por exemplo, na entidade \textbf{Aluno}, os atributos podem ser: Nome, E-mail e Matrícula. Existem 6 categorias principais de atributos:
+\hline
+\endlastfoot
 
-\subsection{1. Atributo Simples}
-É aquele que não pode ser dividido. Ele representa uma informação básica e direta.
-\textbf{Exemplos:} CPF, RG, Sexo, Peso.
+\textbf{Retângulo} & Representa uma entidade (objetos do mundo real, como Cliente, Produto ou Pedido). \\ \hline
+\textbf{Elipse} & Representa um atributo (características da entidade, como Nome, Preço ou Data de Cadastro). \\ \hline
+\textbf{Losango} & Representa um relacionamento (a ligação estrutural entre duas entidades, como "Cliente \textit{realiza} Pedido"). \\ \hline
+\textbf{Linha} & Faz a conexão entre os elementos do diagrama. \\
+\end{longtable}
+\end{center}
 
-\begin{figure}[H]
-    \centering
-    \begin{tikzpicture}[
+\subsection{Entidades}
+
+No MER, uma \textbf{Entidade} representa qualquer coisa do mundo real (seja ela física ou abstrata) sobre a qual o sistema precisa armazenar informações.
+
+As entidades costumam ser divididas em dois tipos:
+\begin{itemize}
+    \item \textbf{Físicas (Concretas):} São coisas tangíveis, que existem no mundo material, como clientes, produtos, fornecedores, transportadoras ou armazéns.
+    \item \textbf{Lógicas (Abstratas):} São conceitos, eventos ou transações que existem de forma lógica, a exemplo de pedidos, pagamentos, entregas, categorias de produtos e carrinhos de compras.
+\end{itemize}
+
+A técnica mais simples para identificar entidades durante a leitura das regras de negócio (ou entrevistas com o cliente) é a análise gramatical, na qual foca-se nos substantivos. Se a palavra nomeia algo e precisa-se guardar várias informações sobre ela para que o sistema funcione, então, encontrou-se uma entidade. Por exemplo, considere a seguinte regra de negócio: 
+
+\begin{quote}
+\textit{"O \texttt{cliente} realiza um \texttt{pedido} contendo vários \texttt{produtos}."}
+\end{quote}
+
+Os termos destacados (cliente, pedido e produto) são substantivos sobre os quais faz-se necessário guardar detalhes (como o nome do cliente, a data do pedido e o preço do produto). Logo, são excelentes candidatos a entidades. No diagrama, essas entidades serão desenhadas utilizando o símbolo do retângulo.
+
+Por fim, é de suma importância estabelecer a distinção conceitual entre uma entidade e a sua instância. A entidade representa a classe, o "molde" ou a estrutura geral (por exemplo, a entidade Produto). Por outro lado, a \textbf{instância} é a ocorrência real, preenchida e específica daquele molde (por exemplo, o produto "Notebook Dell, ID 5678"). Durante a fase de modelagem de dados e na elaboração do DER, modelam-se exclusivamente as entidades, e não as suas instâncias individuais.
+
+\begin{diagramER}
+    \begin{center}
+    \begin{adjustbox}{max width=\linewidth, max height=0.35\textheight, keepaspectratio}
+\begin{tikzpicture}[
+        entidade/.style={rectangle, draw=black, thick, minimum width=3cm, minimum height=1.5cm, fill=black!10, text centered}
+    ]
+    \node[entidade] (cliente) {\textbf{Cliente}};
+    \node[entidade] (pedido) [right = 1.5cm of cliente] {\textbf{Pedido}};
+    \node[entidade] (produto) [right = 1.5cm of pedido] {\textbf{Produto}};
+    \end{tikzpicture}
+\end{adjustbox}
+    \captionof{figure}{Representação das entidades identificadas na regra de negócio utilizando a Notação de Chen.}
+    \end{center}
+\end{diagramER}
+
+\subsection{Atributos}
+Uma vez definidas as entidades do sistema, o próximo passo é detalhar as informações que as compõem. Os atributos são, portanto, os dados específicos a serem armazenados sobre uma entidade. Na entidade cliente, por exemplo, os atributos podem ser o seu nome, endereço de e-mail e CPF. 
+
+Um conceito fundamental associado aos atributos é o seu \textbf{domínio}. O domínio representa o conjunto de todos os valores válidos e possíveis que aquele campo pode assumir. Por exemplo, o domínio do atributo "Preço" em um sistema de vendas não aceitará valores negativos.
+
+Para refinar a modelagem, os atributos são classificados em categorias de acordo com o seu comportamento, conforme listado a seguir:
+
+\subsubsection{Atributo Simples e Monovalorado}
+A grande maioria dos atributos do dia a dia se encaixa simultaneamente nestas duas definições. Eles representam o padrão básico de armazenamento:
+\begin{itemize}
+    \item \textbf{Simples (ou Atômico):} É aquele que não pode ser subdividido, representando uma informação básica e direta.
+    \item \textbf{Monovalorado:} É aquele concebido para guardar apenas um único valor por vez em cada registro.
+\end{itemize}
+Como ilustração, pode-se citar o CPF, a data de nascimento e o nome completo de um cliente, visto que são dados que não se dividem em partes menores e cada instância possui apenas um registro válido de cada.
+
+\begin{diagramER}
+    \begin{center}
+    \begin{adjustbox}{max width=\linewidth, max height=0.35\textheight, keepaspectratio}
+\begin{tikzpicture}[
         entidade/.style={rectangle, draw=black, thick, minimum width=3.5cm, minimum height=1.5cm, fill=black!10, text centered},
         atributo/.style={ellipse, draw=black, thick, minimum width=3cm, minimum height=1cm, fill=white, text centered},
         linha/.style={draw=black, thick}
     ]
-    \node[entidade] (func) {\textbf{Funcionário}};
-    \node[atributo] (cpf) [above right = 1cm and 2cm of func] {CPF};
-    \node[atributo] (sexo) [below right = 1cm and 2cm of func] {Sexo};
-    \draw[linha] (func) -- (cpf);
-    \draw[linha] (func) -- (sexo);
+    \node[entidade] (cliente) {\textbf{Cliente}};
+    
+    % Atributos distribuídos em formato de leque à direita da entidade
+    \node[atributo] (cpf) [above right = 1cm and 2cm of cliente] {CPF};
+    \node[atributo] (nome)  [right = 2.5cm of cliente] {Nome};
+    \node[atributo] (nasc) [below right = 1cm and 2cm of cliente] {Data Nasc.};
+    
+    \draw[linha] (cliente) -- (cpf);
+    \draw[linha] (cliente) -- (nome);
+    \draw[linha] (cliente) -- (nasc);
     \end{tikzpicture}
-    \caption{Exemplo de atributos simples.}
-\end{figure}
+\end{adjustbox}
+    \captionof{figure}{Exemplo de atributos simples e monovalorados.}
+    \end{center}
+\end{diagramER}
 
-\subsection{2. Atributo Composto}
-É um atributo que pode ser dividido em partes menores para facilitar o uso. O exemplo clássico é o endereço.
-\textbf{Exemplo:} O \textbf{Endereço} pode ser dividido em: Rua, Número, Bairro e Cidade.
+\subsubsection{Atributo Composto}
+Diferente do simples, este é um atributo que pode e deve ser dividido em partes menores (subatributos) para facilitar o armazenamento e a busca no banco de dados. Um caso clássico é o endereço de entrega de um cliente, que costuma ser desmembrado em dados mais precisos, como rua, número, bairro e cidade.
 
-\begin{figure}[H]
-    \centering
-    \begin{tikzpicture}[
+\begin{diagramER}
+    \begin{center}
+    \begin{adjustbox}{max width=\linewidth, max height=0.35\textheight, keepaspectratio}
+\begin{tikzpicture}[
         entidade/.style={rectangle, draw=black, thick, minimum width=3cm, minimum height=1.5cm, fill=black!10, text centered},
         atributo/.style={ellipse, draw=black, thick, minimum width=2.5cm, minimum height=1cm, fill=white, text centered, align=center},
         linha/.style={draw=black, thick}
     ]
     \node[entidade] (cliente) {\textbf{Cliente}};
     \node[atributo] (endereco) [right=2.5cm of cliente] {Endereço};
-    \node[atributo] (rua) [above right = 0.5cm and 2cm of endereco] {Rua};
-    \node[atributo] (bairro) [below right = 0.5cm and 2cm of endereco] {Bairro};
+    
+    % Subatributos distribuídos para corresponder ao texto
+    \node[atributo] (rua) [above right = 1.2cm and 1.5cm of endereco] {Rua};
+    \node[atributo] (numero) [above right = 0.1cm and 2.5cm of endereco] {Número};
+    \node[atributo] (bairro) [below right = 0.1cm and 2.5cm of endereco] {Bairro};
+    \node[atributo] (cidade) [below right = 1.2cm and 1.5cm of endereco] {Cidade};
+    
     \draw[linha] (cliente) -- (endereco);
     \draw[linha] (endereco) -- (rua);
+    \draw[linha] (endereco) -- (numero);
     \draw[linha] (endereco) -- (bairro);
+    \draw[linha] (endereco) -- (cidade);
     \end{tikzpicture}
-    \caption{Exemplo de atributo composto.}
-\end{figure}
+\end{adjustbox}
+    \captionof{figure}{Exemplo de atributo composto.}
+    \end{center}
+\end{diagramER}
 
-\subsection{3. Atributo Monovalorado}
-É o atributo que guarda apenas \textbf{um valor} por vez. 
-\textbf{Exemplo:} Uma pessoa tem apenas um \textbf{CPF} e apenas uma \textbf{Data de Nascimento}.
+\subsubsection{Atributo Multivalorado}
+Ao contrário do monovalorado, este ocorre quando uma entidade precisa armazenar vários valores simultâneos do mesmo tipo de informação. No diagrama de Chen, ele é destacado por uma \textit{elipse dupla}. É o que ocorre, por exemplo, quando um fornecedor cadastra múltiplos telefones de contato ou diversos e-mails comerciais em um mesmo perfil.
 
-\subsection{4. Atributo Multivalorado}
-É quando uma entidade pode ter \textbf{vários valores} para o mesmo atributo. No diagrama, ele é representado por uma \textbf{elipse dupla}.
-\textbf{Exemplo:} Uma pessoa pode ter vários \textbf{Telefones} ou vários \textbf{E-mails}.
-
-\begin{figure}[H]
-    \centering
-    \begin{tikzpicture}[
+\begin{diagramER}
+    \begin{center}
+    \begin{adjustbox}{max width=\linewidth, max height=0.35\textheight, keepaspectratio}
+\begin{tikzpicture}[
         entidade/.style={rectangle, draw=black, thick, minimum width=3cm, minimum height=1.5cm, fill=black!10, text centered},
         atributoMulti/.style={ellipse, double, double distance=2pt, draw=black, thick, minimum width=2.5cm, minimum height=1cm, fill=white, text centered},
         linha/.style={draw=black, thick}
     ]
-    \node[entidade] (pessoa) {\textbf{Professor}};
-    \node[atributoMulti] (email) [right = 3cm of pessoa] {E-mails};
-    \draw[linha] (pessoa) -- (email);
+    \node[entidade] (fornec) {\textbf{Fornecedor}};
+    \node[atributoMulti] (telefones) [above right = 0.5cm and 2.5cm of fornec] {Telefones};
+    \node[atributoMulti] (emails) [below right = 0.5cm and 2.5cm of fornec] {E-mails};
+    \draw[linha] (fornec) -- (telefones);
+    \draw[linha] (fornec) -- (emails);
     \end{tikzpicture}
-    \caption{Representação de atributo multivalorado (elipse dupla).}
-\end{figure}
+\end{adjustbox}
+    \captionof{figure}{Exemplo de atributos multivalorados (elipse dupla).}
+    \end{center}
+\end{diagramER}
 
-\subsection{5. Atributo Nulo (NULL)}
-Ocorre quando um campo fica vazio. Isso acontece se a informação for desconhecida ou se não se aplicar àquela pessoa específica.
-\textbf{Exemplo:} O campo "Complemento" de um endereço pode ser nulo se a pessoa morar em uma casa sem complemento.
+\subsubsection{Atributo Derivado (Calculado)}
+É uma informação que não precisa (e muitas vezes não deve) ser armazenada fisicamente no banco, pois pode ser deduzida ou calculada a partir de outro dado existente. No diagrama, é representado por uma \textit{elipse tracejada}. A idade de um cliente ilustra bem esse cenário, pois pode ser calculada dinamicamente pelo sistema com base na data de nascimento vinculada àquele registro. Outro exemplo clássico é o Valor Total de um pedido, calculado pela soma de seus itens.
 
-\subsection{6. Atributo Derivado (Calculado)}
-É um atributo que não precisa ser digitado, pois pode ser calculado a partir de outro. No diagrama, ele é representado por uma \textbf{elipse tracejada}.
-\textbf{Exemplo:} A \textbf{Idade} pode ser calculada a partir da Data de Nascimento.
-
-\begin{figure}[H]
-    \centering
-    \begin{tikzpicture}[
+\begin{diagramER}
+    \begin{center}
+    \begin{adjustbox}{max width=\linewidth, max height=0.35\textheight, keepaspectratio}
+\begin{tikzpicture}[
         entidade/.style={rectangle, draw=black, thick, minimum width=3cm, minimum height=1.5cm, fill=black!10, text centered},
         atributo/.style={ellipse, draw=black, thick, minimum width=2.5cm, minimum height=1cm, fill=white, text centered},
         atributoDeriv/.style={ellipse, dashed, draw=black, thick, minimum width=2.5cm, minimum height=1cm, fill=white, text centered},
         linha/.style={draw=black, thick}
     ]
-    \node[entidade] (func) {\textbf{Pessoa}};
-    \node[atributo] (nasc) [above right = 0.5cm and 2.5cm of func] {Data Nasc.};
-    \node[atributoDeriv] (idade) [below right = 0.5cm and 2.5cm of func] {Idade};
-    \draw[linha] (func) -- (nasc);
-    \draw[linha] (func) -- (idade);
+    \node[entidade] (cliente) {\textbf{Cliente}};
+    \node[atributo] (nasc) [above right = 0.5cm and 2.5cm of cliente] {Data Nasc.};
+    \node[atributoDeriv] (idade) [below right = 0.5cm and 2.5cm of cliente] {Idade};
+    \draw[linha] (cliente) -- (nasc);
+    \draw[linha] (cliente) -- (idade);
     \end{tikzpicture}
-    \caption{Exemplo de atributo derivado (tracejado).}
-\end{figure}
+\end{adjustbox}
+    \captionof{figure}{Exemplo de atributo derivado (tracejado).}
+    \end{center}
+\end{diagramER}
 
-\section{Chave Primária (Primary Key - PK)}
+\subsection{Chave Primária (Primary Key - PK)}
 
-A \textbf{Chave Primária} é o atributo mais importante de uma entidade. Ela serve para identificar cada registro de forma única, garantindo que não existam dois registros iguais.
+Dentre todos os atributos de uma entidade, um recebe um papel de extrema relevância: a \textbf{Chave Primária}. Sua função exclusiva é identificar cada registro de forma única e inequívoca dentro do banco de dados, garantindo que não existam duas entradas idênticas.
 
-\textbf{Regras da Chave Primária:}
+Para ser considerada uma chave primária, o atributo deve obedecer a duas regras fundamentais:
 \begin{itemize}
-    \item \textbf{Unicidade}: O valor não pode se repetir (ex: não podem existir dois alunos com o mesmo CPF).
-    \item \textbf{Obrigatoriedade}: O campo não pode ser nulo (\texttt{NOT NULL}).
+    \item \textbf{Unicidade}: O valor não pode se repetir em hipótese alguma (como a impossibilidade de registrar dois produtos diferentes com o mesmo código de barras no sistema).
+    \item \textbf{Obrigatoriedade}: O campo não pode ser nulo, pois todo registro precisa ter sua identificação estabelecida.
 \end{itemize}
 
-No diagrama (DER), a Chave Primária é identificada com o nome \textbf{\underline{sublinhado}}.
+A escolha da chave primária deve ser feita com cautela, priorizando atributos estáveis, que não sofram alterações ao longo do tempo, evitando impactos na integridade referencial do sistema. Além disso, em cenários mais complexos, pode-se optar pela utilização de identificadores artificiais (como IDs numéricos gerados automaticamente), especialmente quando não há um atributo natural suficientemente confiável para exercer tal função.
 
-\subsection{Tipos de Chave Primária}
+\subsubsection{Tipos de Chave Primária}
+A chave primária pode ser classificada conforme a quantidade de atributos necessários para identificar unicamente cada ocorrência de uma entidade. Em termos práticos, ela pode ser formada por apenas um atributo ou pela combinação de dois ou mais atributos, a depender da estrutura dos dados e das regras de negócio do sistema modelado. Assim, quanto à sua composição, a chave primária divide-se em dois tipos principais: 
 
 \begin{enumerate}
-    \item \textbf{Simples}: Formada por apenas um atributo. Ex: CPF, Matrícula.
-    \item \textbf{Composta}: Formada por dois ou mais atributos juntos. Isso acontece quando um único campo não é suficiente para identificar o registro.
+    \item \textbf{Simples}: Formada por apenas um único atributo, como o CPF de um cliente, o ID de um pedido ou o código SKU de um produto.
+    \item \textbf{Composta}: Formada pela união de dois ou mais atributos. É utilizada em situações específicas onde um único campo isolado não é capaz de garantir a unicidade do registro.
 \end{enumerate}
 
-\begin{figure}[H]
-    \centering
-    \begin{tikzpicture}[
+É crucial destacar um erro conceitual muito comum durante o aprendizado da modelagem de dados: uma entidade jamais possuirá "duas chaves primárias". O conceito de chave composta significa que existe uma única chave primária, mas ela necessita da combinação de dois ou mais atributos trabalhando simultaneamente em bloco para garantir a exclusividade daquele registro. No exemplo ilustrado a seguir, a entidade não possui duas chaves soltas; ela possui apenas uma chave primária, que é formada pelo par contendo o ID do Produto em conjunto com o ID do Armazém.
+
+No Diagrama Entidade-Relacionamento, o atributo escolhido como chave primária é tradicionalmente destacado com o seu nome \underline{sublinhado}.
+
+\begin{diagramER}
+    \begin{center}
+    \begin{adjustbox}{max width=\linewidth, max height=0.35\textheight, keepaspectratio}
+\begin{tikzpicture}[
         entidade/.style={rectangle, draw=black, thick, minimum width=3.5cm, minimum height=1.5cm, fill=black!10, text centered},
         atributo/.style={ellipse, draw=black, thick, minimum width=2.5cm, minimum height=1cm, fill=white, text centered},
         linha/.style={draw=black, thick}
     ]
-    \node[entidade] (matricula) {\textbf{Matrícula Aluno}};
+    \node[entidade] (estoque) {\textbf{Estoque}};
     
-    \node[atributo] (idaluno) [above right = 0.5cm and 2.5cm of matricula] {\underline{ID\_Aluno}};
-    \node[atributo] (idcurso) [right = 3cm of matricula] {\underline{ID\_Curso}};
-    \node[atributo] (data) [below right = 0.5cm and 2.5cm of matricula] {Data Inscrição};
+    \node[atributo] (idproduto) [above right = 0.5cm and 2.5cm of estoque] {\underline{ID\_Produto}};
+    \node[atributo] (idarmazem) [right = 3cm of estoque] {\underline{ID\_Armazém}};
+    \node[atributo] (qnt) [below right = 0.5cm and 2.5cm of estoque] {Quantidade};
     
-    \draw[linha] (matricula) -- (idaluno);
-    \draw[linha] (matricula) -- (idcurso);
-    \draw[linha] (matricula) -- (data);
+    \draw[linha] (estoque) -- (idproduto);
+    \draw[linha] (estoque) -- (idarmazem);
+    \draw[linha] (estoque) -- (qnt);
     \end{tikzpicture}
-    \caption{Atributos Chaves sendo indicados pelos sublinhados: o arranjo composto de ambas colunas (ID\_Aluno e ID\_Curso) juntos comportam-se de forma sintética mecânica global formando um "Bloco Imutável Categórico Monolítico PK Exclusivo Unitário".}
-\end{figure}
-
-\section{Relacionamentos}
-
-Os \textbf{relacionamentos} mostram como as entidades interagem entre si. Eles são classificados pela sua \textbf{cardinalidade} (quantidade de ligações):
-
-\begin{itemize}
-    \item \textbf{1:1 (Um para um)}: Uma pessoa tem um único CPF.
-    \item \textbf{1:N (Um para muitos)}: Uma mãe pode ter vários filhos, mas cada filho tem apenas uma mãe biológica.
-    \item \textbf{N:N (Muitos para muitos)}: Um aluno pode estudar várias disciplinas, e uma disciplina pode ter vários alunos.
-\end{itemize}
-
-Relacionamento 1:1 entre Padrinho e Madrinha.
-\begin{diagramER}
-\begin{center}
-\includegraphics[width = 15.3cm]{er_1_1.png}
-\end{center}
-\end{diagramER}
-Relacionamento 1:N entre Pessoa e Computador.
-
-\begin{diagramER}
-\begin{center}
-\includegraphics[width = 15.3cm]{er_1_n.png}
-\end{center}
-\end{diagramER}
-Relacionamento N:N entre Clube e Cliente.
-
-\begin{diagramER}
-\begin{center}
-\includegraphics[width = 15.3cm]{er_n_n_.png}
-\end{center}
+\end{adjustbox}
+    \captionof{figure}{Exemplo de Chave Primária Composta utilizando a notação clássica de sublinhado.}
+    \end{center}
 \end{diagramER}
 
-\section{Entidade Fraca}
+Como variação visual, também é muito frequente encontrar na literatura e em ferramentas de modelagem digital a elipse do atributo chave totalmente preenchida ou pintada. Ambas as convenções são perfeitamente válidas e cumprem o mesmo papel de evidenciar o identificador exclusivo da entidade.
 
-Uma \textbf{entidade fraca} é aquela que não consegue ser identificada sozinha. Ela depende de outra entidade (entidade forte) para existir.
+\begin{diagramER}
+    \begin{center}
+    \begin{adjustbox}{max width=\linewidth, max height=0.35\textheight, keepaspectratio}
+\begin{tikzpicture}[
+        entidade/.style={rectangle, draw=black, thick, minimum width=3.5cm, minimum height=1.5cm, fill=black!10, text centered},
+        atributo/.style={ellipse, draw=black, thick, minimum width=2.5cm, minimum height=1cm, fill=white, text centered},
+        atributoPK/.style={ellipse, draw=black, thick, minimum width=2.5cm, minimum height=1cm, fill=green!30, text centered},
+        linha/.style={draw=black, thick}
+    ]
+    \node[entidade] (estoque) {\textbf{Estoque}};
+    
+    \node[atributoPK] (idproduto) [above right = 0.5cm and 2.5cm of estoque] {ID\_Produto};
+    \node[atributoPK] (idarmazem) [right = 3cm of estoque] {ID\_Armazém};
+    \node[atributo] (qnt) [below right = 0.5cm and 2.5cm of estoque] {Quantidade};
+    
+    \draw[linha] (estoque) -- (idproduto);
+    \draw[linha] (estoque) -- (idarmazem);
+    \draw[linha] (estoque) -- (qnt);
+    \end{tikzpicture}
+\end{adjustbox}
+    \captionof{figure}{Exemplo de Chave Primária Composta evidenciada pela pintura da elipse.}
+    \end{center}
+\end{diagramER}
 
-\textbf{Características:}
-\begin{itemize}
-    \item Não possui chave primária própria.
-    \item Se a entidade forte for apagada, ela também deixa de fazer sentido.
-\end{itemize}
+\subsection{Relacionamentos}
 
-\textbf{Exemplo:} Um \textbf{Dependente} só existe no sistema se estiver ligado a um \textbf{Funcionário}. Se o funcionário for demitido, os seus dependentes saem do sistema com ele.
+As entidades em um banco de dados não existem isoladas, elas interagem constantemente para refletir as regras de negócio do mundo real. Essa interação estrutural entre duas ou mais entidades é o que se chama de \textbf{Relacionamento}.
 
-No diagrama, a entidade fraca é representada por um \textbf{retângulo com borda dupla}.
+De forma análoga à técnica utilizada para as entidades, a maneira mais simples de identificar relacionamentos durante a análise gramatical dos requisitos é focar nos verbos. Se a palavra indica uma ação, um evento ou uma associação entre as entidades já identificadas, então encontrou-se um relacionamento. Por exemplo, considere a seguinte regra de negócio:
 
-\begin{figure}[H]
-    \centering
+\begin{quote}
+\textit{"Uma transportadora \texttt{entrega} vários pedidos."}
+\end{quote}
+
+O termo destacado (entrega) é um verbo que demonstra como a entidade Transportadora interage com a entidade Pedido dentro do sistema. Logo, é o candidato exato para ser o relacionamento. No Diagrama Entidade-Relacionamento, essas conexões são desenhadas visualmente utilizando o símbolo do losango, sendo unidas às entidades por meio de linhas retas.
+
+Por sua vez, para modelar essas conexões corretamente e evitar falhas estruturais na base de dados, analisa-se a dinâmica da interação por meio de duas propriedades essenciais: o grau e a cardinalidade.
+
+\subsubsection{Grau do Relacionamento}
+
+O grau de um relacionamento indica quantas entidades participam de uma determinada associação. Os relacionamentos binários conectam duas entidades distintas e são os mais comuns nos projetos de modelagem de dados.
+
+Entretanto, há também os relacionamentos unários, também chamados de autorrelacionamentos, nos quais uma entidade se relaciona com ela própria. Um exemplo típico ocorre em estruturas hierárquicas, como categorias de produtos, em que uma categoria pode estar vinculada a outra como categoria superior.
+
+Além disso, existem os relacionamentos ternários ou superiores, que representam associações mais complexas, nas quais três ou mais entidades participam simultaneamente de uma mesma interação ou transação.
+
+O exemplo a seguir ilustra a diferença gráfica entre um relacionamento binário e um ternário no contexto de e-commerce:
+
+\begin{diagramER}
+    \begin{center}
+    \begin{adjustbox}{max width=\linewidth, max height=0.35\textheight, keepaspectratio}
     \begin{tikzpicture}[
+            entidade/.style={rectangle, draw=black, thick, minimum width=3cm, minimum height=1.5cm, fill=black!10, text centered},
+            relacional/.style={diamond, aspect=2, draw=black, thick, minimum width=3cm, minimum height=1.5cm, fill=white, text centered},
+            linha/.style={draw=black, thick}
+        ]
+    % Relacionamento Binário
+    \node[entidade] (transp) {\textbf{Transportadora}};
+    \node[relacional] (entrega) [right = 1.5cm of transp] {Entrega};
+    \node[entidade] (pedido) [right = 1.5cm of entrega] {\textbf{Pedido}};
+
+    \draw[linha] (transp) -- (entrega);
+    \draw[linha] (pedido) -- (entrega);
+    \end{tikzpicture}
+\end{adjustbox}
+    \captionof{figure}{Exemplo de relacionamento binário (Transportadora \textit{entrega} Pedido)}
+    \end{center}
+
+    \vspace{0.3cm}
+
+    % --- Autorrelacionamento (Unário) ---
+    \begin{center}
+    \begin{adjustbox}{max width=\linewidth, max height=0.35\textheight, keepaspectratio}
+    \begin{tikzpicture}[
+            entidade/.style={rectangle, draw=black, thick, minimum width=3cm, minimum height=1.5cm, fill=black!10, text centered},
+            relacional/.style={diamond, aspect=2, draw=black, thick, minimum width=3cm, minimum height=1.5cm, fill=white, text centered},
+            linha/.style={draw=black, thick}
+        ]
+    \node[entidade] (categoria) {\textbf{Categoria}};
+    \node[relacional] (pertence) [right = 2cm of categoria] {Pertence};
+
+    % Conexão lateral (como subcategoria)
+    \draw[linha] (categoria.east) -- (pertence.west);
+    % Conexão superior retornando à mesma entidade (como categoria pai)
+    \draw[linha] (categoria.north) -- ++(0,1.2cm) -| (pertence.north);
+    \end{tikzpicture}
+    \end{adjustbox}
+    \captionof{figure}{Exemplo de autorrelacionamento ou unário (Uma Categoria \textit{pertence} a uma Categoria pai).}
+    \end{center}
+
+    \vspace{0.3cm}
+
+    \begin{center}
+    \begin{adjustbox}{max width=\linewidth, max height=0.35\textheight, keepaspectratio}
+    \begin{tikzpicture}[
+            entidade/.style={rectangle, draw=black, thick, minimum width=3cm, minimum height=1.5cm, fill=black!10, text centered},
+            relacional/.style={diamond, aspect=2, draw=black, thick, minimum width=3cm, minimum height=1.5cm, fill=white, text centered},
+            linha/.style={draw=black, thick}
+        ]
+
+    % Relacionamento Ternário
+    \node[relacional] (fornece) [below = 2.5cm of entrega] {Fornece};
+    \node[entidade] (fornec) [left = 1.5cm of fornece] {\textbf{Fornecedor}};
+    \node[entidade] (produto) [right = 1.5cm of fornece] {\textbf{Produto}};
+    \node[entidade] (armazem) [below = 1.5cm of fornece] {\textbf{Armazém}};
+
+    \draw[linha] (fornec) -- (fornece);
+    \draw[linha] (produto) -- (fornece);
+    \draw[linha] (armazem) -- (fornece);
+    \end{tikzpicture}
+\end{adjustbox}
+    \captionof{figure}{Exemplo de relacionamento binário (Transportadora \textit{entrega} Pedido) e ternário (Fornecedor \textit{fornece} Produto para um Armazém).}
+    \end{center}
+\end{diagramER}
+
+Apesar de a notação prever relacionamentos ternários ou de graus ainda maiores (genericamente chamados de relacionamentos n-ários), a sua utilização direta na modelagem não é recomendada. Relacionamentos n-ários aumentam excessivamente a complexidade visual do modelo, dificultam a correta definição das cardinalidades e não possuem uma conversão direta e intuitiva para tabelas na fase de modelagem lógica, que será debatida futuramente neste livro.
+
+Para contornar essa complexidade, a boa prática exige a decomposição do relacionamento n-ário. O procedimento consiste em transformar o próprio relacionamento em uma nova entidade (frequentemente denominada entidade associativa) e conectá-la às entidades originais exclusivamente por meio de relacionamentos binários. 
+
+Essa abordagem oferece duas vantagens principais:
+
+\begin{itemize}
+    \item \textbf{Atributos Próprios:} Permite registrar dados específicos da transação, como a data da entrega e o custo do frete, que não pertenciam isoladamente a nenhuma das outras três entidades.
+    \item \textbf{Simplificação Lógica:} Facilita a futura conversão para o modelo relacional (tabelas), pois o banco de dados lidará apenas com associações binárias simples.
+\end{itemize}
+
+No exemplo ilustrado anteriormente, em vez de manter um único losango conectando as três frentes, a modelagem ideal consistiria em criar uma entidade chamada \texttt{Fornecimento}. Essa nova entidade assumiria relacionamentos binários independentes com o Fornecedor, o Produto e o Armazém, simplificando a estrutura e permitindo o armazenamento de atributos próprios do fornecimento (como data de entrega e custo de frete).
+
+\begin{diagramER}
+\begin{center}
+\begin{adjustbox}{max width=\linewidth, max height=0.4\textheight, keepaspectratio}
+\begin{tikzpicture}[
+entidade/.style={rectangle, draw=black, thick, minimum width=3cm, minimum height=1.5cm, fill=black!10, text centered},
+relacional/.style={diamond, aspect=2, draw=black, thick, minimum width=2.5cm, minimum height=1.2cm, fill=white, text centered, font=\scriptsize},
+atributo/.style={ellipse, draw=black, thick, minimum width=2.2cm, minimum height=0.8cm, fill=white, text centered, font=\scriptsize},
+linha/.style={draw=black, thick}
+]
+
+    % Entidade Associativa Central
+    \node[entidade] (fornecimento) {\textbf{Fornecimento}};
+    
+    % Atributos da Entidade Associativa
+    \node[atributo] (data) [above left=0.8cm and 0.1cm of fornecimento] {Data\_Entrega};
+    \node[atributo] (custo) [above right=0.8cm and 0.1cm of fornecimento] {Custo\_Frete};
+    \draw[linha] (fornecimento) -- (data);
+    \draw[linha] (fornecimento) -- (custo);
+
+    % Relacionamento com Fornecedor
+    \node[relacional] (rel_fornec) [left=2cm of fornecimento] {Realizado por};
+    \node[entidade] (fornecedor) [left=1.5cm of rel_fornec] {\textbf{Fornecedor}};
+    \draw[linha] (fornecedor) -- node[above, font=\scriptsize] {(1,1)} (rel_fornec);
+    \draw[linha] (rel_fornec) -- node[above, font=\scriptsize] {(0,n)} (fornecimento);
+
+    % Relacionamento com Produto
+    \node[relacional] (rel_prod) [right=2cm of fornecimento] {Contém};
+    \node[entidade] (produto) [right=1.5cm of rel_prod] {\textbf{Produto}};
+    \draw[linha] (produto) -- node[above, font=\scriptsize] {(0,n)} (rel_prod);
+    \draw[linha] (rel_prod) -- node[above, font=\scriptsize] {(1,n)} (fornecimento);
+
+    % Relacionamento com Armazém
+    \node[relacional] (rel_arm) [below=1.5cm of fornecimento] {Destinado a};
+    \node[entidade] (armazem) [below=1.5cm of rel_arm] {\textbf{Armazém}};
+    \draw[linha] (armazem) -- node[right, font=\scriptsize] {(1,1)} (rel_arm);
+    \draw[linha] (rel_arm) -- node[right, font=\scriptsize] {(0,n)} (fornecimento);
+
+\end{tikzpicture}
+\end{adjustbox}
+\captionof{figure}{Exemplo de decomposição: o relacionamento ternário foi substituído pela entidade associativa \textit{Fornecimento} e três relacionamentos binários.}
+\end{center}
+\end{diagramER}
+
+\subsubsection{Cardinalidade}
+
+Independentemente do grau, os relacionamentos são restritos e quantificados de acordo com sua \textbf{cardinalidade}. Na notação de Peter Chen, essas regras de proporção são frequentemente detalhadas expressando-se o par \textbf{(mínimo, máximo)} ao lado das linhas de conexão.
+
+\begin{itemize}
+    \item \textbf{Cardinalidade Mínima (Opcionalidade):} Indica o limite inferior de participações da entidade no relacionamento. Geralmente, assume os valores 0 (participação opcional) ou 1 (participação obrigatória). Contudo, pode ser qualquer número inteiro exigido pela regra de negócio (por exemplo, um produto deve ter no mínimo 2 fotos cadastradas).
+    \item \textbf{Cardinalidade Máxima:} Indica o limite superior de participações da entidade. Costuma assumir o valor 1 (no máximo uma) ou "n" (várias participações sem limite predefinido). Assim como a mínima, também pode ser um valor numérico exato fixado pela regra (por exemplo, um cliente pode salvar no máximo 3 cartões de crédito em sua conta).
+\end{itemize}
+
+Embora as combinações mais frequentes na literatura sejam \textbf{(0,1)}, \textbf{(1,1)}, \textbf{(0,n)} ou \textbf{(1,n)}, as regras de uma organização podem estabelecer limites perfeitamente específicos, resultando em cardinalidades como \textbf{(2,5)} (no mínimo dois, no máximo cinco) ou \textbf{(4,4)} (exatamente quatro itens obrigatórios).
+
+Ao classificar o relacionamento de forma macro, observando apenas as cardinalidades máximas envolvidas na associação, identificam-se os seguintes tipos clássicos:
+
+\begin{itemize}
+    \item \textbf{1:1 (Um para um)}: Ocorre quando um registro de uma entidade se relaciona a apenas um registro de outra. É o caso de um pedido e a sua respectiva Nota Fiscal (considerando que cada pedido gera apenas uma nota e cada nota refere-se a apenas um pedido).
+    \item \textbf{1:N (Um para muitos)}: Ocorre quando um registro de uma entidade pode se relacionar a vários registros de outra. É o exemplo de um cliente que pode realizar vários pedidos ao longo do tempo, mas cada pedido pertence a apenas um cliente.
+    \item \textbf{N:N (Muitos para muitos)}: Ocorre quando múltiplos registros de uma entidade se relacionam com múltiplos registros de outra. No e-commerce, um pedido contém vários produtos e, simultaneamente, o mesmo produto pode estar presente em centenas de pedidos diferentes.
+\end{itemize}
+
+\vspace{0.3cm}
+\noindent \textbf{Exemplos Visuais de Cardinalidade:}
+
+\begin{diagramER}
+    \begin{center}
+    
+    % --- Relacionamento 1:1 ---
+    \begin{adjustbox}{max width=\linewidth, max height=0.35\textheight, keepaspectratio}
+\begin{tikzpicture}[
+        entidade/.style={rectangle, draw=black, thick, minimum width=3cm, minimum height=1.5cm, fill=black!10, text centered},
+        relacional/.style={diamond, aspect=2, draw=black, thick, minimum width=3cm, minimum height=1.5cm, fill=white, text centered},
+        linha/.style={draw=black, thick}
+    ]
+    \node[entidade] (pedido) {\textbf{Pedido}};
+    \node[relacional] (gera) [right = 2.5cm of pedido] {Gera};
+    \node[entidade] (nota) [right = 2.5cm of gera] {\textbf{Nota Fiscal}};
+    
+    \draw[linha] (pedido) -- node[above] {(1,1)} (gera);
+    \draw[linha] (gera) -- node[above] {(1,1)} (nota);
+    \end{tikzpicture}
+\end{adjustbox}
+    \captionof{figure}{Relacionamento 1:1 entre Pedido e Nota Fiscal (Participação obrigatória de ambos).}
+    
+    \vspace{0.5cm}
+    
+    % --- Relacionamento 1:N ---
+    \begin{adjustbox}{max width=\linewidth, max height=0.35\textheight, keepaspectratio}
+\begin{tikzpicture}[
+        entidade/.style={rectangle, draw=black, thick, minimum width=3cm, minimum height=1.5cm, fill=black!10, text centered},
+        relacional/.style={diamond, aspect=2, draw=black, thick, minimum width=3cm, minimum height=1.5cm, fill=white, text centered},
+        linha/.style={draw=black, thick}
+    ]
+    \node[entidade] (cliente) {\textbf{Cliente}};
+    \node[relacional] (realiza) [right = 2.5cm of cliente] {Realiza};
+    \node[entidade] (pedido) [right = 2.5cm of realiza] {\textbf{Pedido}};
+    
+    \draw[linha] (cliente) -- node[above] {(0,n)} (realiza);
+    \draw[linha] (realiza) -- node[above] {(1,1)} (pedido);
+    \end{tikzpicture}
+\end{adjustbox}
+    \captionof{figure}{Relacionamento 1:N entre Cliente (Opcional) e Pedido (Obrigatório).}
+
+    \vspace{0.5cm}
+    
+    % --- Relacionamento N:N ---
+    \begin{adjustbox}{max width=\linewidth, max height=0.35\textheight, keepaspectratio}
+\begin{tikzpicture}[
+        entidade/.style={rectangle, draw=black, thick, minimum width=3cm, minimum height=1.5cm, fill=black!10, text centered},
+        relacional/.style={diamond, aspect=2, draw=black, thick, minimum width=3cm, minimum height=1.5cm, fill=white, text centered},
+        linha/.style={draw=black, thick}
+    ]
+    \node[entidade] (pedido) {\textbf{Pedido}};
+    \node[relacional] (contem) [right = 2.5cm of pedido] {Contém};
+    \node[entidade] (produto) [right = 2.5cm of contem] {\textbf{Produto}};
+    
+    \draw[linha] (pedido) -- node[above] {(1,n)} (contem);
+    \draw[linha] (contem) -- node[above] {(0,n)} (produto);
+    \end{tikzpicture}
+\end{adjustbox}
+    \captionof{figure}{Relacionamento N:N entre Pedido (Obrigatório) e Produto (Opcional).}
+    
+    \end{center}
+\end{diagramER}
+
+\subsection{Entidade Fraca}
+
+Para finalizar os conceitos fundamentais do diagrama, destaca-se a \textbf{Entidade Fraca}. Como o nome sugere, é uma entidade que não possui força para existir sozinha no banco de dados, sendo totalmente dependente de outra entidade (chamada de entidade forte).
+
+\textbf{Características Principais:}
+\begin{itemize}
+    \item Não possui uma chave primária própria capaz de identificá-la globalmente.
+    \item Sua existência está condicionada: se a entidade forte vinculada a ela for apagada do sistema, a entidade fraca perde o sentido e deve ser apagada junto (exclusão em cascata).
+\end{itemize}
+
+Em um e-commerce, um exemplo clássico é o \textbf{Item de Pedido}. Um registro que diz "3 unidades do produto X" não faz sentido sozinho no banco de dados; ele precisa estar obrigatoriamente vinculado a um \textbf{Pedido} específico. Se o pedido for cancelado e excluído do sistema, todos os itens que dependiam dele também sairão do sistema automaticamente.
+
+No diagrama de Chen, a entidade fraca é representada de forma destacada por um \textit{retângulo com borda dupla}, e seu relacionamento associado também recebe a borda dupla.
+
+\begin{diagramER}
+    \begin{center}
+    \begin{adjustbox}{max width=\linewidth, max height=0.35\textheight, keepaspectratio}
+\begin{tikzpicture}[
         entidadeForte/.style={rectangle, draw=black, thick, minimum width=3.5cm, minimum height=1.5cm, fill=black!10, text centered},
         entidadeFraca/.style={rectangle, double, double distance=2pt, draw=black, thick, minimum width=3.5cm, minimum height=1.5cm, fill=black!10, text centered},
         relacional/.style={diamond, double, double distance=2pt, aspect=2, draw=black, thick, minimum width=3cm, minimum height=1.5cm, fill=white, text centered},
         linha/.style={draw=black, thick}
     ]
-    \node[entidadeForte] (funcionario) {\textbf{Funcionário}};
-    \node[relacional] (possui) [right = 2.5cm of funcionario] {Possui};
-    \node[entidadeFraca] (dependente) [right = 2.5cm of possui] {\textbf{Dependente}};
+    \node[entidadeForte] (pedido) {\textbf{Pedido}};
+    \node[relacional] (possui) [right = 2.5cm of pedido] {Possui};
+    \node[entidadeFraca] (item) [right = 2.5cm of possui] {\textbf{Item de Pedido}};
     
-    \draw[linha] (funcionario) -- node[above] {1} (possui);
-    \draw[linha] (possui) -- node[above] {N} (dependente);
+    \draw[linha] (pedido) -- node[above] {(1,n)} (possui);
+    \draw[linha] (possui) -- node[above] {(1,1)} (item);
     \end{tikzpicture}
-    \caption{Representação de uma entidade fraca (Dependente).}
-\end{figure}
+\end{adjustbox}
+    \captionof{figure}{Representação de uma entidade fraca (Item de Pedido) e seu relacionamento identificador com a entidade forte (Pedido).}
+    \end{center}
+\end{diagramER}
 
-\section{Atividade Prática: Sistema de Fazenda}
+\section{Síntese da Modelagem: Diagrama Completo}
 
-\subsection{Contexto}
+Para consolidar todos os conceitos apresentados neste capítulo, a Figura~\ref{fig:der_completo} exibe um Diagrama Entidade-Relacionamento completo para um domínio de Gestão Comercial. Este diagrama atua como um "mapa mental" definitivo, reunindo simultaneamente todos os elementos visuais da Notação de Peter Chen que foram detalhados nas seções anteriores.
 
-Uma fazenda leiteira em Rio Verde deseja modernizar o controle de sua produção. Atualmente, os registros são manuais, o que dificulta a gestão.
-
-\begin{center}
-    \includegraphics[width=9cm]{fazenda.png}
-    \captionof{figure}{Fazenda em Rio Verde (GO).}
-\end{center}
-
-\subsection{Requisitos}
-
+Ao analisar o diagrama, o projetista de banco de dados poderá identificar:
 \begin{itemize}
-    \item \textbf{Vacas}: Devem ter um código único, nome, data de nascimento, raça e peso.
-    \item \textbf{Funcionários}: Identificados por código e nome. Eles realizam as ordenhas.
-    \item \textbf{Ordenha}: Registro de cada vez que uma vaca é ordenhada. Deve guardar a Data, Hora e Quantidade de leite (litros).
-    \item \textbf{Veterinário}: Atende as vacas quando necessário. Deve guardar o código, nome e CRMV.
+    \item \textbf{Entidades Fortes:} Cliente, Pedido, Produto, Categoria, Fornecedor e Armazém.
+    \item \textbf{Entidades Fracas:} Item de Pedido (marcado com borda dupla, dependente estruturalmente de Pedido).
+    \item \textbf{Atributos Chave (PK):} CPF, ID\_Pedido, Cod\_Produto, ID\_Categoria, CNPJ e ID\_Armazém (sublinhados).
+    \item \textbf{Atributos Especiais:} Endereço (Composto), Telefones (Multivalorado, em elipse dupla) e Idade (Derivado, em elipse tracejada).
+    \item \textbf{Graus de Relacionamento:} Binários (Realiza, Pertence, Refere-se), Ternário (Fornece) e Autorrelacionamento/Unário (Subcategoria).
 \end{itemize}
 
-\subsection{Regras de Negócio}
+\begin{diagramER}
+    \begin{center}
+    \begin{adjustbox}{max width=\linewidth, max height=0.95\textheight, keepaspectratio}
+    \begin{tikzpicture}[
+            entidade/.style={rectangle, draw=black, thick, minimum width=3.2cm, minimum height=1.3cm, fill=black!10, text centered},
+            entidadeFraca/.style={rectangle, double, double distance=2pt, draw=black, thick, minimum width=3.2cm, minimum height=1.3cm, fill=black!10, text centered},
+            relacional/.style={diamond, aspect=2, draw=black, thick, minimum width=3cm, minimum height=1.2cm, fill=white, text centered, font=\scriptsize},
+            relacionalFraco/.style={diamond, double, double distance=2pt, aspect=2, draw=black, thick, minimum width=3cm, minimum height=1.2cm, fill=white, text centered, font=\scriptsize},
+            atributo/.style={ellipse, draw=black, thick, minimum width=2.4cm, minimum height=0.9cm, fill=white, text centered, font=\scriptsize},
+            atributoPK/.style={ellipse, draw=black, thick, minimum width=2.4cm, minimum height=0.9cm, fill=white, text centered, font=\scriptsize},
+            atributoMulti/.style={ellipse, double, double distance=2pt, draw=black, thick, minimum width=2.4cm, minimum height=0.9cm, fill=white, text centered, font=\scriptsize},
+            atributoDeriv/.style={ellipse, dashed, draw=black, thick, minimum width=2.4cm, minimum height=0.9cm, fill=white, text centered, font=\scriptsize},
+            linha/.style={draw=black, thick}
+        ]
 
-\begin{itemize}
-    \item Uma vaca pode ser ordenhada várias vezes ao longo do tempo.
-    \item Cada ordenha é feita por um funcionário.
-    \item Um veterinário pode atender várias vacas, e uma vaca pode receber vários atendimentos.
-\end{itemize}
+        % ================= CAMADA 1: CLIENTE =================
+        \node[entidade] (cliente) {\textbf{Cliente}};
+        \node[atributoPK] (cpf) [above=0.8cm of cliente] {\underline{CPF}};
+        \node[atributoMulti] (tels) [above right=0.6cm and 0.8cm of cliente] {Telefones};
+        \node[atributoDeriv] (idade) [right=1.2cm of cliente] {Idade};
+        
+        % Atributo Composto (Endereço)
+        \node[atributo] (endereco) [left=2cm of cliente] {Endereço};
+        \node[atributo] (rua) [above left=0.6cm and 0.2cm of endereco] {Rua};
+        \node[atributo] (numero) [left=0.8cm of endereco] {Número};
+        \node[atributo] (bairro) [below left=0.6cm and 0.2cm of endereco] {Bairro};
+        \node[atributo] (cidade) [below=0.8cm of endereco] {Cidade};
 
-\subsection{O que fazer?}
+        \draw[linha] (cliente) -- (cpf);
+        \draw[linha] (cliente) -- (tels);
+        \draw[linha] (cliente) -- (idade);
+        \draw[linha] (cliente) -- (endereco);
+        \draw[linha] (endereco) -- (rua);
+        \draw[linha] (endereco) -- (numero);
+        \draw[linha] (endereco) -- (bairro);
+        \draw[linha] (endereco) -- (cidade);
 
-Com base nas informações acima, desenhe o \textbf{Diagrama Entidade-Relacionamento (DER)}:
-\begin{enumerate}
-    \item Identifique as \textbf{Entidades} (Vacas, Funcionários, etc.).
-    \item Defina os \textbf{Atributos} e a \textbf{Chave Primária} de cada uma.
-    \item Desenhe os \textbf{Relacionamentos} e defina as \textbf{Cardinalidades} (1:1, 1:N ou N:N).
-\end{enumerate}
+        % ================= CAMADA 2: PEDIDO E SUAS RELAÇÕES =================
+        \node[relacional] (realiza) [below=1.8cm of cliente] {Realiza};
+        \node[entidade] (pedido) [below=1.8cm of realiza] {\textbf{Pedido}};
+        
+        % Atributos de Pedido (movidos para as diagonais para liberar as laterais)
+        \node[atributoPK] (idped) [above left=0.5cm and 0.2cm of pedido] {\underline{ID\_Pedido}};
+        \node[atributo] (dataped) [above right=0.5cm and 0.2cm of pedido] {Data};
+        
+        \draw[linha] (cliente) -- node[left, font=\scriptsize] {(0,n)} (realiza);
+        \draw[linha] (realiza) -- node[left, font=\scriptsize] {(1,1)} (pedido);
+        \draw[linha] (pedido) -- (idped);
+        \draw[linha] (pedido) -- (dataped);
 
-\begin{observacao}
-\textbf{Instruções de Entrega:}
-O Diagrama Entidade-Relacionamento deve ser feito de forma legível (à mão ou ferramenta digital como brModelo/Lucidchart). O arquivo final deve ser convertido para \textbf{PDF} e conter apenas o diagrama finalizado.
-\end{observacao}
+        % Relacionamento 1:N (Transportadora <- Entrega <- Pedido)
+        \node[relacional] (entrega) [left=2cm of pedido] {Entrega};
+        \node[entidade] (transp) [left=1.5cm of entrega] {\textbf{Transportadora}};
+        \node[atributoPK] (idtransp) [above=0.8cm of transp] {\underline{CNPJ}};
+        \node[atributo] (nometransp) [left=0.8cm of transp] {Razão Social};
+        
+        \draw[linha] (transp) -- node[above, font=\scriptsize] {(0,n)} (entrega);
+        \draw[linha] (entrega) -- node[above, font=\scriptsize] {(1,1)} (pedido);
+        \draw[linha] (transp) -- (idtransp);
+        \draw[linha] (transp) -- (nometransp);
 
-\subsection{Critérios de Avaliação}
-A avaliação considerará a correta identificação das entidades, adequação das chaves primárias, precisão das cardinalidades frente às regras de negócio e a organização visual do diagrama.
+        % Relacionamento 1:1 (Pedido -> Gera -> Nota Fiscal)
+        \node[relacional] (gera) [right=2cm of pedido] {Gera};
+        \node[entidade] (nota) [right=1.5cm of gera] {\textbf{Nota Fiscal}};
+        \node[atributoPK] (numnota) [above=0.8cm of nota] {\underline{Num\_NF}};
+        \node[atributo] (valornota) [right=0.8cm of nota] {Valor\_Total};
+        
+        \draw[linha] (pedido) -- node[above, font=\scriptsize] {(1,1)} (gera);
+        \draw[linha] (gera) -- node[above, font=\scriptsize] {(1,1)} (nota);
+        \draw[linha] (nota) -- (numnota);
+        \draw[linha] (nota) -- (valornota);
 
-\vspace{0.5cm}
+        % ================= CAMADA 3: ITEM DE PEDIDO =================
+        \node[relacionalFraco] (contem) [below=1.6cm of pedido] {Contém};
+        \node[entidadeFraca] (item) [below=1.6cm of contem] {\textbf{Item de Pedido}};
+        \node[atributo] (qtd) [right=1cm of item] {Quantidade};
+        
+        \draw[linha] (pedido) -- node[left, font=\scriptsize] {(1,n)} (contem);
+        \draw[linha] (contem) -- node[left, font=\scriptsize] {(1,1)} (item);
+        \draw[linha] (item) -- (qtd);
+
+        % ================= CAMADA 4: PRODUTO =================
+        \node[relacional] (refere) [below=1.6cm of item] {Refere-se};
+        \node[entidade] (produto) [below=1.6cm of refere] {\textbf{Produto}};
+        
+        \node[atributoPK] (codprod) [above right=0.3cm and 0.8cm of produto] {\underline{Cod\_Prod}};
+        \node[atributo] (nomeprod) [right=1cm of produto] {Nome};
+        
+        \draw[linha] (item) -- node[left, font=\scriptsize] {(1,1)} (refere);
+        \draw[linha] (refere) -- node[left, font=\scriptsize] {(0,n)} (produto);
+        \draw[linha] (produto) -- (codprod);
+        \draw[linha] (produto) -- (nomeprod);
+
+        % ================= CAMADA 5: CATEGORIA =================
+        \node[relacional] (pertence) [left=3.5cm of produto] {Pertence};
+        \node[entidade] (categoria) [left=2cm of pertence] {\textbf{Categoria}};
+        \node[relacional] (subcat) [below=1.2cm of categoria] {Subcat.};
+        
+        \node[atributoPK] (idcat) [above=0.8cm of categoria] {\underline{ID\_Categoria}};
+        \node[atributo] (desc) [above left=0.4cm and 0.4cm of categoria] {Descrição};
+
+        \draw[linha] (categoria) -- (idcat);
+        \draw[linha] (categoria) -- (desc);
+        \draw[linha] (produto) -- node[above, font=\scriptsize] {(1,1)} (pertence);
+        \draw[linha] (pertence) -- node[above, font=\scriptsize] {(0,n)} (categoria);
+        \draw[linha] (categoria.south) -- node[right, font=\scriptsize] {(0,n)} (subcat.north);
+        \draw[linha] (categoria.west) -- ++(-0.6cm,0) |- node[above, pos=0.8, font=\scriptsize] {(0,1)} (subcat.west);
+
+        % ================= CAMADA 6: FORNECIMENTO (Ternário) =================
+        \node[relacional] (fornece) [below=2.2cm of produto] {Fornece};
+        \node[entidade] (fornec) [below left=2cm and 1.5cm of fornece] {\textbf{Fornecedor}};
+        \node[entidade] (armazem) [below right=2cm and 1.5cm of fornece] {\textbf{Armazém}};
+        
+        % Atributos Fornecedor (com Multivalorado e Simples)
+        \node[atributoPK] (cnpjforn) [below=0.8cm of fornec] {\underline{CNPJ}};
+        \node[atributo] (nomeforn) [left=0.8cm of fornec] {Nome\_Fantasia};
+        \node[atributoMulti] (emailsforn) [above left=0.4cm and 0.6cm of fornec] {E-mails};
+        
+        \draw[linha] (fornec) -- (cnpjforn);
+        \draw[linha] (fornec) -- (nomeforn);
+        \draw[linha] (fornec) -- (emailsforn);
+
+        % Atributos Armazém
+        \node[atributoPK] (idarm) [below=0.8cm of armazem] {\underline{ID\_Armazém}};
+        \node[atributo] (caparm) [right=0.8cm of armazem] {Capacidade};
+
+        \draw[linha] (armazem) -- (idarm);
+        \draw[linha] (armazem) -- (caparm);
+
+        % Conexões do Ternário
+        \draw[linha] (produto) -- node[left, font=\scriptsize] {(0,n)} (fornece);
+        \draw[linha] (fornec) -- node[above left, font=\scriptsize] {(0,n)} (fornece);
+        \draw[linha] (armazem) -- node[above right, font=\scriptsize] {(0,n)} (fornece);
+
+    \end{tikzpicture}
+    \end{adjustbox}
+    \captionof{figure}{Exemplo de DER completo utilizando Notação de Chen, englobando relacionamentos 1:1, 1:N, N:N, autorrelacionamento, ternário e múltiplas tipologias de atributos.}
+    \label{fig:der_completo_final}
+    \end{center}
+\end{diagramER}

@@ -1,5 +1,54 @@
 \chapter{Exercícios anexos}
 
+\section{Exercício de Modelagem Conceitual: Sistema de Fazenda}
+
+\subsection{Contexto}
+
+Uma fazenda leiteira localizada no município de Rio Verde deseja modernizar o controle de sua produção. Atualmente, os registros são feitos de forma manual em cadernos, o que dificulta o cruzamento de dados e a gestão eficiente do negócio.
+
+\begin{center}
+    \includegraphics[width=9cm]{fazenda.png}
+    \captionof{figure}{Fazenda em Rio Verde (GO).}
+\end{center}
+
+\subsection{Requisitos do Sistema}
+
+A partir de entrevistas com os gestores da fazenda, foram mapeadas as seguintes necessidades de armazenamento:
+\begin{itemize}
+    \item \textbf{Vacas}: Todo animal deve ser registrado com um código identificador único, nome, data de nascimento, raça e peso atual.
+    \item \textbf{Funcionários}: A equipe que realiza o trabalho operacional é identificada por um código interno e pelo nome completo.
+    \item \textbf{Ordenha}: O sistema precisa manter um histórico rigoroso. Toda vez que uma vaca for ordenhada, deve-se registrar a data, a hora e a quantidade de leite extraída (em litros).
+    \item \textbf{Veterinário}: Os profissionais da saúde que atendem na propriedade devem ter seus dados arquivados: código interno, nome e número de registro no CRMV.
+\end{itemize}
+
+\subsection{Regras de Negócio Estabelecidas}
+
+\begin{itemize}
+    \item Uma vaca é submetida a processos de ordenha várias vezes ao longo de sua vida produtiva.
+    \item O registro de cada ordenha é responsabilidade direta e vinculada a um único funcionário do turno.
+    \item A assistência médica é dinâmica: um veterinário pode prestar atendimento a várias vacas diferentes, e uma mesma vaca, ao longo do tempo, pode ser atendida por vários veterinários distintos.
+\end{itemize}
+
+\subsection{O que deve ser feito?}
+
+Aja como o projetista de banco de dados contratado pela fazenda. Com base no contexto e nos requisitos fornecidos acima, desenhe o diagrama entidade-relacionamento lógico e completo.
+
+Para a execução da tarefa, siga as etapas:
+\begin{enumerate}
+    \item Identifique todas as entidades do sistema.
+    \item Para cada entidade, defina seus atributos e destaque claramente a chave primária.
+    \item Estabeleça os relacionamentos entre as entidades.
+    \item Determine e anote no diagrama as cardinalidades de cada relacionamento (1:1, 1:N ou N:N), refletindo as regras de negócio.
+\end{enumerate}
+
+\begin{observacao}
+\textbf{Instruções de Entrega:}
+O diagrama entidade-relacionamento deve ser construído de forma legível. O aluno pode optar por desenhá-lo à mão (desde que limpo e organizado) ou utilizar ferramentas de modelagem digital, como \textit{brModelo} ou \textit{Lucidchart}. O arquivo final deverá ser exportado e submetido em formato PDF, contendo exclusivamente o diagrama finalizado.
+\end{observacao}
+
+\subsection{Critérios de Avaliação}
+A correção do trabalho considerará: a precisão na identificação das entidades, a correta atribuição das chaves primárias (respeitando a unicidade), a exatidão das cardinalidades frente às regras de negócio descritas e a clareza da organização visual do diagrama.
+
 \section{Exercícios de normalização}
 Abaixo temos uma visão geral de informações mantidas, tradicionalmente em Excel, pela coordenação de estágios de um instituto universitário. Uma mesma empresa fornecedora de estágio pode ofertar vagas com orientadores distintos.
 
