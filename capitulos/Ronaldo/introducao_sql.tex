@@ -1,0 +1,298 @@
+\chapter{Introdução à SQL}
+\label{cap:introducao_sql}
+
+A linguagem SQL (\textit{Structured Query Language}) ocupa posição central no desenvolvimento de bancos de dados relacionais. Depois de compreender conceitos introdutórios, modelagem conceitual, modelo lógico e normalização, o estudante precisa transformar estruturas abstratas em comandos concretos executáveis por um sistema gerenciador de banco de dados. É exatamente nessa transição que a SQL se torna indispensável.
+
+Esta aula tem como objetivo introduzir a linguagem SQL como instrumento de definição, manipulação, consulta, controle e administração inicial de dados. Mais do que apresentar comandos isolados, a proposta é mostrar a SQL como elo entre o projeto do banco e a sua implementação prática.
+
+\section{A passagem do modelo para a implementação}
+
+Nas etapas anteriores do projeto de banco de dados, o foco esteve voltado para perguntas como:
+
+\begin{itemize}
+    \item quais dados devem ser armazenados;
+    \item como esses dados se relacionam;
+    \item quais restrições precisam ser respeitadas;
+    \item como representar corretamente a realidade do domínio.
+\end{itemize}
+
+Essas perguntas são fundamentais, mas ainda pertencem ao plano de modelagem. Quando o projeto avança para a implementação, surgem novas questões:
+
+\begin{itemize}
+    \item como criar o banco de dados no SGBD escolhido;
+    \item como definir tabelas, colunas e tipos;
+    \item como inserir, atualizar e remover dados;
+    \item como consultar informações de forma eficiente;
+    \item como controlar permissões e preservar consistência.
+\end{itemize}
+
+A SQL responde a essas questões.
+
+\section{O que é SQL}
+
+A SQL é uma linguagem padronizada voltada à interação com bancos de dados relacionais. Seu nome, \textit{Structured Query Language}, destaca sua origem ligada à formulação de consultas, mas seu escopo é muito mais amplo do que apenas recuperar dados.
+
+Em sentido prático, a SQL permite:
+
+\begin{enumerate}
+    \item criar e modificar estruturas de banco de dados;
+    \item inserir, alterar e remover registros;
+    \item consultar dados simples ou complexos;
+    \item definir permissões de acesso;
+    \item controlar transações.
+\end{enumerate}
+
+\section{SQL como linguagem declarativa}
+
+Uma das características mais importantes da SQL é seu caráter declarativo. Isso significa que o usuário informa \emph{o que deseja obter}, e não necessariamente \emph{como} o SGBD deve executar cada passo.
+
+Por exemplo, ao escrever:
+
+\begin{sqlcode}
+SELECT nome
+FROM aluno
+WHERE curso = 'Engenharia de Software';
+\end{sqlcode}
+
+o usuário expressa sua intenção: deseja os nomes dos alunos do curso indicado. O SGBD, por sua vez, decide internamente quais estratégias utilizar para atender à consulta, como leitura sequencial, uso de índice, cache ou reordenação do plano de execução.
+
+Essa separação entre intenção e mecanismo é uma das razões pelas quais a SQL se tornou tão importante.
+
+\section{SQL padrão e dialetos}
+
+Embora exista padronização internacional para a linguagem SQL, cada SGBD implementa a linguagem com particularidades. PostgreSQL, MySQL, SQL Server, Oracle e SQLite compartilham grande parte da sintaxe essencial, mas diferem em vários pontos:
+
+\begin{itemize}
+    \item nomes e comportamento de tipos de dados;
+    \item comandos administrativos;
+    \item funções internas;
+    \item suporte a recursos avançados;
+    \item tratamento de transações e concorrência;
+    \item extensões próprias.
+\end{itemize}
+
+Isso significa que aprender SQL não equivale a decorar uma lista fixa de comandos universalmente idênticos. O estudante deve aprender o núcleo conceitual da linguagem e, ao mesmo tempo, desenvolver sensibilidade para os dialetos.
+
+\section{Por que estudar SQL no contexto do livro}
+
+Dentro da estrutura da obra, a Parte III representa a passagem da compreensão do banco de dados para seu uso efetivo. A SQL aparece como linguagem de concretização. Se a Parte I constrói a base conceitual e a Parte II conduz o leitor até a introdução da linguagem, a Parte III aprofunda seu uso de forma aplicada.
+
+Por isso, esta aula não deve ser vista como mera introdução técnica, mas como marco de transição didática.
+
+\section{Sublinguagens da SQL}
+
+Uma forma útil de compreender a SQL é dividi-la em subconjuntos funcionais. Essa divisão não significa que existam linguagens independentes, mas sim grupos de comandos com objetivos diferentes.
+
+\subsection{DDL -- Data Definition Language}
+
+A DDL reúne comandos que definem a estrutura do banco de dados.
+
+Exemplos:
+\begin{itemize}
+    \item \texttt{CREATE}
+    \item \texttt{ALTER}
+    \item \texttt{DROP}
+\end{itemize}
+
+\subsection{DML -- Data Manipulation Language}
+
+A DML atua na manipulação dos dados armazenados.
+
+Exemplos:
+\begin{itemize}
+    \item \texttt{INSERT}
+    \item \texttt{UPDATE}
+    \item \texttt{DELETE}
+\end{itemize}
+
+\subsection{DQL -- Data Query Language}
+
+A DQL é frequentemente associada ao comando \texttt{SELECT}, responsável pela recuperação de dados.
+
+\subsection{DCL -- Data Control Language}
+
+A DCL controla permissões e acessos.
+
+Exemplos:
+\begin{itemize}
+    \item \texttt{GRANT}
+    \item \texttt{REVOKE}
+\end{itemize}
+
+\subsection{TCL -- Transaction Control Language}
+
+A TCL controla transações.
+
+Exemplos:
+\begin{itemize}
+    \item \texttt{BEGIN}
+    \item \texttt{COMMIT}
+    \item \texttt{ROLLBACK}
+\end{itemize}
+
+\section{Quadro comparativo das sublinguagens}
+
+\begin{center}
+\begin{tabular}{|p{2.5cm}|p{5cm}|p{5cm}|}
+\hline
+\textbf{Grupo} & \textbf{Finalidade} & \textbf{Exemplos} \\
+\hline
+DDL & Definir estruturas & CREATE TABLE, ALTER TABLE, DROP TABLE \\
+\hline
+DML & Manipular dados & INSERT, UPDATE, DELETE \\
+\hline
+DQL & Consultar dados & SELECT \\
+\hline
+DCL & Controlar permissões & GRANT, REVOKE \\
+\hline
+TCL & Controlar transações & BEGIN, COMMIT, ROLLBACK \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{SGBD, banco, schema e objetos}
+
+Em um ambiente real, a SQL interage com vários níveis de organização:
+
+\begin{itemize}
+    \item o \textbf{SGBD}, que administra bancos de dados;
+    \item o \textbf{banco de dados}, que agrupa objetos de uma aplicação;
+    \item o \textbf{schema}, que organiza logicamente esses objetos;
+    \item os \textbf{objetos}, como tabelas, visões, índices, sequências e funções.
+\end{itemize}
+
+No PostgreSQL, por exemplo, um mesmo banco pode conter múltiplos schemas, e cada schema pode conter múltiplas tabelas.
+
+\section{Primeiros comandos de definição}
+
+\subsection{Criação de banco}
+
+\begin{sqlcode}
+CREATE DATABASE escola;
+\end{sqlcode}
+
+\subsection{Criação de schema}
+
+\begin{sqlcode}
+CREATE SCHEMA academico;
+\end{sqlcode}
+
+\subsection{Criação de tabela simples}
+
+\begin{sqlcode}
+CREATE TABLE academico.curso (
+    curso_id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    carga_horaria INTEGER NOT NULL
+);
+\end{sqlcode}
+
+Esses comandos já mostram que a SQL não se limita à consulta. Ela cria efetivamente o espaço em que os dados existirão.
+
+\section{Comparação entre SQL e linguagem de programação}
+
+É comum que alunos comparem SQL com linguagens como Python, Java ou C. Essa comparação ajuda a esclarecer o papel específico da linguagem.
+
+\begin{itemize}
+    \item uma linguagem de programação de propósito geral controla fluxo, estruturas, algoritmos e interação de software;
+    \item a SQL é especializada em descrever operações sobre estruturas relacionais e conjuntos de dados.
+\end{itemize}
+
+A SQL pode aparecer embutida em aplicações escritas em outras linguagens, mas sua função permanece própria.
+
+\section{Boas práticas iniciais de escrita SQL}
+
+Mesmo na introdução, já convém estabelecer alguns hábitos:
+
+\begin{itemize}
+    \item escrever comandos de forma legível e organizada;
+    \item usar nomes claros para tabelas e colunas;
+    \item manter consistência de nomenclatura;
+    \item evitar abreviações obscuras;
+    \item comentar scripts maiores;
+    \item distinguir claramente comandos de definição e de manipulação.
+\end{itemize}
+
+\begin{quadro_dica}
+Uma boa prática didática consiste em escrever palavras-chave SQL em maiúsculas e nomes de tabelas ou colunas em minúsculas. Isso não é obrigatório, mas facilita a leitura.
+\end{quadro_dica}
+
+\section{Exemplos práticos comentados}
+
+\subsection{Exemplo 1 -- Criando um banco}
+
+\begin{sqlcode}
+CREATE DATABASE universidade;
+\end{sqlcode}
+
+Esse comando inicializa um banco que poderá armazenar as estruturas da aplicação.
+
+\subsection{Exemplo 2 -- Criando um schema}
+
+\begin{sqlcode}
+CREATE SCHEMA secretaria;
+\end{sqlcode}
+
+Esse comando organiza logicamente os objetos da área de secretaria.
+
+\subsection{Exemplo 3 -- Criando uma tabela básica}
+
+\begin{sqlcode}
+CREATE TABLE secretaria.aluno (
+    aluno_id SERIAL PRIMARY KEY,
+    nome VARCHAR(120) NOT NULL,
+    data_ingresso DATE NOT NULL
+);
+\end{sqlcode}
+
+Aqui já aparecem conceitos importantes:
+\begin{itemize}
+    \item chave primária;
+    \item tipo de dado textual;
+    \item tipo de dado data;
+    \item obrigatoriedade de preenchimento.
+\end{itemize}
+
+\subsection{Exemplo 4 -- Criando outra tabela}
+
+\begin{sqlcode}
+CREATE TABLE secretaria.curso (
+    curso_id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    carga_horaria INTEGER NOT NULL
+);
+\end{sqlcode}
+
+Esse exemplo sugere que a SQL começa a traduzir o modelo lógico em estruturas concretas.
+
+\section{Exercícios básicos}
+
+\begin{enumerate}
+    \item Explique o que significa dizer que a SQL é uma linguagem declarativa.
+    \item Diferencie DDL, DML, DQL, DCL e TCL.
+    \item Escreva um comando para criar um banco chamado \texttt{biblioteca}.
+    \item Escreva um comando para criar um schema chamado \texttt{circulacao}.
+    \item Modele uma tabela simples chamada \texttt{livro} com identificador, título e ano.
+\end{enumerate}
+
+\section{Exercícios intermediários}
+
+\begin{enumerate}
+    \item Compare SQL padrão e dialetos de dois SGBDs.
+    \item Explique por que a SQL é indispensável na passagem do modelo lógico para a implementação.
+    \item Descreva a diferença entre banco, schema e tabela.
+    \item Escreva um pequeno texto justificando por que a SQL não deve ser confundida com uma linguagem de programação de propósito geral.
+\end{enumerate}
+
+\section{Exercício integrador}
+
+Considere um sistema acadêmico mínimo com as entidades \texttt{Aluno} e \texttt{Curso}. Descreva:
+\begin{enumerate}
+    \item quais objetos SQL você precisaria criar primeiro;
+    \item em que ordem faria essa implementação;
+    \item a quais grupos da SQL pertencem esses comandos.
+\end{enumerate}
+
+\section{Síntese da aula}
+
+Esta aula apresentou a SQL como linguagem central da implementação de bancos de dados relacionais. Foram discutidos seu caráter declarativo, suas sublinguagens, sua relação com o modelo relacional e sua função prática no SGBD. Também foram apresentados exemplos iniciais de criação de banco, schema e tabela, além de exercícios introdutórios. A próxima aula aprofundará a linguagem de definição de dados, explorando tipos, restrições e escolhas de projeto físico.
