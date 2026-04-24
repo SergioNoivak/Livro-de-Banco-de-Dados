@@ -1,0 +1,537 @@
+\chapter{Fundamentos da Manipulação de Dados}
+\label{cap:fundamentos_manipulacao_dados}
+
+Se a DDL define a estrutura do banco de dados, a DML (\textit{Data Manipulation Language}) é responsável por operar sobre os dados armazenados nessas estruturas. Em termos práticos, é por meio da DML que um sistema passa a registrar ocorrências do mundo real: alunos são cadastrados, notas são lançadas, matrículas são atualizadas e registros indevidos podem ser removidos.
+
+Esta aula tem como objetivo apresentar os fundamentos da manipulação de dados em SQL, concentrando-se nos comandos \texttt{INSERT}, \texttt{SELECT}, \texttt{UPDATE} e \texttt{DELETE}. Além da sintaxe, o foco recai sobre o raciocínio de uso, erros comuns, boas práticas e situações típicas encontradas em ambientes reais.
+
+\section{A DML no uso cotidiano do banco}
+
+Em um sistema de informação, a estrutura do banco é relativamente estável, mas os dados mudam o tempo todo. Isso significa que a manipulação é muito mais frequente do que a definição estrutural.
+
+Algumas ações típicas do cotidiano correspondem diretamente a comandos DML:
+
+\begin{itemize}
+    \item cadastrar um novo aluno;
+    \item lançar uma nota;
+    \item corrigir o nome de um curso;
+    \item alterar o status de uma matrícula;
+    \item remover um registro inserido por engano;
+    \item consultar alunos ou disciplinas para exibição em tela.
+\end{itemize}
+
+Por isso, dominar a DML é essencial para qualquer pessoa que vá desenvolver, administrar ou utilizar sistemas baseados em banco de dados relacionais.
+
+\section{Os quatro comandos fundamentais}
+
+Nesta aula, trabalharemos com quatro comandos principais:
+
+\begin{itemize}
+    \item \texttt{INSERT} -- inserir registros;
+    \item \texttt{SELECT} -- consultar registros;
+    \item \texttt{UPDATE} -- atualizar registros existentes;
+    \item \texttt{DELETE} -- remover registros.
+\end{itemize}
+
+Embora o \texttt{SELECT} seja frequentemente tratado em um grupo específico de consultas, ele aparece aqui por ser parte indispensável da rotina de manipulação e conferência dos dados.
+
+\section{Banco de exemplo}
+
+Para organizar a prática, adotaremos um banco acadêmico simples, com foco nas tabelas \texttt{alunos} e \texttt{notas}. Esse ambiente é suficientemente pequeno para fins didáticos e, ao mesmo tempo, bastante próximo de cenários reais.
+
+\begin{sqlcode}
+CREATE TABLE alunos (
+    aluno_id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    idade INTEGER,
+    curso VARCHAR(100) NOT NULL,
+    status VARCHAR(20) DEFAULT 'ATIVO'
+);
+\end{sqlcode}
+
+\begin{sqlcode}
+CREATE TABLE notas (
+    nota_id SERIAL PRIMARY KEY,
+    aluno_id INTEGER NOT NULL,
+    disciplina VARCHAR(100) NOT NULL,
+    nota NUMERIC(5,2) NOT NULL,
+    data_avaliacao DATE DEFAULT CURRENT_DATE,
+    FOREIGN KEY (aluno_id) REFERENCES alunos(aluno_id)
+);
+\end{sqlcode}
+
+\section{INSERT}
+
+O comando \texttt{INSERT} é usado para adicionar novas linhas a uma tabela.
+
+\subsection{Estrutura geral}
+
+\begin{sqlcode}
+INSERT INTO nome_tabela (coluna1, coluna2, coluna3)
+VALUES (valor1, valor2, valor3);
+\end{sqlcode}
+
+\subsection{Inserção simples}
+
+\begin{sqlcode}
+INSERT INTO alunos (nome, idade, curso)
+VALUES ('Maria Silva', 22, 'Engenharia de Software');
+\end{sqlcode}
+
+Nesse comando:
+\begin{itemize}
+    \item a tabela destino é \texttt{alunos};
+    \item as colunas explicitadas são \texttt{nome}, \texttt{idade} e \texttt{curso};
+    \item o identificador \texttt{aluno\_id} será gerado automaticamente;
+    \item a coluna \texttt{status} assumirá o valor padrão \texttt{ATIVO}.
+\end{itemize}
+
+\subsection{Inserção múltipla}
+
+\begin{sqlcode}
+INSERT INTO alunos (nome, idade, curso) VALUES
+('Ana Souza', 21, 'Engenharia de Software'),
+('Bruno Lima', 24, 'Sistemas de Informação'),
+('Carla Ramos', 20, 'Engenharia de Software'),
+('Daniel Matos', 23, 'Ciência da Computação');
+\end{sqlcode}
+
+A inserção múltipla é útil em cadastros em lote, scripts de carga inicial e testes.
+
+\subsection{Inserção em tabela relacionada}
+
+\begin{sqlcode}
+INSERT INTO notas (aluno_id, disciplina, nota)
+VALUES (1, 'Banco de Dados', 8.5);
+\end{sqlcode}
+
+Nesse caso, o valor informado em \texttt{aluno\_id} precisa corresponder a um aluno já existente na tabela \texttt{alunos}. Caso contrário, a restrição de chave estrangeira impedirá a operação.
+
+\begin{observacao}
+A ordem de inserção importa quando existem relações entre tabelas. Primeiro são cadastrados os registros da tabela pai; depois, os da tabela filha.
+\end{observacao}
+
+\section{SELECT}
+
+O comando \texttt{SELECT} recupera dados do banco. Mesmo antes de explorar consultas mais avançadas, já é possível realizar operações muito úteis.
+
+\subsection{Selecionando colunas específicas}
+
+\begin{sqlcode}
+SELECT nome, idade
+FROM alunos;
+\end{sqlcode}
+
+\subsection{Selecionando todas as colunas}
+
+\begin{sqlcode}
+SELECT *
+FROM alunos;
+\end{sqlcode}
+
+\subsection{Aplicando filtro com WHERE}
+
+\begin{sqlcode}
+SELECT nome, curso
+FROM alunos
+WHERE curso = 'Engenharia de Software';
+\end{sqlcode}
+
+\subsection{Filtrando com operadores relacionais}
+
+\begin{sqlcode}
+SELECT nome, idade
+FROM alunos
+WHERE idade >= 22;
+\end{sqlcode}
+
+\subsection{Combinando condições}
+
+\begin{sqlcode}
+SELECT nome, curso, status
+FROM alunos
+WHERE idade >= 21 AND status = 'ATIVO';
+\end{sqlcode}
+
+\begin{sqlcode}
+SELECT nome, curso
+FROM alunos
+WHERE curso = 'Engenharia de Software'
+   OR curso = 'Sistemas de Informação';
+\end{sqlcode}
+
+\section{UPDATE}
+
+O comando \texttt{UPDATE} modifica registros já armazenados.
+
+\subsection{Estrutura geral}
+
+\begin{sqlcode}
+UPDATE nome_tabela
+SET coluna = valor
+WHERE condicao;
+\end{sqlcode}
+
+\subsection{Atualização simples}
+
+\begin{sqlcode}
+UPDATE alunos
+SET idade = 23
+WHERE nome = 'Maria Silva';
+\end{sqlcode}
+
+\subsection{Atualizando múltiplas colunas}
+
+\begin{sqlcode}
+UPDATE alunos
+SET idade = 24,
+    curso = 'Ciência da Computação'
+WHERE aluno_id = 2;
+\end{sqlcode}
+
+\subsection{Atualizando vários registros}
+
+\begin{sqlcode}
+UPDATE alunos
+SET status = 'INATIVO'
+WHERE curso = 'Curso Extinto';
+\end{sqlcode}
+
+Nesse exemplo, várias linhas podem ser alteradas pela mesma condição.
+
+\begin{danger}
+Um \texttt{UPDATE} sem cláusula \texttt{WHERE} pode alterar todas as linhas da tabela. Antes de atualizar, é prudente executar um \texttt{SELECT} com a mesma condição para conferir o conjunto de registros afetados.
+\end{danger}
+
+\section{DELETE}
+
+O comando \texttt{DELETE} remove linhas de uma tabela.
+
+\subsection{Exclusão simples}
+
+\begin{sqlcode}
+DELETE FROM alunos
+WHERE nome = 'Maria Silva';
+\end{sqlcode}
+
+\subsection{Exclusão por identificador}
+
+\begin{sqlcode}
+DELETE FROM notas
+WHERE nota_id = 4;
+\end{sqlcode}
+
+\subsection{Exclusão em lote}
+
+\begin{sqlcode}
+DELETE FROM notas
+WHERE disciplina = 'Tópicos Obsoletos';
+\end{sqlcode}
+
+\begin{danger}
+Assim como no \texttt{UPDATE}, a ausência de \texttt{WHERE} em um \texttt{DELETE} pode remover todos os registros da tabela.
+\end{danger}
+
+\section{Exemplo resolvido 1 -- Cadastro inicial de alunos}
+
+Suponha que a secretaria acadêmica precise iniciar o cadastro de uma nova turma. O primeiro passo é inserir os alunos.
+
+\begin{sqlcode}
+INSERT INTO alunos (nome, idade, curso) VALUES
+('João Pereira', 19, 'Sistemas de Informação'),
+('Lívia Matos', 22, 'Engenharia de Software'),
+('Pedro Alves', 20, 'Ciência da Computação'),
+('Fernanda Rocha', 23, 'Engenharia de Software');
+\end{sqlcode}
+
+Após a inserção, é recomendável verificar o resultado.
+
+\begin{sqlcode}
+SELECT *
+FROM alunos;
+\end{sqlcode}
+
+\textbf{Interpretação:}  
+O desenvolvedor confirma se os registros foram inseridos corretamente, se os identificadores foram gerados como esperado e se o valor padrão da coluna \texttt{status} foi aplicado.
+
+\section{Exemplo resolvido 2 -- Lançamento de notas}
+
+Com os alunos cadastrados, o próximo passo é registrar suas notas.
+
+\begin{sqlcode}
+INSERT INTO notas (aluno_id, disciplina, nota) VALUES
+(1, 'Banco de Dados', 8.5),
+(2, 'Algoritmos', 7.0),
+(3, 'Estruturas de Dados', 9.0),
+(4, 'Banco de Dados', 8.0);
+\end{sqlcode}
+
+Em seguida, pode-se verificar o conteúdo da tabela:
+
+\begin{sqlcode}
+SELECT *
+FROM notas;
+\end{sqlcode}
+
+\textbf{Interpretação:}  
+Essa etapa confirma se cada nota foi associada ao aluno correto. Também ajuda a identificar erros de digitação em disciplina ou valor numérico.
+
+\section{Exemplo resolvido 3 -- Correção cadastral}
+
+Imagine que o aluno de identificador 3 foi cadastrado no curso errado.
+
+Antes de atualizar, faz-se a conferência:
+
+\begin{sqlcode}
+SELECT *
+FROM alunos
+WHERE aluno_id = 3;
+\end{sqlcode}
+
+Depois, realiza-se a correção:
+
+\begin{sqlcode}
+UPDATE alunos
+SET curso = 'Engenharia de Software'
+WHERE aluno_id = 3;
+\end{sqlcode}
+
+Por fim, valida-se novamente:
+
+\begin{sqlcode}
+SELECT *
+FROM alunos
+WHERE aluno_id = 3;
+\end{sqlcode}
+
+\textbf{Interpretação:}  
+Esse fluxo mostra uma boa prática importante: identificar o registro, corrigi-lo e confirmar a alteração.
+
+\section{Exemplo resolvido 4 -- Remoção de nota lançada incorretamente}
+
+Suponha que a nota de identificador 2 tenha sido inserida em disciplina errada.
+
+Primeiro, consulte o registro:
+
+\begin{sqlcode}
+SELECT *
+FROM notas
+WHERE nota_id = 2;
+\end{sqlcode}
+
+Depois, remova:
+
+\begin{sqlcode}
+DELETE FROM notas
+WHERE nota_id = 2;
+\end{sqlcode}
+
+Por fim, confirme a exclusão:
+
+\begin{sqlcode}
+SELECT *
+FROM notas
+WHERE nota_id = 2;
+\end{sqlcode}
+
+\textbf{Interpretação:}  
+Se a consulta final não retornar linhas, a remoção foi concluída com sucesso.
+
+\section{Exemplo resolvido 5 -- Atualização em lote com critério}
+
+Suponha que todos os alunos de um curso descontinuado devam ser movidos para outro.
+
+\begin{sqlcode}
+SELECT *
+FROM alunos
+WHERE curso = 'Análise de Sistemas Antigo';
+\end{sqlcode}
+
+\begin{sqlcode}
+UPDATE alunos
+SET curso = 'Análise e Desenvolvimento de Sistemas'
+WHERE curso = 'Análise de Sistemas Antigo';
+\end{sqlcode}
+
+\begin{sqlcode}
+SELECT *
+FROM alunos
+WHERE curso = 'Análise e Desenvolvimento de Sistemas';
+\end{sqlcode}
+
+\textbf{Interpretação:}  
+Esse caso mostra que o \texttt{UPDATE} pode alterar vários registros ao mesmo tempo, desde que o critério seja bem definido.
+
+\section{Erros comuns}
+
+\subsection{Erro comum 1 -- Inserir em tabela filha antes da tabela pai}
+
+Exemplo incorreto:
+
+\begin{sqlcode}
+INSERT INTO notas (aluno_id, disciplina, nota)
+VALUES (999, 'Banco de Dados', 8.0);
+\end{sqlcode}
+
+Se não existir aluno com identificador 999, o banco rejeitará a operação.
+
+\subsection{Erro comum 2 -- Atualizar sem WHERE}
+
+Exemplo perigoso:
+
+\begin{sqlcode}
+UPDATE alunos
+SET status = 'INATIVO';
+\end{sqlcode}
+
+Esse comando altera todos os alunos da tabela.
+
+\subsection{Erro comum 3 -- Deletar sem WHERE}
+
+\begin{sqlcode}
+DELETE FROM notas;
+\end{sqlcode}
+
+Esse comando remove todas as linhas da tabela \texttt{notas}.
+
+\subsection{Erro comum 4 -- Usar SELECT * sem necessidade}
+
+Embora útil em testes, o uso indiscriminado de \texttt{SELECT *} pode:
+\begin{itemize}
+    \item dificultar a leitura;
+    \item trazer colunas desnecessárias;
+    \item acoplar relatórios a estruturas que podem mudar.
+\end{itemize}
+
+\section{Boas práticas em DML}
+
+\begin{itemize}
+    \item usar \texttt{SELECT} para validar condições antes de \texttt{UPDATE} e \texttt{DELETE};
+    \item inserir dados respeitando dependências referenciais;
+    \item nomear colunas explicitamente em \texttt{INSERT};
+    \item evitar comandos destrutivos sem cópia de segurança;
+    \item preferir exclusão lógica quando houver necessidade de histórico.
+\end{itemize}
+
+\begin{quadro_dica}
+Em muitos sistemas, é preferível mudar o status de um registro para \texttt{INATIVO} em vez de apagá-lo fisicamente. Isso ajuda a preservar histórico e reduz riscos de perda indevida de informação.
+\end{quadro_dica}
+
+\section{Minicaso integrador -- Secretaria acadêmica}
+
+Considere a rotina de uma secretaria acadêmica no início do semestre. Ela precisa:
+
+\begin{enumerate}
+    \item cadastrar quatro novos alunos;
+    \item lançar notas iniciais de avaliação diagnóstica;
+    \item corrigir o curso de um aluno inserido incorretamente;
+    \item remover uma nota lançada em disciplina errada.
+\end{enumerate}
+
+Uma sequência possível seria:
+
+\subsection*{Passo 1 -- Inserção de alunos}
+
+\begin{sqlcode}
+INSERT INTO alunos (nome, idade, curso) VALUES
+('Aline Castro', 20, 'Engenharia de Software'),
+('Rafael Gomes', 21, 'Sistemas de Informação'),
+('Bianca Luz', 22, 'Ciência da Computação'),
+('Marcelo Reis', 19, 'Engenharia de Software');
+\end{sqlcode}
+
+\subsection*{Passo 2 -- Conferência}
+
+\begin{sqlcode}
+SELECT *
+FROM alunos;
+\end{sqlcode}
+
+\subsection*{Passo 3 -- Lançamento de notas}
+
+\begin{sqlcode}
+INSERT INTO notas (aluno_id, disciplina, nota) VALUES
+(1, 'Banco de Dados', 7.5),
+(2, 'Algoritmos', 8.0),
+(3, 'Banco de Dados', 6.5),
+(4, 'Estruturas de Dados', 9.0);
+\end{sqlcode}
+
+\subsection*{Passo 4 -- Correção cadastral}
+
+\begin{sqlcode}
+UPDATE alunos
+SET curso = 'Sistemas de Informação'
+WHERE nome = 'Marcelo Reis';
+\end{sqlcode}
+
+\subsection*{Passo 5 -- Remoção de lançamento indevido}
+
+\begin{sqlcode}
+DELETE FROM notas
+WHERE aluno_id = 3
+  AND disciplina = 'Banco de Dados';
+\end{sqlcode}
+
+\subsection*{Passo 6 -- Conferência final}
+
+\begin{sqlcode}
+SELECT *
+FROM alunos;
+\end{sqlcode}
+
+\begin{sqlcode}
+SELECT *
+FROM notas;
+\end{sqlcode}
+
+\textbf{Comentário didático:}  
+Esse minicaso mostra como os comandos DML aparecem encadeados em um processo de trabalho real. A lógica não está apenas em saber a sintaxe, mas em entender a sequência correta das operações e a necessidade constante de conferência.
+
+\section{Exercícios básicos}
+
+\begin{enumerate}
+    \item Insira cinco alunos na tabela \texttt{alunos}.
+    \item Cadastre três notas em disciplinas diferentes.
+    \item Liste todos os alunos da tabela.
+    \item Liste apenas nome e curso.
+    \item Atualize a idade de um aluno específico.
+    \item Remova uma nota por identificador.
+\end{enumerate}
+
+\section{Exercícios intermediários}
+
+\begin{enumerate}
+    \item Insira oito alunos distribuídos em ao menos três cursos.
+    \item Insira notas para pelo menos metade desses alunos.
+    \item Faça uma consulta que retorne apenas alunos com idade maior ou igual a 21.
+    \item Atualize o curso de todos os alunos de um curso extinto.
+    \item Remova todas as notas de uma disciplina específica.
+    \item Escreva a consulta de conferência que você executaria antes de cada \texttt{UPDATE} ou \texttt{DELETE}.
+\end{enumerate}
+
+\section{Exercícios avançados}
+
+\begin{enumerate}
+    \item Monte um script completo de carga inicial para a tabela \texttt{alunos}.
+    \item Monte um script de correção que inclua ao menos dois \texttt{UPDATE}s e um \texttt{DELETE}.
+    \item Descreva um cenário em que a exclusão lógica é mais adequada que a exclusão física.
+    \item Explique o que pode acontecer se um \texttt{INSERT} tentar referenciar uma chave estrangeira inexistente.
+\end{enumerate}
+
+\section{Exercício integrador}
+
+Considere um sistema de biblioteca com as tabelas \texttt{leitor}, \texttt{livro} e \texttt{emprestimo}. Escreva:
+
+\begin{enumerate}
+    \item comandos de inserção de leitores;
+    \item comandos de inserção de livros;
+    \item um comando de registro de empréstimo;
+    \item uma consulta de conferência dos empréstimos;
+    \item um comando para corrigir a data prevista de devolução;
+    \item um comando para remover um empréstimo lançado por engano.
+\end{enumerate}
+
+\section{Síntese da aula}
+
+Nesta aula, a Parte III avançou no uso operacional da SQL por meio dos comandos fundamentais da DML: \texttt{INSERT}, \texttt{SELECT}, \texttt{UPDATE} e \texttt{DELETE}. Além da sintaxe, foram apresentados exemplos resolvidos, erros comuns, boas práticas e um minicaso integrador, reforçando a dimensão prática da manipulação de dados. A próxima aula ampliará o \texttt{SELECT} com agregações, subconsultas e junções, elevando o nível analítico das consultas.
