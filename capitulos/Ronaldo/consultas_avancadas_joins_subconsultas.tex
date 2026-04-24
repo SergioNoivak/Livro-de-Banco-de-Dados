@@ -1,0 +1,585 @@
+\chapter{Consultas Avançadas, Junções e Subconsultas}
+\label{cap:consultas_avancadas_joins_subconsultas}
+
+Depois de dominar os comandos fundamentais da DML, o próximo passo é aprofundar a capacidade de análise por meio do comando \texttt{SELECT}. Em aplicações reais, raramente é suficiente listar registros de uma única tabela de forma isolada. Normalmente, é necessário combinar dados de várias tabelas, resumir informações, comparar grupos, localizar ausências e construir respostas mais ricas para problemas de negócio.
+
+Esta aula amplia o estudo do \texttt{SELECT} com foco em:
+\begin{itemize}
+    \item funções de agregação;
+    \item agrupamentos com \texttt{GROUP BY};
+    \item filtros sobre grupos com \texttt{HAVING};
+    \item subconsultas;
+    \item junções entre tabelas com \texttt{JOIN}.
+\end{itemize}
+
+O domínio desses recursos marca a passagem da SQL operacional básica para a SQL analítica, aproximando o estudante da construção de relatórios, consultas gerenciais e exploração relacional de dados.
+
+\section{Do SELECT simples ao SELECT analítico}
+
+Em uma consulta básica, o usuário normalmente seleciona colunas e aplica filtros diretos. Exemplo:
+
+\begin{sqlcode}
+SELECT nome, curso
+FROM alunos
+WHERE status = 'ATIVO';
+\end{sqlcode}
+
+Esse tipo de comando é importante, mas ainda responde apenas a perguntas elementares. Em sistemas reais, surgem questões mais complexas, como:
+
+\begin{itemize}
+    \item quantos alunos existem por curso;
+    \item qual a média de notas por disciplina;
+    \item quais cursos ainda não possuem alunos;
+    \item quais alunos têm nota acima da média;
+    \item quais professores estão relacionados a turmas com maior número de matrículas.
+\end{itemize}
+
+Responder a perguntas assim exige raciocínio relacional mais elaborado.
+
+\section{Banco de exemplo}
+
+Para os exemplos desta aula, considere as seguintes tabelas:
+
+\begin{sqlcode}
+CREATE TABLE cursos (
+    curso_id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    coordenador VARCHAR(100)
+);
+\end{sqlcode}
+
+\begin{sqlcode}
+CREATE TABLE alunos (
+    aluno_id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    idade INTEGER,
+    curso_id INTEGER,
+    status VARCHAR(20) DEFAULT 'ATIVO',
+    FOREIGN KEY (curso_id) REFERENCES cursos(curso_id)
+);
+\end{sqlcode}
+
+\begin{sqlcode}
+CREATE TABLE disciplinas (
+    disciplina_id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL
+);
+\end{sqlcode}
+
+\begin{sqlcode}
+CREATE TABLE notas (
+    nota_id SERIAL PRIMARY KEY,
+    aluno_id INTEGER NOT NULL,
+    disciplina_id INTEGER NOT NULL,
+    nota NUMERIC(5,2) NOT NULL,
+    FOREIGN KEY (aluno_id) REFERENCES alunos(aluno_id),
+    FOREIGN KEY (disciplina_id) REFERENCES disciplinas(disciplina_id)
+);
+\end{sqlcode}
+
+Essas tabelas serão suficientes para explorar agregações, subconsultas e junções em vários níveis.
+
+\section{Funções de agregação}
+
+As funções de agregação produzem um único valor a partir de várias linhas.
+
+As principais são:
+\begin{itemize}
+    \item \texttt{COUNT()} -- conta ocorrências;
+    \item \texttt{SUM()} -- soma valores;
+    \item \texttt{AVG()} -- calcula média;
+    \item \texttt{MAX()} -- retorna o maior valor;
+    \item \texttt{MIN()} -- retorna o menor valor.
+\end{itemize}
+
+\subsection{Contagem total de alunos}
+
+\begin{sqlcode}
+SELECT COUNT(*) AS total_alunos
+FROM alunos;
+\end{sqlcode}
+
+\subsection{Média de idade}
+
+\begin{sqlcode}
+SELECT AVG(idade) AS media_idade
+FROM alunos;
+\end{sqlcode}
+
+\subsection{Maior e menor idade}
+
+\begin{sqlcode}
+SELECT MAX(idade) AS maior_idade,
+       MIN(idade) AS menor_idade
+FROM alunos;
+\end{sqlcode}
+
+\subsection{Média de notas}
+
+\begin{sqlcode}
+SELECT AVG(nota) AS media_geral
+FROM notas;
+\end{sqlcode}
+
+\section{GROUP BY}
+
+A cláusula \texttt{GROUP BY} organiza linhas em grupos e permite aplicar funções de agregação a cada grupo.
+
+\subsection{Quantidade de alunos por curso}
+
+\begin{sqlcode}
+SELECT
+    curso_id,
+    COUNT(*) AS total_alunos
+FROM alunos
+GROUP BY curso_id;
+\end{sqlcode}
+
+\subsection{Média de idade por curso}
+
+\begin{sqlcode}
+SELECT
+    curso_id,
+    AVG(idade) AS media_idade
+FROM alunos
+GROUP BY curso_id;
+\end{sqlcode}
+
+\subsection{Média de nota por disciplina}
+
+\begin{sqlcode}
+SELECT
+    disciplina_id,
+    AVG(nota) AS media_disciplina
+FROM notas
+GROUP BY disciplina_id;
+\end{sqlcode}
+
+\begin{observacao}
+Quando uma consulta usa agregação e, ao mesmo tempo, exibe outras colunas, essas colunas devem estar no \texttt{GROUP BY}, salvo quando forem resultado de função agregadora.
+\end{observacao}
+
+\section{HAVING}
+
+A cláusula \texttt{HAVING} filtra grupos depois que eles já foram formados.
+
+\subsection{Cursos com pelo menos três alunos}
+
+\begin{sqlcode}
+SELECT
+    curso_id,
+    COUNT(*) AS total_alunos
+FROM alunos
+GROUP BY curso_id
+HAVING COUNT(*) >= 3;
+\end{sqlcode}
+
+\subsection{Disciplinas com média superior a 7}
+
+\begin{sqlcode}
+SELECT
+    disciplina_id,
+    AVG(nota) AS media_disciplina
+FROM notas
+GROUP BY disciplina_id
+HAVING AVG(nota) > 7;
+\end{sqlcode}
+
+\begin{quadro_dica}
+Uma forma prática de diferenciar \texttt{WHERE} e \texttt{HAVING} é lembrar que o primeiro filtra linhas antes do agrupamento, enquanto o segundo filtra grupos depois do agrupamento.
+\end{quadro_dica}
+
+\section{Subconsultas}
+
+Uma subconsulta é uma consulta inserida dentro de outra. Ela é útil quando a lógica de decisão depende do resultado de uma consulta intermediária.
+
+\subsection{Subconsulta com IN}
+
+\begin{sqlcode}
+SELECT nome
+FROM alunos
+WHERE curso_id IN (
+    SELECT curso_id
+    FROM cursos
+    WHERE coordenador = 'Marcos Silva'
+);
+\end{sqlcode}
+
+Nesse exemplo, a consulta externa retorna os nomes dos alunos vinculados a cursos coordenados por \texttt{Marcos Silva}.
+
+\subsection{Subconsulta com comparação escalar}
+
+\begin{sqlcode}
+SELECT nome, idade
+FROM alunos
+WHERE idade > (
+    SELECT AVG(idade)
+    FROM alunos
+);
+\end{sqlcode}
+
+Essa consulta retorna apenas os alunos cuja idade está acima da média geral.
+
+\subsection{Subconsulta com EXISTS}
+
+\begin{sqlcode}
+SELECT nome
+FROM alunos a
+WHERE EXISTS (
+    SELECT 1
+    FROM notas n
+    WHERE n.aluno_id = a.aluno_id
+);
+\end{sqlcode}
+
+Aqui, são retornados apenas os alunos que possuem ao menos uma nota cadastrada.
+
+\section{JOIN}
+
+Junções são o mecanismo central de recomposição da informação em bancos normalizados. Como os dados estão distribuídos entre tabelas, o \texttt{JOIN} permite reuni-los logicamente em uma única resposta.
+
+\section{INNER JOIN}
+
+O \texttt{INNER JOIN} retorna apenas as linhas que possuem correspondência nas duas tabelas envolvidas.
+
+\begin{sqlcode}
+SELECT a.nome, c.nome AS curso
+FROM alunos a
+INNER JOIN cursos c
+    ON a.curso_id = c.curso_id;
+\end{sqlcode}
+
+\subsection{INNER JOIN com três tabelas}
+
+\begin{sqlcode}
+SELECT a.nome AS aluno,
+       d.nome AS disciplina,
+       n.nota
+FROM notas n
+INNER JOIN alunos a
+    ON n.aluno_id = a.aluno_id
+INNER JOIN disciplinas d
+    ON n.disciplina_id = d.disciplina_id;
+\end{sqlcode}
+
+Esse exemplo é muito próximo da realidade de relatórios acadêmicos.
+
+\section{LEFT JOIN}
+
+O \texttt{LEFT JOIN} retorna todas as linhas da tabela à esquerda, mesmo quando não há correspondência na tabela à direita.
+
+\begin{sqlcode}
+SELECT c.nome AS curso, a.nome AS aluno
+FROM cursos c
+LEFT JOIN alunos a
+    ON c.curso_id = a.curso_id;
+\end{sqlcode}
+
+\subsection{Cursos sem alunos}
+
+\begin{sqlcode}
+SELECT c.nome
+FROM cursos c
+LEFT JOIN alunos a
+    ON c.curso_id = a.curso_id
+WHERE a.aluno_id IS NULL;
+\end{sqlcode}
+
+Esse tipo de consulta é útil para localizar ausências ou inconsistências.
+
+\section{RIGHT JOIN}
+
+O \texttt{RIGHT JOIN} devolve todas as linhas da tabela à direita e as correspondências da tabela à esquerda.
+
+\begin{sqlcode}
+SELECT a.nome, c.nome AS curso
+FROM alunos a
+RIGHT JOIN cursos c
+    ON a.curso_id = c.curso_id;
+\end{sqlcode}
+
+Na prática, muitos desenvolvedores preferem reescrever esse raciocínio com \texttt{LEFT JOIN}, por clareza.
+
+\section{FULL JOIN}
+
+O \texttt{FULL JOIN} retorna todas as linhas quando existe correspondência em pelo menos um dos lados, preenchendo com \texttt{NULL} o lado ausente.
+
+\begin{sqlcode}
+SELECT a.nome, c.nome AS curso
+FROM alunos a
+FULL JOIN cursos c
+    ON a.curso_id = c.curso_id;
+\end{sqlcode}
+
+Esse tipo de junção é útil para auditoria e análise de assimetrias entre conjuntos relacionados.
+
+\section{Exemplo resolvido 1 -- Quantidade de alunos por curso}
+
+Suponha que a coordenação deseje saber quantos alunos existem em cada curso.
+
+\begin{sqlcode}
+SELECT
+    curso_id,
+    COUNT(*) AS total_alunos
+FROM alunos
+GROUP BY curso_id;
+\end{sqlcode}
+
+\textbf{Interpretação:}
+\begin{itemize}
+    \item a tabela \texttt{alunos} é dividida em grupos por \texttt{curso\_id};
+    \item a função \texttt{COUNT(*)} conta quantos alunos existem em cada grupo;
+    \item o resultado pode ser usado em relatórios ou painéis.
+\end{itemize}
+
+\section{Exemplo resolvido 2 -- Alunos acima da média de idade}
+
+Deseja-se localizar os alunos cuja idade está acima da média geral.
+
+\begin{sqlcode}
+SELECT nome, idade
+FROM alunos
+WHERE idade > (
+    SELECT AVG(idade)
+    FROM alunos
+);
+\end{sqlcode}
+
+\textbf{Interpretação:}
+\begin{itemize}
+    \item a subconsulta calcula a média de idade;
+    \item a consulta externa compara cada aluno com esse valor;
+    \item somente alunos acima da média são retornados.
+\end{itemize}
+
+\section{Exemplo resolvido 3 -- Relatório de notas com nomes de alunos e disciplinas}
+
+Como \texttt{notas} armazena apenas identificadores, é necessário usar junções para reconstruir a informação completa.
+
+\begin{sqlcode}
+SELECT a.nome AS aluno,
+       d.nome AS disciplina,
+       n.nota
+FROM notas n
+INNER JOIN alunos a
+    ON n.aluno_id = a.aluno_id
+INNER JOIN disciplinas d
+    ON n.disciplina_id = d.disciplina_id;
+\end{sqlcode}
+
+\textbf{Interpretação:}
+\begin{itemize}
+    \item a consulta parte da tabela \texttt{notas};
+    \item recupera o nome do aluno a partir de \texttt{aluno\_id};
+    \item recupera o nome da disciplina a partir de \texttt{disciplina\_id};
+    \item monta um relatório mais inteligível para usuários humanos.
+\end{itemize}
+
+\section{Exemplo resolvido 4 -- Cursos sem alunos}
+
+A coordenação deseja identificar cursos ainda sem matrícula.
+
+\begin{sqlcode}
+SELECT c.nome
+FROM cursos c
+LEFT JOIN alunos a
+    ON c.curso_id = a.curso_id
+WHERE a.aluno_id IS NULL;
+\end{sqlcode}
+
+\textbf{Interpretação:}
+\begin{itemize}
+    \item todos os cursos são mantidos no resultado pelo \texttt{LEFT JOIN};
+    \item quando não há aluno correspondente, as colunas da tabela \texttt{alunos} ficam nulas;
+    \item o \texttt{WHERE a.aluno\_id IS NULL} filtra justamente esses casos.
+\end{itemize}
+
+\section{Exemplo resolvido 5 -- Disciplinas com média superior a 7}
+
+\begin{sqlcode}
+SELECT
+    disciplina_id,
+    AVG(nota) AS media_disciplina
+FROM notas
+GROUP BY disciplina_id
+HAVING AVG(nota) > 7;
+\end{sqlcode}
+
+\textbf{Interpretação:}
+\begin{itemize}
+    \item as notas são agrupadas por disciplina;
+    \item calcula-se a média de cada grupo;
+    \item o \texttt{HAVING} retém apenas os grupos com média superior a 7.
+\end{itemize}
+
+\section{Erro comum 1 -- Esquecer a condição de junção}
+
+Exemplo incorreto:
+
+\begin{sqlcode}
+SELECT a.nome, c.nome
+FROM alunos a, cursos c;
+\end{sqlcode}
+
+Sem a condição que relaciona as tabelas, o resultado pode virar um produto cartesiano, multiplicando artificialmente o número de linhas.
+
+\section{Erro comum 2 -- Usar WHERE em vez de HAVING}
+
+Exemplo inadequado:
+
+\begin{sqlcode}
+SELECT curso_id, COUNT(*)
+FROM alunos
+WHERE COUNT(*) >= 3
+GROUP BY curso_id;
+\end{sqlcode}
+
+Isso não funciona corretamente porque \texttt{COUNT(*)} é uma agregação. O filtro sobre grupos deve ser feito em \texttt{HAVING}.
+
+\section{Erro comum 3 -- Misturar colunas agregadas e não agregadas sem GROUP BY}
+
+Exemplo incorreto:
+
+\begin{sqlcode}
+SELECT curso_id, nome, COUNT(*)
+FROM alunos;
+\end{sqlcode}
+
+Sem agrupar corretamente, a consulta torna-se semanticamente inválida.
+
+\section{Erro comum 4 -- Usar subconsulta quando uma junção seria mais clara}
+
+Subconsultas são úteis, mas nem sempre são a solução mais legível. Em muitos casos, uma junção expressa melhor a lógica relacional.
+
+\section{Boas práticas}
+
+\begin{itemize}
+    \item usar aliases curtos e consistentes;
+    \item construir consultas em etapas;
+    \item validar a lógica com conjuntos pequenos antes de aplicar em tabelas maiores;
+    \item preferir nomes de colunas explícitos em vez de \texttt{SELECT *};
+    \item usar \texttt{LEFT JOIN} com atenção ao significado de \texttt{NULL};
+    \item revisar se o problema é de linha, grupo ou relação entre tabelas.
+\end{itemize}
+
+\begin{quadro_dica}
+Uma estratégia muito útil é montar a consulta por camadas: primeiro as tabelas e junções, depois os filtros, em seguida os agrupamentos e, por fim, a ordenação.
+\end{quadro_dica}
+
+\section{Minicaso integrador -- Relatório acadêmico de acompanhamento}
+
+Considere que a coordenação deseja um relatório com:
+
+\begin{enumerate}
+    \item a quantidade de alunos por curso;
+    \item os cursos sem alunos;
+    \item os alunos com idade acima da média;
+    \item a listagem de notas com aluno e disciplina;
+    \item as disciplinas cuja média de notas supera 7.
+\end{enumerate}
+
+Uma sequência de consultas possível é:
+
+\subsection*{Passo 1 -- Quantidade de alunos por curso}
+
+\begin{sqlcode}
+SELECT
+    curso_id,
+    COUNT(*) AS total_alunos
+FROM alunos
+GROUP BY curso_id;
+\end{sqlcode}
+
+\subsection*{Passo 2 -- Cursos sem alunos}
+
+\begin{sqlcode}
+SELECT c.nome
+FROM cursos c
+LEFT JOIN alunos a
+    ON c.curso_id = a.curso_id
+WHERE a.aluno_id IS NULL;
+\end{sqlcode}
+
+\subsection*{Passo 3 -- Alunos acima da média de idade}
+
+\begin{sqlcode}
+SELECT nome, idade
+FROM alunos
+WHERE idade > (
+    SELECT AVG(idade)
+    FROM alunos
+);
+\end{sqlcode}
+
+\subsection*{Passo 4 -- Relatório de notas}
+
+\begin{sqlcode}
+SELECT a.nome AS aluno,
+       d.nome AS disciplina,
+       n.nota
+FROM notas n
+INNER JOIN alunos a
+    ON n.aluno_id = a.aluno_id
+INNER JOIN disciplinas d
+    ON n.disciplina_id = d.disciplina_id;
+\end{sqlcode}
+
+\subsection*{Passo 5 -- Disciplinas com média maior que 7}
+
+\begin{sqlcode}
+SELECT
+    disciplina_id,
+    AVG(nota) AS media_disciplina
+FROM notas
+GROUP BY disciplina_id
+HAVING AVG(nota) > 7;
+\end{sqlcode}
+
+\textbf{Comentário didático:}
+Esse minicaso mostra que consultas mais ricas raramente dependem de um único recurso. Em geral, elas combinam agregação, junção e subconsulta para responder a perguntas analíticas completas.
+
+\section{Exercícios básicos}
+
+\begin{enumerate}
+    \item Conte o número total de alunos.
+    \item Calcule a média de idade dos alunos.
+    \item Liste a quantidade de alunos por curso.
+    \item Liste apenas os cursos com pelo menos dois alunos.
+    \item Retorne os alunos cuja idade esteja acima da média geral.
+\end{enumerate}
+
+\section{Exercícios intermediários}
+
+\begin{enumerate}
+    \item Faça uma consulta com \texttt{INNER JOIN} entre \texttt{alunos} e \texttt{cursos}.
+    \item Faça uma consulta com \texttt{LEFT JOIN} para localizar cursos sem alunos.
+    \item Monte uma consulta que traga aluno, disciplina e nota.
+    \item Escreva uma subconsulta que filtre alunos vinculados a cursos coordenados por um professor específico.
+    \item Explique a diferença entre \texttt{WHERE} e \texttt{HAVING}.
+\end{enumerate}
+
+\section{Exercícios avançados}
+
+\begin{enumerate}
+    \item Crie uma consulta que combine \texttt{JOIN} e agregação.
+    \item Produza uma consulta com \texttt{EXISTS} para localizar alunos com nota cadastrada.
+    \item Elabore um exemplo de \texttt{FULL JOIN} e explique por que ele pode ser útil.
+    \item Reescreva uma subconsulta usando junção, quando possível.
+\end{enumerate}
+
+\section{Exercício integrador}
+
+Considere um sistema universitário com as tabelas \texttt{alunos}, \texttt{cursos}, \texttt{professores}, \texttt{disciplinas} e \texttt{notas}. Elabore um conjunto de consultas que responda:
+
+\begin{enumerate}
+    \item quantos alunos existem por curso;
+    \item quais cursos não possuem alunos;
+    \item quais alunos têm nota acima de 8;
+    \item quais alunos estão acima da média de idade;
+    \item quais disciplinas possuem média superior a 7;
+    \item quais alunos possuem ao menos uma nota registrada.
+\end{enumerate}
+
+\section{Síntese da aula}
+
+Esta aula aprofundou o uso analítico da SQL ao estudar funções de agregação, agrupamentos, filtros de grupo, subconsultas e junções. Com exemplos resolvidos, erros comuns, exercícios progressivos e um minicaso integrador, o estudante passa a compreender como o \texttt{SELECT} pode ser usado para responder perguntas mais sofisticadas sobre dados relacionais. A próxima aula aprofundará o refinamento de consultas com cláusulas adicionais e introduzirá o uso de \texttt{VIEW}.
