@@ -1,0 +1,496 @@
+\chapter{Roles, Permissões e Segurança em Banco de Dados}
+\label{cap:roles_permissoes_seguranca}
+
+Uma base de dados não é apenas um conjunto de estruturas técnicas. Ela também é um ambiente compartilhado, no qual diferentes pessoas e perfis interagem com os dados segundo necessidades distintas. Em um sistema real, nem todos os usuários devem ter o mesmo nível de acesso. Alguns precisam apenas consultar; outros precisam inserir ou atualizar dados; poucos devem possuir permissões amplas de administração.
+
+É nesse contexto que a DCL (\textit{Data Control Language}) assume papel central. Esta aula aborda os mecanismos de controle de acesso em bancos de dados relacionais, com foco em roles, concessão de privilégios, revogação de permissões e boas práticas de segurança.
+
+\section{Segurança como parte da implementação}
+
+Em muitos projetos iniciantes, segurança é tratada como assunto secundário. Entretanto, do ponto de vista profissional, ela faz parte da própria implementação do sistema.
+
+Em um ambiente acadêmico, por exemplo:
+\begin{itemize}
+    \item alunos podem visualizar apenas seus próprios dados;
+    \item professores podem consultar turmas e lançar notas;
+    \item secretarias podem cadastrar e atualizar matrículas;
+    \item administradores podem criar estruturas e gerenciar acessos.
+\end{itemize}
+
+Conceder a todos o mesmo nível de acesso resultaria em risco de inconsistência, uso indevido e perda de controle sobre o banco. A DCL existe justamente para organizar essas fronteiras.
+
+\section{O que é DCL}
+
+A DCL, ou \textit{Data Control Language}, é o subconjunto da SQL voltado ao controle de permissões e acessos.
+
+Seus principais comandos são:
+\begin{itemize}
+    \item \texttt{CREATE ROLE}
+    \item \texttt{ALTER ROLE}
+    \item \texttt{DROP ROLE}
+    \item \texttt{GRANT}
+    \item \texttt{REVOKE}
+\end{itemize}
+
+Esses comandos permitem definir quem pode acessar o banco, o que cada perfil pode fazer e sobre quais objetos esses privilégios recaem.
+
+\section{Usuários, grupos e roles}
+
+No PostgreSQL, a noção central é a de \texttt{role}. Uma role pode representar:
+\begin{itemize}
+    \item um usuário individual;
+    \item um grupo de permissões;
+    \item um perfil administrativo;
+    \item uma entidade sem login, usada apenas para organização de privilégios.
+\end{itemize}
+
+Essa abordagem é útil porque permite separar a identidade da pessoa da lógica de permissões do sistema.
+
+\section{Roles com e sem login}
+
+\subsection{Role sem login}
+
+Uma role sem login funciona como um perfil reutilizável.
+
+\begin{sqlcode}
+CREATE ROLE readonly;
+CREATE ROLE secretaria_role;
+CREATE ROLE admin_role;
+\end{sqlcode}
+
+Essas roles não representam necessariamente pessoas. Elas podem representar tipos de acesso.
+
+\subsection{Role com login}
+
+Uma role com login representa, na prática, um usuário autenticável.
+
+\begin{sqlcode}
+CREATE ROLE joao LOGIN PASSWORD 'senha_segura';
+\end{sqlcode}
+
+Nesse caso, \texttt{joao} pode acessar o banco usando autenticação.
+
+\subsection{Role com parâmetros adicionais}
+
+\begin{sqlcode}
+CREATE ROLE maria
+WITH
+LOGIN
+PASSWORD 'senha123'
+VALID UNTIL '2026-12-31'
+CONNECTION LIMIT 5;
+\end{sqlcode}
+
+Esse exemplo mostra que uma role pode ser criada com:
+\begin{itemize}
+    \item senha;
+    \item validade temporal;
+    \item limite de conexões simultâneas.
+\end{itemize}
+
+\section{Privilégios}
+
+Privilégios são autorizações concedidas sobre objetos do banco de dados. Eles determinam o que uma role pode fazer.
+
+Entre os privilégios mais comuns estão:
+\begin{itemize}
+    \item \texttt{SELECT}
+    \item \texttt{INSERT}
+    \item \texttt{UPDATE}
+    \item \texttt{DELETE}
+    \item \texttt{USAGE}
+    \item \texttt{CREATE}
+    \item \texttt{ALL PRIVILEGES}
+\end{itemize}
+
+Esses privilégios podem ser aplicados sobre:
+\begin{itemize}
+    \item tabelas;
+    \item views;
+    \item schemas;
+    \item sequences;
+    \item bancos de dados.
+\end{itemize}
+
+\section{GRANT}
+
+O comando \texttt{GRANT} concede privilégios.
+
+\subsection{Concedendo leitura}
+
+\begin{sqlcode}
+GRANT SELECT ON alunos TO readonly;
+\end{sqlcode}
+
+Agora a role \texttt{readonly} pode consultar a tabela \texttt{alunos}.
+
+\subsection{Concedendo múltiplos privilégios}
+
+\begin{sqlcode}
+GRANT SELECT, INSERT, UPDATE ON matricula TO secretaria_role;
+\end{sqlcode}
+
+Nesse caso, a role \texttt{secretaria\_role} pode consultar, inserir e atualizar registros da tabela \texttt{matricula}.
+
+\subsection{Concedendo permissão em schema}
+
+\begin{sqlcode}
+GRANT USAGE, CREATE ON SCHEMA academico TO admin_role;
+\end{sqlcode}
+
+Aqui:
+\begin{itemize}
+    \item \texttt{USAGE} permite utilizar o schema;
+    \item \texttt{CREATE} permite criar objetos dentro dele.
+\end{itemize}
+
+\subsection{Concedendo role a usuário}
+
+\begin{sqlcode}
+GRANT readonly TO joao;
+\end{sqlcode}
+
+Esse comando associa ao usuário \texttt{joao} as permissões da role \texttt{readonly}.
+
+\subsection{Concedendo privilégios amplos}
+
+\begin{sqlcode}
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO admin_role;
+GRANT ALL PRIVILEGES ON DATABASE universidade TO admin_role;
+\end{sqlcode}
+
+Esses comandos são úteis em contextos administrativos, mas exigem cautela.
+
+\section{REVOKE}
+
+O comando \texttt{REVOKE} remove privilégios anteriormente concedidos.
+
+\subsection{Revogando parte das permissões}
+
+\begin{sqlcode}
+REVOKE INSERT, UPDATE ON matricula FROM secretaria_role;
+\end{sqlcode}
+
+\subsection{Revogando tudo sobre uma tabela}
+
+\begin{sqlcode}
+REVOKE ALL PRIVILEGES ON alunos FROM readonly;
+\end{sqlcode}
+
+\subsection{Revogando em banco}
+
+\begin{sqlcode}
+REVOKE ALL PRIVILEGES ON DATABASE universidade FROM admin_role;
+\end{sqlcode}
+
+\section{ALTER ROLE}
+
+O comando \texttt{ALTER ROLE} modifica características de uma role já existente.
+
+\subsection{Alterando senha}
+
+\begin{sqlcode}
+ALTER ROLE maria WITH PASSWORD 'nova_senha';
+\end{sqlcode}
+
+\subsection{Alterando validade}
+
+\begin{sqlcode}
+ALTER ROLE maria VALID UNTIL '2027-12-31';
+\end{sqlcode}
+
+\subsection{Alterando limite de conexão}
+
+\begin{sqlcode}
+ALTER ROLE maria CONNECTION LIMIT 10;
+\end{sqlcode}
+
+\subsection{Concedendo SUPERUSER}
+
+\begin{sqlcode}
+ALTER ROLE maria WITH SUPERUSER;
+\end{sqlcode}
+
+\begin{danger}
+O privilégio \texttt{SUPERUSER} deve ser reservado a administradores de confiança. Seu uso indiscriminado compromete a política de segurança do banco.
+\end{danger}
+
+\section{DROP ROLE}
+
+O comando \texttt{DROP ROLE} remove uma role.
+
+\begin{sqlcode}
+DROP ROLE secretaria_role;
+\end{sqlcode}
+
+A remoção só será possível se não houver dependências incompatíveis, como privilégios ativos, objetos pertencentes à role ou vínculos de herança que impeçam a exclusão.
+
+\section{Princípio do menor privilégio}
+
+Uma das ideias mais importantes em segurança de banco de dados é o princípio do menor privilégio: cada usuário deve possuir apenas as permissões estritamente necessárias para exercer sua função.
+
+Isso significa:
+\begin{itemize}
+    \item não conceder \texttt{DELETE} a quem só consulta;
+    \item não conceder privilégios administrativos a quem apenas registra operações;
+    \item não usar \texttt{SUPERUSER} quando privilégios limitados bastam;
+    \item separar perfis operacionais de perfis técnicos.
+\end{itemize}
+
+\section{Consultando roles do sistema}
+
+No PostgreSQL, a view \texttt{pg\_roles} pode ser usada para listar roles e algumas de suas características.
+
+\begin{sqlcode}
+SELECT * FROM pg_roles;
+\end{sqlcode}
+
+Esse recurso é útil para:
+\begin{itemize}
+    \item auditoria;
+    \item conferência de perfis;
+    \item entendimento do ambiente;
+    \item verificação administrativa.
+\end{itemize}
+
+\section{Exemplo resolvido 1 -- Usuário somente leitura}
+
+Suponha que um funcionário da coordenação precise apenas consultar dados acadêmicos.
+
+\begin{sqlcode}
+CREATE ROLE leitura_academica;
+GRANT SELECT ON alunos TO leitura_academica;
+GRANT SELECT ON cursos TO leitura_academica;
+GRANT SELECT ON disciplinas TO leitura_academica;
+\end{sqlcode}
+
+Agora cria-se o usuário:
+
+\begin{sqlcode}
+CREATE ROLE paulo LOGIN PASSWORD 'senha123';
+GRANT leitura_academica TO paulo;
+\end{sqlcode}
+
+\textbf{Interpretação:}
+\begin{itemize}
+    \item a role \texttt{leitura\_academica} concentra o perfil;
+    \item o usuário \texttt{paulo} herda esse perfil;
+    \item a manutenção fica mais simples do que conceder tudo diretamente ao usuário.
+\end{itemize}
+
+\section{Exemplo resolvido 2 -- Secretaria com manutenção restrita}
+
+Suponha que a secretaria possa consultar e atualizar matrículas, mas não removê-las.
+
+\begin{sqlcode}
+CREATE ROLE secretaria_role;
+GRANT SELECT, INSERT, UPDATE ON matricula TO secretaria_role;
+REVOKE DELETE ON matricula FROM secretaria_role;
+\end{sqlcode}
+
+\textbf{Interpretação:}
+\begin{itemize}
+    \item a secretaria pode executar operações operacionais comuns;
+    \item a remoção é bloqueada por ser mais sensível;
+    \item isso protege o histórico contra exclusões indevidas.
+\end{itemize}
+
+\section{Exemplo resolvido 3 -- Grupo administrativo}
+
+Considere um administrador responsável por objetos do schema acadêmico.
+
+\begin{sqlcode}
+CREATE ROLE admin_academico;
+GRANT USAGE, CREATE ON SCHEMA academico TO admin_academico;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA academico TO admin_academico;
+\end{sqlcode}
+
+Depois, cria-se um usuário e associa-se a role:
+
+\begin{sqlcode}
+CREATE ROLE renata LOGIN PASSWORD 'admin321';
+GRANT admin_academico TO renata;
+\end{sqlcode}
+
+\textbf{Interpretação:}
+\begin{itemize}
+    \item a role concentra o perfil administrativo;
+    \item a usuária herda o conjunto de privilégios;
+    \item a administração permanece mais organizada.
+\end{itemize}
+
+\section{Exemplo resolvido 4 -- Revogando privilégio indevido}
+
+Suponha que um operador tenha recebido permissão de atualização sobre a tabela \texttt{notas}, mas essa operação deva ser exclusiva dos professores.
+
+\begin{sqlcode}
+REVOKE UPDATE ON notas FROM operador_role;
+\end{sqlcode}
+
+\textbf{Interpretação:}
+\begin{itemize}
+    \item a política de acesso pode ser refinada ao longo do tempo;
+    \item revogar é tão importante quanto conceder;
+    \item segurança exige manutenção contínua.
+\end{itemize}
+
+\section{Exemplo resolvido 5 -- Role temporária}
+
+Suponha a necessidade de criar um acesso temporário para auditoria.
+
+\begin{sqlcode}
+CREATE ROLE auditor_temporario
+WITH LOGIN
+PASSWORD 'auditoria'
+VALID UNTIL '2025-12-31';
+\end{sqlcode}
+
+\begin{sqlcode}
+GRANT SELECT ON alunos TO auditor_temporario;
+GRANT SELECT ON matricula TO auditor_temporario;
+\end{sqlcode}
+
+\textbf{Interpretação:}
+\begin{itemize}
+    \item o acesso é limitado temporalmente;
+    \item a role recebe apenas leitura;
+    \item o risco operacional é menor do que em acessos amplos.
+\end{itemize}
+
+\section{Erro comum 1 -- Conceder privilégios amplos demais}
+
+É um erro comum conceder \texttt{ALL PRIVILEGES} sem necessidade. Em muitos casos, o perfil requer apenas leitura ou atualização parcial.
+
+\section{Erro comum 2 -- Confundir privilégio em banco com privilégio em tabela}
+
+Ter acesso ao banco não significa automaticamente ter acesso a todas as tabelas. Os níveis de privilégio são diferentes e complementares.
+
+\section{Erro comum 3 -- Usar SUPERUSER como solução fácil}
+
+Transformar um usuário em \texttt{SUPERUSER} apenas para “fazer funcionar” é má prática e enfraquece completamente a política de segurança.
+
+\section{Erro comum 4 -- Conceder privilégios diretamente a muitos usuários}
+
+Quando muitos usuários recebem permissões individualmente, a manutenção fica difícil. O uso de roles de grupo é mais organizado e escalável.
+
+\section{Erro comum 5 -- Não revisar permissões antigas}
+
+Uma role criada para um contexto temporário pode continuar ativa sem necessidade. Revisões periódicas são essenciais.
+
+\section{Boas práticas}
+
+\begin{itemize}
+    \item aplicar o princípio do menor privilégio;
+    \item usar roles de grupo para perfis recorrentes;
+    \item evitar privilégios administrativos sem necessidade;
+    \item revisar permissões periodicamente;
+    \item registrar a finalidade de cada role criada;
+    \item preferir organização por perfis em vez de concessões diretas massivas.
+\end{itemize}
+
+\begin{quadro_dica}
+Uma boa modelagem de segurança em banco de dados começa com a pergunta: “o que este usuário realmente precisa fazer?” e não “que privilégios posso conceder mais rapidamente?”.
+\end{quadro_dica}
+
+\section{Minicaso integrador -- Sistema acadêmico}
+
+Considere um sistema acadêmico com quatro perfis:
+
+\begin{itemize}
+    \item \textbf{aluno}: consulta seus dados;
+    \item \textbf{professor}: consulta turmas e lança notas;
+    \item \textbf{secretaria}: gerencia matrículas;
+    \item \textbf{administrador}: mantém a estrutura e as permissões.
+\end{itemize}
+
+Uma política inicial poderia ser:
+
+\subsection*{Passo 1 -- Criar roles de perfil}
+
+\begin{sqlcode}
+CREATE ROLE role_aluno;
+CREATE ROLE role_professor;
+CREATE ROLE role_secretaria;
+CREATE ROLE role_admin;
+\end{sqlcode}
+
+\subsection*{Passo 2 -- Conceder privilégios}
+
+\begin{sqlcode}
+GRANT SELECT ON alunos TO role_aluno;
+
+GRANT SELECT ON turmas TO role_professor;
+GRANT SELECT, UPDATE ON notas TO role_professor;
+
+GRANT SELECT, INSERT, UPDATE ON matricula TO role_secretaria;
+
+GRANT USAGE, CREATE ON SCHEMA academico TO role_admin;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA academico TO role_admin;
+\end{sqlcode}
+
+\subsection*{Passo 3 -- Criar usuários}
+
+\begin{sqlcode}
+CREATE ROLE aluno01 LOGIN PASSWORD 'a1';
+CREATE ROLE prof01 LOGIN PASSWORD 'p1';
+CREATE ROLE sec01 LOGIN PASSWORD 's1';
+CREATE ROLE admin01 LOGIN PASSWORD 'adm1';
+\end{sqlcode}
+
+\subsection*{Passo 4 -- Associar usuários aos perfis}
+
+\begin{sqlcode}
+GRANT role_aluno TO aluno01;
+GRANT role_professor TO prof01;
+GRANT role_secretaria TO sec01;
+GRANT role_admin TO admin01;
+\end{sqlcode}
+
+\textbf{Comentário didático:}
+Esse minicaso mostra que a segurança do banco pode ser tratada de forma estruturada e previsível. Em vez de conceder privilégios de forma dispersa, cria-se uma arquitetura de perfis, o que melhora manutenção e governança.
+
+\section{Exercícios básicos}
+
+\begin{enumerate}
+    \item Crie uma role apenas para leitura.
+    \item Crie um usuário com login e senha.
+    \item Conceda permissão de \texttt{SELECT} sobre a tabela \texttt{alunos}.
+    \item Revogue a permissão de \texttt{UPDATE} de uma role.
+    \item Explique a diferença entre uma role com login e uma role sem login.
+\end{enumerate}
+
+\section{Exercícios intermediários}
+
+\begin{enumerate}
+    \item Crie uma role administrativa para um schema acadêmico.
+    \item Associe um usuário a uma role de grupo.
+    \item Escreva um exemplo com \texttt{GRANT} de múltiplos privilégios.
+    \item Escreva um exemplo com \texttt{REVOKE ALL PRIVILEGES}.
+    \item Explique por que privilégios em nível de banco não substituem permissões em nível de tabela.
+\end{enumerate}
+
+\section{Exercícios avançados}
+
+\begin{enumerate}
+    \item Modele um conjunto de roles para um sistema universitário com perfis de aluno, professor, secretaria e administrador.
+    \item Escreva comandos SQL para conceder privilégios adequados a cada perfil.
+    \item Explique quais riscos surgem quando operadores recebem privilégios administrativos.
+    \item Dê um exemplo de cenário em que uma \texttt{VIEW} combinada com \texttt{GRANT SELECT} seja mais segura do que acesso direto à tabela.
+\end{enumerate}
+
+\section{Exercício integrador}
+
+Considere um sistema acadêmico com as tabelas \texttt{alunos}, \texttt{cursos}, \texttt{notas} e \texttt{matricula}. Elabore uma política de acesso com:
+
+\begin{enumerate}
+    \item uma role de leitura;
+    \item uma role operacional;
+    \item uma role administrativa;
+    \item um usuário vinculado à role operacional;
+    \item comandos de concessão e revogação coerentes com esse cenário;
+    \item uma justificativa para as decisões adotadas.
+\end{enumerate}
+
+\section{Síntese da aula}
+
+Esta aula mostrou que a implementação de banco de dados inclui também controle de acesso, definição de perfis e gestão de privilégios. Foram estudados os comandos \texttt{CREATE ROLE}, \texttt{ALTER ROLE}, \texttt{DROP ROLE}, \texttt{GRANT} e \texttt{REVOKE}, além do raciocínio de segurança associado ao princípio do menor privilégio. Com exemplos resolvidos, erros comuns, exercícios progressivos e um minicaso integrador, o estudante passa a compreender que segurança em banco de dados é parte essencial da arquitetura do sistema. A próxima aula encerrará a Parte III com índices, transações e funções.
