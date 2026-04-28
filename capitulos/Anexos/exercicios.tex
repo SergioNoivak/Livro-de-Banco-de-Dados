@@ -119,3 +119,715 @@ Abaixo temos uma visão geral de informações mantidas, tradicionalmente em Exc
     \item Escreva o comando seguro para excluir a tabela \texttt{autor} garantindo que não ocorra erro caso ela não exista, mas não execute.
     \item Qual seria o impacto de tentar executar o comando do exercício anterior se já existirem livros cadastrados na tabela \texttt{biblioteca} associados a esses autores?
 \end{enumerate}
+
+
+% ===================================
+\section{Exercícios: Introdução à SQL}
+\subsection{Exercícios básicos}
+
+\begin{enumerate}
+    \item Explique o que significa dizer que a SQL é uma linguagem declarativa.
+    \item Diferencie DDL, DML, DQL, DCL e TCL.
+    \item Escreva um comando para criar um banco chamado \texttt{biblioteca}.
+    \item Escreva um comando para criar um schema chamado \texttt{circulacao}.
+    \item Modele uma tabela simples chamada \texttt{livro} com identificador, título e ano.
+\end{enumerate}
+
+\subsection{Exercícios intermediários}
+
+\begin{enumerate}
+    \item Compare SQL padrão e dialetos de dois SGBDs.
+    \item Explique por que a SQL é indispensável na passagem do modelo lógico para a implementação.
+    \item Descreva a diferença entre banco, schema e tabela.
+    \item Escreva um pequeno texto justificando por que a SQL não deve ser confundida com uma linguagem de programação de propósito geral.
+\end{enumerate}
+
+\subsection{Exercício integrador}
+
+Considere um sistema acadêmico mínimo com as entidades \texttt{Aluno} e \texttt{Curso}. Descreva:
+\begin{enumerate}
+    \item quais objetos SQL você precisaria criar primeiro;
+    \item em que ordem faria essa implementação;
+    \item a quais grupos da SQL pertencem esses comandos.
+\end{enumerate}
+
+
+
+% ===================================
+\section{Exercícios: Fundamentos de Definição de Dados}
+\subsection{Exercícios básicos}
+
+\begin{enumerate}
+    \item Crie uma tabela \texttt{professor} com identificador, nome, titulação e e-mail.
+    \item Crie uma tabela \texttt{disciplina} com identificador, nome e carga horária.
+    \item Crie uma tabela \texttt{turma} relacionando professor e disciplina.
+    \item Escreva um exemplo de chave composta.
+\end{enumerate}
+
+\subsection{Exercícios intermediários}
+
+\begin{enumerate}
+    \item Compare \texttt{CHAR}, \texttt{VARCHAR} e \texttt{TEXT}.
+    \item Explique em quais situações uma chave composta pode ser mais adequada que uma chave simples.
+    \item Modele um pequeno cenário comercial com cliente e pedido.
+    \item Modele um pequeno cenário de recursos humanos com departamento e funcionário.
+\end{enumerate}
+
+\subsection{Exercício integrador}
+
+Projete, em SQL DDL, a base de um sistema de biblioteca com as tabelas:
+\begin{itemize}
+    \item \texttt{livro}
+    \item \texttt{autor}
+    \item \texttt{categoria}
+    \item \texttt{leitor}
+    \item \texttt{emprestimo}
+\end{itemize}
+
+Para cada tabela, defina:
+\begin{enumerate}
+    \item chave primária;
+    \item tipos de dados;
+    \item colunas obrigatórias;
+    \item relacionamentos por chave estrangeira.
+\end{enumerate}
+
+
+
+% ===================================
+\section{Exercícios: Alterações e Restrições de Integridade}
+\subsection{Exercícios básicos}
+
+\begin{enumerate}
+    \item Escreva um comando \texttt{ALTER TABLE} para adicionar a coluna \texttt{email} em uma tabela \texttt{cliente}.
+    \item Escreva um comando para alterar o tipo da coluna \texttt{telefone}.
+    \item Remova uma coluna chamada \texttt{observacao}.
+    \item Crie uma restrição \texttt{CHECK} que aceite apenas salários positivos.
+    \item Defina um valor padrão para a coluna \texttt{status}.
+\end{enumerate}
+
+\subsection{Exercícios intermediários}
+
+\begin{enumerate}
+    \item Crie uma restrição \texttt{UNIQUE} para a coluna \texttt{cpf}.
+    \item Escreva um exemplo em que \texttt{SET NULL} seja mais adequado do que \texttt{CASCADE}.
+    \item Explique a diferença entre \texttt{RESTRICT} e \texttt{NO ACTION}.
+    \item Modele uma tabela com chave estrangeira que use \texttt{ON UPDATE CASCADE}.
+    \item Dê um exemplo de risco associado ao uso indiscriminado de \texttt{DROP COLUMN}.
+\end{enumerate}
+
+\subsection{Exercícios avançados}
+
+\begin{enumerate}
+    \item Modele um pequeno sistema comercial com tabelas \texttt{cliente}, \texttt{pedido} e \texttt{item\_pedido}, definindo políticas adequadas de \texttt{ON DELETE}.
+    \item Modele um pequeno sistema escolar com \texttt{professor}, \texttt{turma} e \texttt{matricula}, justificando a escolha de cada política referencial.
+    \item Escreva um script completo que:
+    \begin{enumerate}
+        \item crie duas tabelas relacionadas;
+        \item altere uma das tabelas;
+        \item adicione uma restrição \texttt{CHECK};
+        \item remova uma coluna desnecessária.
+    \end{enumerate}
+\end{enumerate}
+
+\subsection{Exercício integrador}
+
+Projete um sistema de biblioteca com as tabelas \texttt{livro}, \texttt{exemplar}, \texttt{emprestimo} e \texttt{leitor}. Para cada relacionamento, defina e justifique:
+
+\begin{enumerate}
+    \item qual chave estrangeira será usada;
+    \item qual política de \texttt{ON DELETE} é mais adequada;
+    \item se há necessidade de \texttt{SET NULL}, \texttt{CASCADE} ou \texttt{RESTRICT}.
+\end{enumerate}
+
+
+
+% ===================================
+\section{Exercícios: Fundamentos de Manipulação de Dados}
+\subsection{Exercícios básicos}
+
+\begin{enumerate}
+    \item Insira cinco alunos na tabela \texttt{alunos}.
+    \item Cadastre três notas em disciplinas diferentes.
+    \item Liste todos os alunos da tabela.
+    \item Liste apenas nome e curso.
+    \item Atualize a idade de um aluno específico.
+    \item Remova uma nota por identificador.
+\end{enumerate}
+
+\subsection{Exercícios intermediários}
+
+\begin{enumerate}
+    \item Insira oito alunos distribuídos em ao menos três cursos.
+    \item Insira notas para pelo menos metade desses alunos.
+    \item Faça uma consulta que retorne apenas alunos com idade maior ou igual a 21.
+    \item Atualize o curso de todos os alunos de um curso extinto.
+    \item Remova todas as notas de uma disciplina específica.
+    \item Escreva a consulta de conferência que você executaria antes de cada \texttt{UPDATE} ou \texttt{DELETE}.
+\end{enumerate}
+
+\subsection{Exercícios avançados}
+
+\begin{enumerate}
+    \item Monte um script completo de carga inicial para a tabela \texttt{alunos}.
+    \item Monte um script de correção que inclua ao menos dois \texttt{UPDATE}s e um \texttt{DELETE}.
+    \item Descreva um cenário em que a exclusão lógica é mais adequada que a exclusão física.
+    \item Explique o que pode acontecer se um \texttt{INSERT} tentar referenciar uma chave estrangeira inexistente.
+\end{enumerate}
+
+\subsection{Exercício integrador}
+
+Considere um sistema de biblioteca com as tabelas \texttt{leitor}, \texttt{livro} e \texttt{emprestimo}. Antes de implementar as instruções, analise o diagrama lógico-relacional a seguir, que demonstra o mapeamento das chaves estrangeiras:
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        entidade/.style={rectangle, draw=black, fill=blue!5, thick, minimum width=3cm, minimum height=0.6cm, align=center, font=\sffamily\bfseries},
+        atributo_chave/.style={rectangle, draw=black, fill=gray!20, minimum width=3cm, minimum height=0.5cm, align=center, font=\sffamily\small\bfseries},
+        atributo/.style={rectangle, draw=black, fill=gray!5, minimum width=3cm, minimum height=0.5cm, align=center, font=\sffamily\small}
+    ]
+        % Tabela Leitor
+        \node[entidade] (leitor) {leitor};
+        \node[atributo_chave, below=0cm of leitor] (leitor_pk) {\underline{leitor\_id}};
+        \node[atributo, below=0cm of leitor_pk] (leitor_nome) {nome};
+        
+        % Tabela Emprestimo
+        \node[entidade, right=2.5cm of leitor] (emprestimo) {emprestimo};
+        \node[atributo_chave, below=0cm of emprestimo] (emp_pk) {\underline{emprestimo\_id}};
+        \node[atributo, below=0cm of emp_pk] (emp_fk1) {leitor\_id (FK)};
+        \node[atributo, below=0cm of emp_fk1] (emp_fk2) {livro\_id (FK)};
+        \node[atributo, below=0cm of emp_fk2] (emp_data) {data\_devolucao};
+        
+        % Tabela Livro
+        \node[entidade, right=2.5cm of emprestimo] (livro) {livro};
+        \node[atributo_chave, below=0cm of livro] (livro_pk) {\underline{livro\_id}};
+        \node[atributo, below=0cm of livro_pk] (livro_titulo) {titulo};
+        
+        % Relacionamentos
+        \draw[thick, ->] (emp_fk1.west) -- (leitor_pk.east);
+        \draw[thick, ->] (emp_fk2.east) -- (livro_pk.west);
+        
+    \end{tikzpicture}
+    \caption{Diagrama Lógico do Sistema de Biblioteca}
+    \label{fig:logico_biblioteca_exercicio}
+\end{figure}
+
+Com base nessa estrutura, escreva:\begin{enumerate}
+    \item comandos de inserção de leitores;
+    \item comandos de inserção de livros;
+    \item um comando de registro de empréstimo;
+    \item uma consulta de conferência dos empréstimos;
+    \item um comando para corrigir a data prevista de devolução;
+    \item um comando para remover um empréstimo lançado por engano.
+\end{enumerate}
+
+
+
+% ===================================
+\section{Exercícios: Consultas Avançadas, Joins e Subconsultas}
+\subsection{Exercícios básicos}
+
+\begin{enumerate}
+    \item Conte o número total de alunos.
+    \item Calcule a média de idade dos alunos.
+    \item Liste a quantidade de alunos por curso.
+    \item Liste apenas os cursos com pelo menos dois alunos.
+    \item Retorne os alunos cuja idade esteja acima da média geral.
+\end{enumerate}
+
+\subsection{Exercícios intermediários}
+
+\begin{enumerate}
+    \item Faça uma consulta com \texttt{INNER JOIN} entre \texttt{alunos} e \texttt{cursos}.
+    \item Faça uma consulta com \texttt{LEFT JOIN} para localizar cursos sem alunos.
+    \item Monte uma consulta que traga aluno, disciplina e nota.
+    \item Escreva uma subconsulta que filtre alunos vinculados a cursos coordenados por um professor específico.
+    \item Explique a diferença entre \texttt{WHERE} e \texttt{HAVING}.
+\end{enumerate}
+
+\subsection{Exercícios avançados}
+
+\begin{enumerate}
+    \item Crie uma consulta que combine \texttt{JOIN} e agregação.
+    \item Produza uma consulta com \texttt{EXISTS} para localizar alunos com nota cadastrada.
+    \item Elabore um exemplo de \texttt{FULL JOIN} e explique por que ele pode ser útil.
+    \item Reescreva uma subconsulta usando junção, quando possível.
+\end{enumerate}
+
+\subsection{Exercício integrador}
+
+Considere um sistema universitário com as tabelas \texttt{alunos}, \texttt{cursos}, \texttt{professores}, \texttt{disciplinas} e \texttt{notas}. Elabore um conjunto de consultas que responda:
+
+\begin{enumerate}
+    \item quantos alunos existem por curso;
+    \item quais cursos não possuem alunos;
+    \item quais alunos têm nota acima de 8;
+    \item quais alunos estão acima da média de idade;
+    \item quais disciplinas possuem média superior a 7;
+    \item quais alunos possuem ao menos uma nota registrada.
+\end{enumerate}
+
+
+
+% ===================================
+\section{Exercícios: Refinamento de Consultas e Views}
+\subsection{Exercícios básicos}
+
+\begin{enumerate}
+    \item Escreva uma consulta ordenada por nome.
+    \item Escreva uma consulta ordenada por idade em ordem decrescente.
+    \item Faça uma consulta que retorne apenas cinco alunos.
+    \item Liste os cursos distintos.
+    \item Escreva uma consulta que una nomes de alunos e professores.
+\end{enumerate}
+
+\subsection{Exercícios intermediários}
+
+\begin{enumerate}
+    \item Monte uma paginação com \texttt{LIMIT} e \texttt{OFFSET}.
+    \item Compare \texttt{UNION} e \texttt{UNION ALL} com um exemplo.
+    \item Crie uma consulta com \texttt{HAVING} e \texttt{ORDER BY}.
+    \item Escreva uma função de janela para calcular média por curso.
+    \item Crie uma view que simplifique a junção entre alunos e cursos.
+\end{enumerate}
+
+\subsection{Exercícios avançados}
+
+\begin{enumerate}
+    \item Classifique alunos por idade dentro de cada curso usando função de janela.
+    \item Crie duas views distintas para relatórios acadêmicos.
+    \item Explique em que contexto uma view pode ajudar na segurança.
+    \item Monte uma consulta paginada com filtro, ordenação e limitação de resultados.
+\end{enumerate}
+
+\subsection{Exercício integrador}
+
+Considere um sistema universitário com as tabelas \texttt{alunos}, \texttt{cursos}, \texttt{professores}, \texttt{disciplinas} e \texttt{notas}. Elabore:
+
+\begin{enumerate}
+    \item uma consulta que liste cursos distintos;
+    \item uma consulta ordenada por curso e nome;
+    \item uma consulta paginada de alunos;
+    \item uma consulta que una nomes de alunos e professores;
+    \item uma função de janela que calcule média por curso;
+    \item uma view para uso em relatório acadêmico;
+    \item uma breve justificativa para o uso de cada recurso.
+\end{enumerate}
+
+
+
+% ===================================
+\section{Exercícios: Roles, Permissões e Segurança}
+\subsection{Exercícios básicos}
+
+\begin{enumerate}
+    \item Crie uma role apenas para leitura.
+    \item Crie um usuário com login e senha.
+    \item Conceda permissão de \texttt{SELECT} sobre a tabela \texttt{alunos}.
+    \item Revogue a permissão de \texttt{UPDATE} de uma role.
+    \item Explique a diferença entre uma role com login e uma role sem login.
+\end{enumerate}
+
+\subsection{Exercícios intermediários}
+
+\begin{enumerate}
+    \item Crie uma role administrativa para um schema acadêmico.
+    \item Associe um usuário a uma role de grupo.
+    \item Escreva um exemplo com \texttt{GRANT} de múltiplos privilégios.
+    \item Escreva um exemplo com \texttt{REVOKE ALL PRIVILEGES}.
+    \item Explique por que privilégios em nível de banco não substituem permissões em nível de tabela.
+\end{enumerate}
+
+\subsection{Exercícios avançados}
+
+\begin{enumerate}
+    \item Modele um conjunto de roles para um sistema universitário com perfis de aluno, professor, secretaria e administrador.
+    \item Escreva comandos SQL para conceder privilégios adequados a cada perfil.
+    \item Explique quais riscos surgem quando operadores recebem privilégios administrativos.
+    \item Dê um exemplo de cenário em que uma \texttt{VIEW} combinada com \texttt{GRANT SELECT} seja mais segura do que acesso direto à tabela.
+\end{enumerate}
+
+\subsection{Exercício integrador}
+
+Considere um sistema acadêmico com as tabelas \texttt{alunos}, \texttt{cursos}, \texttt{notas} e \texttt{matricula}. Elabore uma política de acesso com:
+
+\begin{enumerate}
+    \item uma role de leitura;
+    \item uma role operacional;
+    \item uma role administrativa;
+    \item um usuário vinculado à role operacional;
+    \item comandos de concessão e revogação coerentes com esse cenário;
+    \item uma justificativa para as decisões adotadas.
+\end{enumerate}
+
+
+
+% ===================================
+\section{Exercícios: Índices, Transações e Funções}
+\subsection{Exercícios básicos}
+
+\begin{enumerate}
+    \item Crie um índice B-tree para uma coluna consultada com frequência.
+    \item Explique o objetivo de um índice.
+    \item Escreva um exemplo com \texttt{BEGIN}, \texttt{COMMIT} e \texttt{ROLLBACK}.
+    \item Defina, com suas palavras, as propriedades ACID.
+    \item Crie uma função simples que receba um parâmetro e retorne um valor.
+\end{enumerate}
+
+\subsection{Exercícios intermediários}
+
+\begin{enumerate}
+    \item Compare índice B-tree e índice GIN.
+    \item Explique em que situação um índice multicoluna pode ser útil.
+    \item Crie uma transação que registre uma matrícula e reduza vagas disponíveis.
+    \item Escreva uma função que conte quantos registros existem em uma tabela para um identificador informado.
+    \item Explique por que funções não devem executar \texttt{COMMIT} ou \texttt{ROLLBACK}.
+\end{enumerate}
+
+\subsection{Exercícios avançados}
+
+\begin{enumerate}
+    \item Modele um cenário em que um índice GiST seja apropriado.
+    \item Elabore uma transação com \texttt{SAVEPOINT} e desfazimento parcial.
+    \item Projete uma função para calcular média de notas de um aluno.
+    \item Explique como índices podem melhorar leitura e, ao mesmo tempo, aumentar custo de escrita.
+\end{enumerate}
+
+\subsection{Exercício integrador}
+
+Considere um sistema acadêmico com as tabelas \texttt{alunos}, \texttt{turma}, \texttt{matricula}, \texttt{notas} e \texttt{professor}. Elabore:
+
+\begin{enumerate}
+    \item dois índices considerados úteis para o sistema;
+    \item uma transação completa de matrícula;
+    \item uma transação de cancelamento;
+    \item uma função que retorne a quantidade de matrículas de um aluno;
+    \item uma justificativa para o uso de cada recurso.
+\end{enumerate}
+
+
+
+% ===================================
+\section{Exercícios: Revisão Prática e SQL Aplicada}
+\subsection{Exercícios de revisão prática}
+
+Para fixar os conceitos abordados ao longo da Parte III, propõe-se uma sequência de desafios práticos. No primeiro momento, focado em \textbf{estrutura e manipulação}, o estudante deve projetar uma tabela de exemplo contendo chave primária e estrangeira, inserir ao menos cinco registros válidos, atualizar dois deles com base em uma condição específica e, por fim, remover um registro de forma controlada para testar a integridade referencial dos dados.
+
+Em seguida, o foco se volta para a \textbf{consulta analítica}. O objetivo é extrair inteligência dos dados inseridos, realizando a contagem de registros por grupo e o cálculo de médias. É imperativo o uso da cláusula \texttt{HAVING} para filtrar blocos específicos, bem como a construção de subconsultas utilizando \texttt{EXISTS}. Para validar o entendimento sobre cruzamento de entidades, solicita-se a escrita de consultas empregando tanto \texttt{INNER JOIN} quanto \texttt{LEFT JOIN}.
+
+Avançando para o \textbf{refinamento e abstração}, o desafio consiste em organizar os resultados das consultas anteriores utilizando \texttt{ORDER BY}, combinados com técnicas de paginação na camada de dados (\texttt{LIMIT} e \texttt{OFFSET}). O aluno deve listar valores únicos com \texttt{DISTINCT}, combinar múltiplos conjuntos de dados independentes com \texttt{UNION ALL} e encapsular a lógica da junção mais complexa dentro de uma \texttt{VIEW} voltada para a geração rápida de relatórios.
+
+Por último, na etapa de \textbf{administração e otimização}, simula-se a entrada do banco de dados em um ambiente de produção. Para garantir a segurança, deve ser criada uma \textit{role} específica de leitura, concedendo apenas os privilégios estritamente necessários. No aspecto de desempenho, um índice justificado deve ser criado para acelerar as buscas na coluna mais filtrada. O ciclo se encerra com o desenvolvimento de uma transação composta segura e uma função reutilizável (\textit{Stored Procedure/Function}) que automatize uma regra de negócio simples.
+
+\subsection{Exercício final integrador}
+
+O reitor de uma grande universidade solicitou a informatização imediata do acervo de sua biblioteca central. A regra de negócio estabelece que todo \textbf{Livro} pertence a uma única \textbf{Categoria} literária e é de autoria de um único \textbf{Autor} principal (adotado aqui para fins de simplificação do modelo). Os \textbf{Leitores} credenciados na instituição podem realizar \textbf{Empréstimos} de livros, sendo que cada empréstimo deve registrar obrigatoriamente qual livro foi retirado, quem o retirou, a data de saída e a data prevista para devolução.
+
+A tarefa do estudante consiste em projetar e implementar integralmente esse banco de dados. A partir da modelagem lógica derivada do cenário, o aluno deverá inserir dados de teste condizentes com a realidade acadêmica, construir consultas operacionais e gerenciais utilizando funções de agrupamento, estabelecer \textit{views} para facilitar a emissão de recibos, implementar rotinas de controle de acesso para os bibliotecários, criar índices para acelerar a busca de livros por título e, finalmente, encapsular o processo de realização de um empréstimo em um bloco de transação segura.
+
+Para auxiliar na compreensão da arquitetura do banco que deve ser construído, o Diagrama Entidade-Relacionamento (DER) refletindo a regra de negócio está disponível na Figura \ref{fig:biblioteca_der}.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[scale=0.9, transform shape]
+        % Entidades e Relacionamentos
+        \node[draw, rectangle, fill=blue!10, minimum width=2.5cm, minimum height=1cm] (autor) at (0,4) {Autor};
+        \node[draw, diamond, aspect=2, minimum width=2cm] (escreve) at (4,4) {Escreve};
+        
+        \node[draw, rectangle, fill=blue!10, minimum width=2.5cm, minimum height=1cm] (livro) at (8,4) {Livro};
+        
+        \node[draw, diamond, aspect=2, minimum width=2cm] (pertence) at (12,4) {Pertence};
+        \node[draw, rectangle, fill=blue!10, minimum width=2.5cm, minimum height=1cm] (categoria) at (16,4) {Categoria};
+
+        \node[draw, diamond, aspect=2, minimum width=2cm] (empresta) at (8,0) {Emprestimo};
+        
+        \node[draw, rectangle, fill=blue!10, minimum width=2.5cm, minimum height=1cm] (leitor) at (0,0) {Leitor};
+
+        % Conexões
+        \draw (autor) -- node[above]{1} (escreve) -- node[above]{N} (livro);
+        \draw (livro) -- node[above]{N} (pertence) -- node[above]{1} (categoria);
+        \draw (livro) -- node[right]{N} (empresta) -- node[above]{N} (leitor);
+    \end{tikzpicture}
+    \caption{Diagrama Entidade-Relacionamento (DER) da Biblioteca Universitária.}
+    \label{fig:biblioteca_der}
+\end{figure}
+
+Após o mapeamento lógico, o diagrama conceitual se transforma no conjunto de tabelas relacionais detalhado na Figura \ref{fig:biblioteca_logico}. Observe atentamente o posicionamento das chaves estrangeiras (\texttt{FK}) que garantem a integridade referencial exigida.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[scale=0.85, transform shape]
+        % Tabelas
+        \node[draw, rectangle, fill=yellow!10, text width=5cm, align=left] (tautor) at (0,5) {
+            \textbf{Tabela Autor}\\
+            \underline{id\_autor}\\
+            nome
+        };
+        
+        \node[draw, rectangle, fill=yellow!10, text width=6.5cm, align=left] (tlivro) at (8,5) {
+            \textbf{Tabela Livro}\\
+            \underline{id\_livro}\\
+            titulo\\
+            ano\\
+            \textbf{id\_autor} (Aponta p/ Autor)\\
+            \textbf{id\_categoria} (Aponta p/ Categoria)
+        };
+        
+        \node[draw, rectangle, fill=yellow!10, text width=5cm, align=left] (tcategoria) at (16,5) {
+            \textbf{Tabela Categoria}\\
+            \underline{id\_categoria}\\
+            nome
+        };
+
+        \node[draw, rectangle, fill=yellow!10, text width=5cm, align=left] (tleitor) at (0,0) {
+            \textbf{Tabela Leitor}\\
+            \underline{id\_leitor}\\
+            nome
+        };
+
+        \node[draw, rectangle, fill=yellow!10, text width=6.5cm, align=left] (temprestimo) at (8,0) {
+            \textbf{Tabela Emprestimo}\\
+            \underline{id\_emprestimo}\\
+            \textbf{id\_livro} (Aponta p/ Livro)\\
+            \textbf{id\_leitor} (Aponta p/ Leitor)\\
+            data\_emp\\
+            data\_dev
+        };
+
+        % Linhas FK
+        \draw[->, thick, dashed, bend right=15] (tlivro.west) to node[above, font=\scriptsize]{FK} (tautor.east);
+        \draw[->, thick, dashed, bend left=15] (tlivro.east) to node[above, font=\scriptsize]{FK} (tcategoria.west);
+        \draw[->, thick, dashed] (temprestimo.north) to node[right, font=\scriptsize]{FK} (tlivro.south);
+        \draw[->, thick, dashed] (temprestimo.west) to node[above, font=\scriptsize]{FK} (tleitor.east);
+
+    \end{tikzpicture}
+    \caption{Modelo Lógico mapeado a partir das regras de negócio da Biblioteca.}
+    \label{fig:biblioteca_logico}
+\end{figure}
+
+
+% ===================================
+\section{Estudos de Caso Avançados da Parte III}
+
+Os cenários a seguir propõem problemas complexos baseados em sistemas reais e no mercado de trabalho. Eles integram a totalidade dos conceitos da Parte III (Aulas 10 a 17), abrangendo Arquitetura, DDL, Manipulação, Segurança (Zero Trust), Transações e Otimização com Índices.
+
+\subsection{Estudo de Caso 1: E-commerce de Alta Concorrência (DDL, Transações e Consistência)}
+
+\textbf{Contexto da Organização:}
+Uma grande varejista eletrônica (E-commerce) sofre frequentemente com problemas de inconsistência em datas promocionais (como a \textit{Black Friday}). O time de engenharia percebeu que vendas estão sendo registradas sem saldo em estoque, causando rupturas na logística e cancelamentos em massa, gerando multas para a empresa. 
+
+A diretoria solicitou que o banco de dados assuma a responsabilidade final pela integridade transacional, impedindo que qualquer pedido seja fechado se o estoque ficar negativo.
+
+\textbf{O Desafio Estrutural:}
+Você deve reconstruir as tabelas de estoque e vendas para aplicar políticas rigorosas de bloqueio e garantir que a dedução de saldo e o registro do pedido ocorram de forma atômica (propriedade ACID).
+
+\textbf{Estrutura de Base (Legado):}
+\begin{sqlcode}
+CREATE TABLE produto (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    estoque_atual INT NOT NULL,
+    preco NUMERIC(10,2) NOT NULL
+);
+
+CREATE TABLE pedido (
+    id SERIAL PRIMARY KEY,
+    data_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(20) DEFAULT 'PENDENTE'
+);
+
+CREATE TABLE item_pedido (
+    pedido_id INT,
+    produto_id INT,
+    quantidade INT NOT NULL,
+    preco_unitario NUMERIC(10,2) NOT NULL
+);
+\end{sqlcode}
+
+\textbf{Exercícios Propostos:}
+
+\begin{enumerate}
+    \item \textbf{Análise Crítica e DDL Avançada:} A estrutura de \texttt{item\_pedido} apresentada no sistema legado não possui chave primária e nem chaves estrangeiras. Reescreva o código DDL desta tabela para incluir:
+    \begin{itemize}
+        \item Uma \textit{Primary Key} composta.
+        \item \textit{Foreign Keys} mapeadas para \texttt{pedido} e \texttt{produto}.
+        \item Uma restrição de política de exclusão (\texttt{ON DELETE RESTRICT}) para impedir a exclusão acidental de um pedido que possui itens.
+    \end{itemize}
+    \item \textbf{A Regra de Ouro (CHECK Constraint):} Altere a tabela \texttt{produto} adicionando uma restrição arquitetural forte (via comando \texttt{ALTER TABLE}) que impeça de forma absoluta e matemática que o campo \texttt{estoque\_atual} seja menor que zero. Explique por que delegar essa verificação para a aplicação backend (Java/Python) é uma má prática de concorrência.
+    \item \textbf{Testes de Regra de Negócio:} Insira 3 produtos com estoque inicial de 5 unidades cada. Em seguida, tente rodar um comando \texttt{UPDATE} que subtraia 10 unidades de um dos produtos. Capture e explique o comportamento do SGBD com base na restrição criada no passo anterior.
+    \item \textbf{Transações e Atomicidade:} Escreva o script de banco de dados que simula a compra de 2 unidades do produto X. O script DEVE utilizar um bloco transacional explícito (\texttt{BEGIN}, \texttt{COMMIT}, \texttt{ROLLBACK}). Dentro do bloco, você deve:
+    \begin{enumerate}
+        \item Inserir o novo \texttt{pedido}.
+        \item Inserir o \texttt{item\_pedido}.
+        \item Atualizar o \texttt{estoque\_atual} do produto na tabela \texttt{produto} deduzindo a quantidade comprada.
+    \end{enumerate}
+    \item \textbf{Simulação de Falha Concorrente:} Discuta em sala de aula ou em grupo: Se o passo (c) do script transacional falhar devido à restrição de estoque nulo, o que acontece com o pedido e o item do pedido inseridos nos passos (a) e (b)? Relacione sua resposta com o conceito de \textit{Atomicidade} das propriedades ACID.
+\end{enumerate}
+
+\subsection{Estudo de Caso 2: Sistema Acadêmico e Relatórios Analíticos (DQL, Joins e Funções de Janela)}
+
+\textbf{Contexto da Organização:}
+A secretaria acadêmica da universidade necessita de relatórios dinâmicos para auditoria interna. O sistema atual possui milhares de alunos matriculados ao longo de décadas. O processo de emissão de "rankings de alunos" para concessão de bolsas de estudo está lento porque os analistas exportam todos os dados para planilhas (Excel) para então agrupá-los e classificá-los manualmente.
+
+Você foi encarregado de construir consultas SQL robustas (DQL) capazes de delegar todo esse processamento matemático e de classificação diretamente para o motor do banco de dados relacional.
+
+\textbf{Estrutura de Base:}
+\begin{sqlcode}
+CREATE TABLE curso (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE aluno (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    curso_id INT REFERENCES curso(id),
+    status_matricula VARCHAR(20) DEFAULT 'ATIVO',
+    ano_ingresso INT NOT NULL
+);
+
+CREATE TABLE historico_nota (
+    id SERIAL PRIMARY KEY,
+    aluno_id INT REFERENCES aluno(id),
+    disciplina VARCHAR(100) NOT NULL,
+    nota NUMERIC(4,2) NOT NULL,
+    semestre VARCHAR(6) NOT NULL
+);
+\end{sqlcode}
+
+\textbf{Exercícios Propostos:}
+
+\begin{enumerate}
+    \item \textbf{Junções e Aggregation Functions:} Escreva uma consulta SQL que liste o Nome do Curso, a quantidade total de alunos 'ATIVOS' matriculados e a Média Geral (CR - Coeficiente de Rendimento) calculada a partir de todas as notas do curso. Exiba os resultados ordenados de forma decrescente pelo melhor desempenho acadêmico (maior média).
+    \item \textbf{Subconsultas Correlacionadas vs LEFT JOIN:} A universidade deseja localizar alunos "Fantasmas" -- aqueles que estão matriculados (existem na tabela \texttt{aluno}), mas nunca tiveram nenhuma nota registrada no \texttt{historico\_nota}. Escreva duas consultas para resolver este mesmo problema:
+    \begin{itemize}
+        \item A primeira utilizando a cláusula \texttt{NOT EXISTS} (Subconsulta).
+        \item A segunda utilizando \texttt{LEFT JOIN} verificando a nulidade (\texttt{IS NULL}).
+        \item Explique qual das duas abordagens tende a possuir um plano de execução mais eficiente quando há milhões de registros.
+    \end{itemize}
+    \item \textbf{Funções de Janela (Window Functions):} O MEC solicitou a lista dos 3 melhores alunos de \textit{cada} curso. Como as funções de agregação tradicionais (\texttt{GROUP BY}) reduzem o resultado a uma única linha por grupo, elas não servem para esse propósito. Escreva uma consulta utilizando a Função de Janela \texttt{RANK() OVER (PARTITION BY ... ORDER BY ...)} para listar os alunos, seus cursos, suas médias gerais, e o ranking daquele aluno dentro exclusivamente do seu curso.
+    \item \textbf{Criação de Abstração (Views):} Para evitar que os secretários rodem scripts longos todos os dias, encapsule a consulta de Função de Janela desenvolvida no passo anterior dentro de uma \textit{View} chamada \texttt{vw\_ranking\_bolsas\_estudo}. Demonstre como o secretário executará o comando simplificado a partir de agora.
+    \item \textbf{Revisão Crítica de Agrupamento:} Um estagiário tentou escrever a seguinte consulta para buscar cursos com mais de 50 alunos:
+\begin{sqlcode}
+SELECT c.nome, COUNT(a.id) as total_alunos
+FROM curso c
+JOIN aluno a ON c.id = a.curso_id
+WHERE COUNT(a.id) > 50
+GROUP BY c.nome;
+\end{sqlcode}
+    O SGBD retornou um erro fatal de sintaxe. Identifique o erro conceitual cometido pelo estagiário entre as cláusulas \texttt{WHERE} e \texttt{HAVING} e reescreva a consulta da forma correta.
+\end{enumerate}
+
+\subsection{Estudo de Caso 3: Governança Hospitalar e Zero Trust (Roles e DCL)}
+
+\textbf{Contexto da Organização:}
+Um grande complexo hospitalar sofreu uma auditoria de segurança da informação (LGPD/GDPR) e recebeu uma multa grave: o sistema do hospital permitia que qualquer enfermeiro que fizesse login na base de dados pudesse realizar um comando \texttt{DROP TABLE} e apagar o prontuário dos pacientes. Além disso, estagiários da recepção conseguiam consultar dados sigilosos referentes a diagnósticos psiquiátricos.
+
+O Engenheiro Chefe de Banco de Dados foi demitido. Você assumiu o cargo e sua primeira missão é aplicar rigorosamente o \textbf{Princípio do Menor Privilégio} (Zero Trust Architecture) utilizando a DCL (Data Control Language).
+
+\textbf{Estrutura de Base:}
+\begin{sqlcode}
+CREATE TABLE paciente (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    cpf CHAR(11) UNIQUE NOT NULL,
+    telefone VARCHAR(20)
+);
+
+CREATE TABLE prontuario_medico (
+    id SERIAL PRIMARY KEY,
+    paciente_id INT REFERENCES paciente(id),
+    medico_responsavel VARCHAR(100),
+    diagnostico_sensivel TEXT,
+    medicacao_prescrita TEXT,
+    data_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+\end{sqlcode}
+
+\textbf{Exercícios Propostos:}
+
+\begin{enumerate}
+    \item \textbf{Saneamento Inicial e Isolamento:} Escreva o comando SQL extremo que você, como DBA (Superusuário), utilizaria para revogar ABSOLUTAMENTE TODOS os privilégios públicos padrão (\texttt{REVOKE ALL}) nas tabelas \texttt{paciente} e \texttt{prontuario\_medico} para a role \texttt{PUBLIC}. Explique por que esta é a primeira atitude a se tomar em uma arquitetura Zero Trust.
+    \item \textbf{Criação de Estrutura de Governança (Roles):} Crie duas roles de grupo (sem direito de login) chamadas \texttt{role\_recepcao} e \texttt{role\_medicos}. 
+    \item \textbf{Concessão Cirúrgica de Acessos (GRANT):}
+    \begin{itemize}
+        \item Para a \texttt{role\_recepcao}: Conceda permissões estritas para permitir que a recepção consiga apenas INSERIR, SELECIONAR e ATUALIZAR a tabela \texttt{paciente}. Eles \textbf{não podem}, em hipótese alguma, visualizar a tabela \texttt{prontuario\_medico}. E eles também não podem DELETAR um paciente.
+        \item Para a \texttt{role\_medicos}: Conceda acesso total de leitura e escrita (exceto de exclusão de tabelas) em todas as tabelas.
+    \end{itemize}
+    \item \textbf{Anonimização e Proteção de Dados por Views:} A diretoria exige que a \texttt{role\_recepcao} precise consultar qual o nome do médico responsável por um paciente, mas a recepção \textbf{NÃO PODE LER} os campos \texttt{diagnostico\_sensivel} nem \texttt{medicacao\_prescrita}. 
+    Como o \texttt{GRANT} básico em nível de tabela expõe todas as colunas, crie uma \textit{View} chamada \texttt{vw\_painel\_recepcao} que projete apenas o Nome do Paciente e o Médico Responsável. Em seguida, conceda \texttt{SELECT} nesta View para a \texttt{role\_recepcao}.
+    \item \textbf{Gerenciamento de Identidade:} Crie dois usuários reais (com senha e direito de login): \texttt{joao\_recepcionista} e \texttt{dra\_ana\_cardiologista}. Após a criação, adicione os respectivos usuários às roles de grupo criadas no passo 2. Descreva os benefícios de conceder privilégios a grupos em vez de usuários nominais, especialmente em empresas com alta rotatividade de funcionários (turnover).
+\end{enumerate}
+
+\subsection{Estudo de Caso 4: Otimização de Logística Nacional (Índices B-Tree e Hash)}
+
+\textbf{Contexto da Organização:}
+Uma empresa de logística rastreia milhões de pacotes postais por mês em todo o território nacional. Atualmente, a tabela \texttt{rastreio\_encomenda} possui 150 milhões de registros.
+O aplicativo do cliente, utilizado para pesquisar onde o pacote está, começou a apresentar \textit{Timeouts} constantes. Toda vez que um cliente digita seu código de rastreio de 15 caracteres alfanuméricos, o PostgreSQL realiza um temido \textit{Sequential Scan} (Varredura Sequencial), lendo a tabela inteira do primeiro ao último registro, elevando o uso da CPU para 100\% e travando as operações de escrita no disco.
+
+\textbf{Estrutura de Base:}
+\begin{sqlcode}
+CREATE TABLE rastreio_encomenda (
+    id BIGSERIAL PRIMARY KEY,
+    codigo_rastreio CHAR(15) UNIQUE NOT NULL,
+    status_entrega VARCHAR(50) NOT NULL,
+    data_atualizacao TIMESTAMP NOT NULL,
+    cidade_origem VARCHAR(100),
+    cidade_destino VARCHAR(100)
+);
+\end{sqlcode}
+
+\textbf{A Query Lenta do Aplicativo:}
+\begin{sqlcode}
+SELECT status_entrega, data_atualizacao 
+FROM rastreio_encomenda 
+WHERE codigo_rastreio = 'BR99384728345XY';
+\end{sqlcode}
+
+\textbf{A Query Lenta do Gerente Logístico:}
+\begin{sqlcode}
+SELECT COUNT(id) 
+FROM rastreio_encomenda 
+WHERE data_atualizacao BETWEEN '2024-01-01' AND '2024-12-31';
+\end{sqlcode}
+
+\textbf{Exercícios Propostos:}
+
+\begin{enumerate}
+    \item \textbf{Complexidade Teórica e Gargalo de Disco:} O que é um \textit{Sequential Scan}? Calcule mentalmente ou descreva qual o impacto em operações de I/O de disco (Leitura e Escrita) quando o motor do banco precisa buscar uma única linha no fim de um arquivo de tabela que ocupa 20 Gigabytes de espaço.
+    \item \textbf{Índices Hash (Tempo Constante $\mathcal{O}(1)$):} A pesquisa no aplicativo busca exclusivamente igualdade estrita (\texttt{=}) do \texttt{codigo\_rastreio}. Sabendo que um índice \textit{Hash} não ordena dados, mas aponta diretamente para o ponteiro da memória em complexidade matemática de $\mathcal{O}(1)$, escreva o comando SQL para criar um índice do tipo \texttt{HASH} na coluna \texttt{codigo\_rastreio}. Explique por que ele ocupará menos espaço e será mais rápido que o padrão B-tree para essa finalidade estrita.
+    \item \textbf{Índices B-tree (Pesquisas em Faixa / Range):} A pesquisa do gerente logístico utiliza a cláusula \texttt{BETWEEN}, avaliando intervalos de tempo ($>$ e $<$). Índices Hash são completamente inúteis para intervalos. Crie um índice padrão baseado em Árvore B Balanceada (\textit{B-tree}) para a coluna \texttt{data\_atualizacao}. 
+    \item \textbf{Custo Oculto da Indexação:} O estagiário da equipe, fascinado pelo ganho de velocidade que os índices trouxeram, sugeriu a criação de índices individuais para todas as 6 colunas da tabela. Responda tecnicamente ao estagiário quais são os dois principais custos punitivos associados a bancos de dados super-indexados, focando no armazenamento e no desempenho das cláusulas \texttt{INSERT}, \texttt{UPDATE} e \texttt{DELETE}.
+    \item \textbf{Índices Multicoluna:} Supondo que a principal auditoria nacional seja listar encomendas enviadas de 'São Paulo' para 'Manaus', escreva a criação de um índice B-tree composto abordando simultaneamente as colunas \texttt{cidade\_origem} e \texttt{cidade\_destino}.
+\end{enumerate}
+
+\subsection{Estudo de Caso 5: Desafio Final e Prova Prática Completa}
+
+\textbf{Contexto da Organização:}
+Você está realizando uma prova prática de contratação para a vaga de Arquiteto de Dados Sênior em um banco de investimentos financeiro (Fintech). O examinador avaliará se você domina a conversão de problemas operacionais em soluções seguras através da sintaxe padronizada.
+
+O banco opera "Contas Correntes" e "Transferências" (PIX).
+
+\textbf{Exercícios Propostos:}
+
+\begin{enumerate}
+    \item \textbf{Passo 1 (Arquitetura e DDL):} Construa as tabelas \texttt{conta\_corrente} e \texttt{movimentacao\_financeira}. 
+    A conta possui ID, Cliente, Saldo e Status ('Ativa', 'Bloqueada').
+    A movimentação possui ID, Conta de Origem (FK), Conta de Destino (FK), Valor transferido e Data da Operação.
+    \textit{Regra rígida:} Saldos de contas nunca podem ser negativos. Valores de movimentação devem ser rigorosamente positivos.
+
+    \item \textbf{Passo 2 (Carga de Dados Base):} Insira duas contas: "Conta A" com saldo de R\$ 10.000,00 e "Conta B" com saldo de R\$ 500,00. Ambas ativas.
+
+    \item \textbf{Passo 3 (O Core Transacional Bancário):} Demonstre seu conhecimento de concorrência ACID. Escreva o bloco transacional que realiza uma transferência (PIX) de R\$ 3.000,00 da Conta A para a Conta B. O seu script deve:
+    \begin{itemize}
+        \item Iniciar a Transação.
+        \item Abater os R\$ 3.000 da Conta A.
+        \item Depositar os R\$ 3.000 na Conta B.
+        \item Gravar o histórico completo na tabela de movimentações (Origem A, Destino B, Valor 3000).
+        \item Finalizar com um \texttt{COMMIT}.
+    \end{itemize}
+    
+    \item \textbf{Passo 4 (Auditoria DQL e Joins):} Escreva a consulta analítica que retorna o Nome do Cliente Origem, Nome do Cliente Destino, Data e Valor da Transação de todas as movimentações financeiras já realizadas. \textit{Dica:} Você precisará fazer um \texttt{JOIN} duplo com a tabela de conta\_corrente usando Aliases (A e B) para referenciar origens e destinos separados.
+
+    \item \textbf{Passo 5 (Abstração com Funções e Dollar Quoting):} Transforme a rotina complexa criada no Passo 3 em uma Função PostgreSQL procedural reutilizável chamada \texttt{realizar\_transferencia(id\_origem, id\_destino, valor)}. Utilize o \textit{Dollar Quoting} (\texttt{\$\$}) para envelopar a linguagem procedimental (PL/pgSQL ou análoga). Defina o comportamento de que se a Conta Origem estiver com status 'Bloqueada', a função lança um erro e executa um \texttt{ROLLBACK} automático, não alterando saldo algum. (Este passo demonstra seu profundo alinhamento com a camada técnica ensinada na aula 17).
+\end{enumerate}

@@ -7,18 +7,9 @@ Esta aula aprofunda exatamente esse nível de sofisticação. O foco recai sobre
 
 \section{Por que refinar consultas}
 
-No uso cotidiano de bancos de dados, surgem demandas como:
+No uso cotidiano de bancos de dados corporativos, demandas analíticas complexas surgem a todo momento. O cientista de dados ou engenheiro de software frequentemente precisa mostrar registros em uma ordem muito específica, paginar listas extensas para consumo em APIs, extrair apenas valores distintos para popular menus (\textit{dropdowns}), ou ainda combinar resultados oriundos de fontes completamente diferentes. Além disso, análises de mercado exigem comparar cada linha com o desempenho médio de seu próprio grupo sem perder a granularidade dos dados, exigindo também a criação de objetos virtuais para simplificar a manutenção de relatórios repetitivos.
 
-\begin{itemize}
-    \item mostrar registros em ordem específica;
-    \item paginar listas extensas;
-    \item exibir apenas valores distintos;
-    \item combinar resultados oriundos de fontes diferentes;
-    \item comparar cada linha com o desempenho médio de seu grupo;
-    \item simplificar consultas repetidas em relatórios ou sistemas.
-\end{itemize}
-
-Tais necessidades fazem com que o comando \texttt{SELECT} deixe de ser apenas uma ferramenta de recuperação simples e passe a atuar como mecanismo de organização, filtragem refinada, síntese e apresentação dos dados.
+Tais necessidades exigem que o comando \texttt{SELECT} deixe de ser apenas uma ferramenta de extração simples para atuar como um sofisticado mecanismo de organização, síntese analítica e formatação direta de apresentação dos dados.
 
 \section{ORDER BY}
 
@@ -65,13 +56,7 @@ ORDER BY aluno_id
 LIMIT 5;
 \end{sqlcode}
 
-Esse comando é útil para:
-\begin{itemize}
-    \item exibir apenas uma amostra;
-    \item reduzir o volume de saída em testes;
-    \item implementar paginação;
-    \item limitar relatórios resumidos.
-\end{itemize}
+A imposição de limites é uma tática indispensável para a preservação de recursos do servidor de banco de dados e da rede. Ao limitar a saída, o administrador consegue exibir rapidamente uma pequena amostra exploratória, impedindo o travamento de ferramentas de terminal ao inspecionar tabelas com bilhões de registros. Além de economizar processamento durante fases de testes empíricos, essa técnica é o núcleo fundamental dos algoritmos de paginação em aplicações web, onde os registros são fatiados e entregues ao cliente sob demanda, viabilizando relatórios executivos rápidos e interfaces fluidas.
 
 \section{OFFSET}
 
@@ -90,12 +75,7 @@ Nesse caso, o banco ignora as primeiras cinco linhas e devolve as cinco seguinte
 
 \texttt{LIMIT} e \texttt{OFFSET} são frequentemente usados juntos para paginação.
 
-Exemplo:
-\begin{itemize}
-    \item página 1: \texttt{LIMIT 10 OFFSET 0}
-    \item página 2: \texttt{LIMIT 10 OFFSET 10}
-    \item página 3: \texttt{LIMIT 10 OFFSET 20}
-\end{itemize}
+Por exemplo, para processar um relatório dividido em lotes de dez registros, a primeira página executará \texttt{LIMIT 10 OFFSET 0}. Ao avançar na leitura, a interface requisitará a página seguinte informando \texttt{LIMIT 10 OFFSET 10}, pulando a primeira dezena. A lógica se repete para a terceira página com \texttt{LIMIT 10 OFFSET 20}, criando um escoamento suave e escalável que evita carregar toda a tabela na memória RAM do servidor de aplicação.
 
 \begin{quadro_dica}
 Sempre que usar \texttt{LIMIT} e \texttt{OFFSET}, use também \texttt{ORDER BY}. Caso contrário, a noção de “primeiras” ou “próximas” linhas perde sentido lógico.
@@ -133,11 +113,7 @@ SELECT nome
 FROM professores;
 \end{sqlcode}
 
-Para que a operação seja válida:
-\begin{itemize}
-    \item ambas as consultas devem devolver o mesmo número de colunas;
-    \item as colunas correspondentes devem possuir tipos compatíveis.
-\end{itemize}
+Do ponto de vista estrutural, para que o banco aprove e processe a operação matemática de união de conjuntos, existem exigências estritas: os dois blocos \texttt{SELECT} envolvidos devem devolver, obrigatoriamente, a exata mesma quantidade posicional de colunas, e as colunas geometricamente alinhadas precisam possuir tipos de dados estritamente compatíveis (não é possível empilhar uma coluna de datas sobre uma coluna numérico-textual incompatível).
 
 \section{UNION ALL}
 
@@ -151,12 +127,7 @@ SELECT nome, 'PROFESSOR' AS origem
 FROM professores;
 \end{sqlcode}
 
-Esse operador é especialmente útil quando:
-\begin{itemize}
-    \item as duplicidades têm significado;
-    \item deseja-se melhor desempenho;
-    \item é importante saber a origem de cada linha.
-\end{itemize}
+O uso deliberado do operador que preserva repetições torna-se vital quando as duplicidades semânticas importam estatisticamente (por exemplo, analisar transações corriqueiras de valores repetidos). Mais importante ainda, o \texttt{UNION ALL} apresenta um ganho colossal de performance em comparação à sua versão sem o "ALL", pois ele instrui o motor do banco a pular a custosa fase de ordenação e varredura de deduplicação, simplesmente empilhando os blocos crus. Para não perder o contexto da origem da informação, uma prática excelente é injetar colunas textuais literais (como \texttt{'ALUNO'} ou \texttt{'PROFESSOR'}), rotulando cada registro durante a fusão.
 
 \section{HAVING revisitado}
 
@@ -215,12 +186,7 @@ FROM alunos;
 
 \section{Diferença entre GROUP BY e funções de janela}
 
-A distinção é central:
-
-\begin{itemize}
-    \item \texttt{GROUP BY} resume várias linhas em uma linha por grupo;
-    \item funções de janela preservam cada linha individual e acrescentam informações analíticas.
-\end{itemize}
+A distinção conceitual e matemática entre as duas abordagens é central na engenharia de consultas analíticas. Enquanto o \texttt{GROUP BY} atua achatando destrutivamente o conjunto de resultados, resumindo implacavelmente dezenas de linhas originais em uma única e consolidada linha agregada, as modernas funções de janela trabalham preservando intocável cada linha individual do conjunto, injetando elegantemente um cálculo de contexto macro (a estatística do "todo") em uma coluna lateral iterativa.
 
 Essa diferença torna as funções de janela especialmente úteis para relatórios em que se deseja manter o detalhe sem abrir mão da comparação com o grupo.
 
@@ -230,16 +196,11 @@ Essa diferença torna as funções de janela especialmente úteis para relatóri
 
 Uma \texttt{VIEW} é uma tabela virtual baseada em uma consulta. Ela não precisa armazenar os dados como uma tabela comum; em vez disso, armazena a lógica que produz aquele resultado.
 
-\subsection{Por que usar views}
+\subsection{Arquitetura e Boas Práticas: Por que usar Views}
 
-As views ajudam a:
-\begin{itemize}
-    \item simplificar consultas repetitivas;
-    \item encapsular junções complexas;
-    \item facilitar o uso por outros usuários;
-    \item servir de base para relatórios;
-    \item contribuir com estratégias de segurança.
-\end{itemize}
+No ecossistema corporativo, o acesso direto a pesadas tabelas físicas por sistemas cliente (como aplicações, APIs ou painéis executivos) é massivamente considerado uma \textbf{má prática arquitetural}. Esse acoplamento direto gera uma enorme repetição de longos trechos SQL nos códigos-fonte, engessa as refatorações estruturais do banco (já que qualquer alteração no esquema ou exclusão de coluna pode quebrar as integrações vitais de forma irreversível) e expõe a topografia crua dos dados sem camadas lógicas de controle de concorrência.
+
+Em oposição a esse caos técnico, a literatura acadêmica e o mercado estipulam o uso mandatório de \texttt{VIEWS} para expor dados. Elas atuam como membranas estabilizadoras blindando o esquema físico: uma View pode abrigar internamente uma malha complexa de mais de dez \texttt{JOINs} assustadores e transformá-la visualmente em uma singela tabela flat virtual, facilitando imediatamente a escrita de relatórios por analistas menos experientes. No futuro, caso o DBA precise modificar tabelas, separar entidades ou criar históricos, ele precisará apenas atualizar o interior da consulta DQL dentro daquela View. Todas as aplicações matrizes continuarão injetando o tradicional e inofensivo \texttt{SELECT * FROM vw\_financeiro}, extraindo os dados exatos sem jamais perceber as engrenagens substituídas nos bastidores. Assim, as Views formam a fundação do isolamento e do encapsulamento de banco de dados moderno.
 
 \subsection{Criando uma view simples}
 
@@ -273,12 +234,7 @@ Uma view é especialmente útil quando a mesma consulta passa a ser utilizada re
 
 As views também podem ser usadas para restringir o que será exposto a determinados usuários. Em vez de conceder acesso direto à tabela original, pode-se conceder acesso apenas à view, que mostra um recorte controlado das informações.
 
-Por exemplo, uma view pode ocultar:
-\begin{itemize}
-    \item colunas sensíveis;
-    \item dados administrativos;
-    \item atributos desnecessários a determinados perfis.
-\end{itemize}
+Por exemplo, em um esquema de recursos humanos, uma tabela original contendo dados gerais dos funcionários possui também colunas financeiras sensíveis (como salários e bônus) e dados sigilosos (como laudos médicos). Ao invés de lidar com permissões intrincadas de nível de coluna, o DBA cria uma \texttt{vw\_funcionarios\_publico} excluindo sumariamente as colunas sigilosas da cláusula \texttt{SELECT}. Dessa forma, ocultam-se magicamente dados administrativos, senhas e informações pessoais, fornecendo um túnel limpo e seguro para os analistas trabalharem sem violarem políticas de segurança da informação.
 
 \section{Exemplo resolvido 1 -- Consulta ordenada e paginada}
 
@@ -291,12 +247,24 @@ ORDER BY nome
 LIMIT 10 OFFSET 0;
 \end{sqlcode}
 
-\textbf{Interpretação:}
-\begin{itemize}
-    \item os resultados são organizados alfabeticamente;
-    \item apenas dez linhas são mostradas;
-    \item essa lógica pode ser usada na primeira página de um relatório.
-\end{itemize}
+\textbf{Resultado Simulado:}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|c|}
+    \hline
+    \textbf{nome} & \textbf{curso\_id} \\
+    \hline
+    Amanda Castro & 3 \\
+    Bruno Oliveira & 1 \\
+    Carlos Luz & 2 \\
+    \multicolumn{2}{|c|}{\textit{(... mais 7 linhas)}} \\
+    \hline
+    \end{tabular}
+    \caption{Tabela de saída (Result Set) da paginação inicial.}
+\end{table}
+
+A interpretação desta matriz de resultados é direta: os dados foram extraídos e organizados rigorosamente em ordem alfabética. O motor do SGBD cortou a execução e o envio de pacotes pela rede assim que atingiu a marca de dez linhas exatas (\texttt{LIMIT 10}), começando a contar desde a primeira linha absoluta (\texttt{OFFSET 0}), o que traduz a implementação perfeita da tela inicial de um relatório paginado.
 
 \section{Exemplo resolvido 2 -- Lista de cursos distintos}
 
@@ -308,12 +276,23 @@ FROM alunos
 ORDER BY curso_id;
 \end{sqlcode}
 
-\textbf{Interpretação:}
-\begin{itemize}
-    \item duplicidades são eliminadas;
-    \item o resultado é uma lista enxuta;
-    \item esse tipo de consulta ajuda em filtros e menus.
-\end{itemize}
+\textbf{Resultado Simulado:}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|}
+    \hline
+    \textbf{curso\_id} \\
+    \hline
+    1 \\
+    2 \\
+    3 \\
+    \hline
+    \end{tabular}
+    \caption{Tabela de saída contendo apenas cursos únicos.}
+\end{table}
+
+A consulta gerou uma matriz final de apenas uma coluna. O processo eliminou cirurgicamente todas as centenas de repetições do mesmo \texttt{curso\_id} herdadas do cadastro volumoso de alunos. Esse retorno enxuto é classicamente utilizado no preenchimento de código \textit{front-end} para popular as opções de filtros combinados e caixas de seleção em interfaces visuais e aplicativos.
 
 \section{Exemplo resolvido 3 -- União de perfis}
 
@@ -327,12 +306,24 @@ SELECT nome, 'PROFESSOR' AS origem
 FROM professores;
 \end{sqlcode}
 
-\textbf{Interpretação:}
-\begin{itemize}
-    \item as duas consultas possuem a mesma estrutura;
-    \item o campo \texttt{origem} permite distinguir os papéis;
-    \item \texttt{UNION ALL} preserva todas as linhas.
-\end{itemize}
+\textbf{Resultado Simulado:}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|c|}
+    \hline
+    \textbf{nome} & \textbf{origem} \\
+    \hline
+    Juliana Paes & ALUNO \\
+    Lucas Silva & ALUNO \\
+    Roberto Gomes & PROFESSOR \\
+    Marta Ferreira & PROFESSOR \\
+    \hline
+    \end{tabular}
+    \caption{Tabela consolidada demonstrando a união semântica.}
+\end{table}
+
+Para obter esse relatório misto, as duas consultas tiveram que obedecer rigorosamente à mesma estrutura geométrica (uma coluna \texttt{nome} e uma coluna \texttt{origem}). A inclusão dos campos literais injetados manualmente permite ao analista distinguir perfeitamente os papéis institucionais, enquanto o \texttt{UNION ALL} garante um tempo de resposta baixíssimo ao abdicar de deduplicações custosas e focar apenas no empilhamento vertical rápido dos dados na memória RAM.
 
 \section{Exemplo resolvido 4 -- Média do grupo em cada linha}
 
@@ -347,12 +338,23 @@ SELECT
 FROM alunos;
 \end{sqlcode}
 
-\textbf{Interpretação:}
-\begin{itemize}
-    \item cada linha mantém um aluno individual;
-    \item a média do curso é calculada sem reduzir o resultado a uma linha por curso;
-    \item isso facilita comparações detalhadas.
-\end{itemize}
+\textbf{Resultado Simulado:}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|c|c|c|}
+    \hline
+    \textbf{nome} & \textbf{curso\_id} & \textbf{idade} & \textbf{media\_curso} \\
+    \hline
+    Ana Lúcia & 1 & 20 & 21.5 \\
+    Paulo Freire & 1 & 23 & 21.5 \\
+    Luiza Melo & 2 & 19 & 19.0 \\
+    \hline
+    \end{tabular}
+    \caption{Tabela com preservação granular e injeção analítica em coluna adjacente.}
+\end{table}
+
+Diferente do agrupamento destrutivo clássico promovido pelo \texttt{GROUP BY}, a tabela final comprova que cada aluno individual e seus detalhes foram integralmente preservados. A função agregada, embalada pela cláusula \texttt{OVER}, atuou calculando a média separadamente para o subgrupo de pertencimento (\texttt{PARTITION BY curso\_id}) e replicou esse mesmo cálculo matricial como um metadado analítico complementar anexado na última coluna de cada respectivo aluno, enriquecendo formidavelmente a capacidade de comparação visual em planilhas de *Business Intelligence*.
 
 \section{Exemplo resolvido 5 -- View para relatório acadêmico}
 
@@ -375,12 +377,9 @@ FROM vw_notas_alunos
 ORDER BY aluno, disciplina;
 \end{sqlcode}
 
-\textbf{Interpretação:}
-\begin{itemize}
-    \item a consulta mais complexa é centralizada em uma view;
-    \item usuários podem trabalhar diretamente com a visão consolidada;
-    \item a leitura do relatório se torna mais amigável.
-\end{itemize}
+\textbf{Interpretação do ecossistema e facilitação do código:}
+
+Neste fluxo robusto, o pesadelo lógico das junções multiplicadas (\textit{JOINs}) e da navegação técnica minuciosa através de chaves estrangeiras transversais fica trancado permanentemente dentro da declaração DDL inicial da \texttt{VIEW}. Daquele instante criativo em diante, os usuários finais (ou até microsserviços) interagem unicamente com a fachada virtual \texttt{vw\_notas\_alunos}, inserindo seleções ingênuas como se estivessem trabalhando em cima de uma tabela bruta desnormalizada. Essa separação de fronteiras eleva dramaticamente a manutenibilidade do sistema, previne a duplicação de lógicas de junção por toda a equipe e simplifica absurdamente a confecção de rotinas de auditoria relacional.
 
 \section{Erro comum 1 -- Usar LIMIT sem ORDER BY}
 
@@ -412,14 +411,7 @@ Uma view deve ter propósito claro: simplificação, segurança, relatório ou r
 
 \section{Boas práticas}
 
-\begin{itemize}
-    \item usar \texttt{ORDER BY} sempre que a ordem importar;
-    \item combinar \texttt{LIMIT} com ordenação;
-    \item usar \texttt{DISTINCT} apenas quando a eliminação de duplicidades fizer sentido;
-    \item escolher conscientemente entre \texttt{UNION} e \texttt{UNION ALL};
-    \item nomear views de forma clara e padronizada;
-    \item empregar funções de janela quando se deseja preservar detalhe com contexto analítico.
-\end{itemize}
+O cientista de dados ou desenvolvedor compreende rapidamente que o \texttt{SELECT} não atende apenas requisitos funcionais de negócio, mas responde diretamente por requisitos não funcionais de extrema criticidade (segurança e desempenho). Torna-se mandatório o acoplamento do \texttt{ORDER BY} a instruções restritivas de limite de busca para evitar o retorno acidental e caótico de tabelas volumosas inteiras. A instrução \texttt{DISTINCT} jamais deve ser utilizada como um escudo desleixado para esconder e silenciar consultas defeituosas contendo duplicação acidental (pois o \textit{Distinct} força um custo computacional massivo de processamento topológico no SGBD). Do mesmo modo prático, prefere-se quase integralmente o uso de \texttt{UNION ALL} ao \texttt{UNION} nativo sempre que a chance de uma duplicidade inter-resultados for matematicamente improvável. Para manter o código imune a dívidas técnicas, as \textit{Views} lógicas devem incorporar invariavelmente nomenclaturas padronizadas, e as ferramentas analíticas baseadas em \textit{Window Functions} devem dominar as escolhas de modelagem quando a devolução gráfica simultânea das linhas granulares for inegociável.
 
 \begin{quadro_dica}
 Uma convenção útil é prefixar views com \texttt{vw\_}. Isso ajuda a distingui-las rapidamente de tabelas comuns.
@@ -427,17 +419,9 @@ Uma convenção útil é prefixar views com \texttt{vw\_}. Isso ajuda a distingu
 
 \section{Minicaso integrador -- Painel acadêmico resumido}
 
-Considere que a coordenação deseja montar um painel com as seguintes informações:
+Considere o cenário real no qual a coordenação pedagógica deseja estruturar o \textit{dashboard} (painel de controle) central da instituição. Para abastecer a interface gráfica, a camada de acesso a dados deverá prover sequencialmente: uma listagem paginada de alunos para a tela inicial, a extração de cursos únicos para compor a caixa de seleção (\textit{combobox}) de filtros de busca, um relatório unificado empilhando nomes de alunos e professores para alimentar a barra de pesquisa global, a exibição analítica da média de idade da turma alocada lado a lado ao perfil de cada aluno e, por fim, a criação de uma fundação arquitetural sólida baseada em \textit{Views} para suportar a geração do pesado relatório estatístico de notas.
 
-\begin{enumerate}
-    \item lista paginada de alunos;
-    \item cursos distintos existentes;
-    \item união entre nomes de alunos e professores;
-    \item média de idade do curso ao lado de cada aluno;
-    \item uma view para relatório de notas.
-\end{enumerate}
-
-Uma sequência possível seria:
+Uma sequência contínua de blocos DQL para suprir essas exigências de negócio seria:
 
 \subsection*{Passo 1 -- Lista paginada}
 
@@ -500,49 +484,6 @@ ORDER BY aluno, disciplina;
 
 \textbf{Comentário didático:}
 Esse minicaso mostra como vários recursos de refinamento podem coexistir em um mesmo cenário. A consulta deixa de ser apenas mecanismo de busca e passa a atuar como ferramenta de apresentação, organização e reutilização.
-
-\section{Exercícios básicos}
-
-\begin{enumerate}
-    \item Escreva uma consulta ordenada por nome.
-    \item Escreva uma consulta ordenada por idade em ordem decrescente.
-    \item Faça uma consulta que retorne apenas cinco alunos.
-    \item Liste os cursos distintos.
-    \item Escreva uma consulta que una nomes de alunos e professores.
-\end{enumerate}
-
-\section{Exercícios intermediários}
-
-\begin{enumerate}
-    \item Monte uma paginação com \texttt{LIMIT} e \texttt{OFFSET}.
-    \item Compare \texttt{UNION} e \texttt{UNION ALL} com um exemplo.
-    \item Crie uma consulta com \texttt{HAVING} e \texttt{ORDER BY}.
-    \item Escreva uma função de janela para calcular média por curso.
-    \item Crie uma view que simplifique a junção entre alunos e cursos.
-\end{enumerate}
-
-\section{Exercícios avançados}
-
-\begin{enumerate}
-    \item Classifique alunos por idade dentro de cada curso usando função de janela.
-    \item Crie duas views distintas para relatórios acadêmicos.
-    \item Explique em que contexto uma view pode ajudar na segurança.
-    \item Monte uma consulta paginada com filtro, ordenação e limitação de resultados.
-\end{enumerate}
-
-\section{Exercício integrador}
-
-Considere um sistema universitário com as tabelas \texttt{alunos}, \texttt{cursos}, \texttt{professores}, \texttt{disciplinas} e \texttt{notas}. Elabore:
-
-\begin{enumerate}
-    \item uma consulta que liste cursos distintos;
-    \item uma consulta ordenada por curso e nome;
-    \item uma consulta paginada de alunos;
-    \item uma consulta que una nomes de alunos e professores;
-    \item uma função de janela que calcule média por curso;
-    \item uma view para uso em relatório acadêmico;
-    \item uma breve justificativa para o uso de cada recurso.
-\end{enumerate}
 
 \section{Síntese da aula}
 

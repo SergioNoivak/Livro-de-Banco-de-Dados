@@ -7,291 +7,125 @@ Esta aula tem como objetivo introduzir a linguagem SQL como instrumento de defin
 
 \section{A passagem do modelo para a implementação}
 
-Nas etapas anteriores do projeto de banco de dados, o foco esteve voltado para perguntas como:
+Nas etapas anteriores do projeto de banco de dados, o foco esteve voltado para perguntas fundamentais sobre a modelagem da informação. A primeira grande questão foi determinar quais dados devem ser armazenados. Essa análise exigiu um esforço de abstração para identificar as entidades relevantes e seus respectivos atributos, separando informações essenciais para o negócio de dados desnecessários ou redundantes. O objetivo foi assegurar que a base teórica contemplasse tudo o que o sistema precisa para operar.
 
-\begin{itemize}
-    \item quais dados devem ser armazenados;
-    \item como esses dados se relacionam;
-    \item quais restrições precisam ser respeitadas;
-    \item como representar corretamente a realidade do domínio.
-\end{itemize}
+A segunda pergunta essencial investigou como esses dados se relacionam. Por meio de modelos conceituais, buscou-se compreender as associações, dependências e cardinalidades que unem entidades distintas. Esse mapeamento estrutural foi indispensável para transformar dados isolados em uma rede coesa de conhecimento, prevendo como as informações interagiriam e seriam cruzadas no futuro.
 
-Essas perguntas são fundamentais, mas ainda pertencem ao plano de modelagem. Quando o projeto avança para a implementação, surgem novas questões:
+A terceira pergunta voltou-se para as regras de integridade, questionando quais restrições precisam ser respeitadas. A modelagem não se preocupou apenas com o formato dos dados, mas também com a definição de limites de valores, chaves identificadoras, regras de unicidade e obrigatoriedades. Identificar essas restrições ainda no plano conceitual é uma medida preventiva crucial para evitar a entrada de dados inválidos ou inconsistentes.
 
-\begin{itemize}
-    \item como criar o banco de dados no SGBD escolhido;
-    \item como definir tabelas, colunas e tipos;
-    \item como inserir, atualizar e remover dados;
-    \item como consultar informações de forma eficiente;
-    \item como controlar permissões e preservar consistência.
-\end{itemize}
+Por fim, a última pergunta estruturante buscou resolver como representar corretamente a realidade do domínio. O grande desafio dessa fase foi garantir que o modelo abstrato fosse um reflexo fiel, lógico e semântico do mundo real, traduzindo adequadamente os processos, o vocabulário corporativo e as dinâmicas operacionais do negócio em estruturas consistentes.
 
-A SQL responde a essas questões.
+Essas perguntas são fundamentais, mas ainda pertencem ao plano de modelagem. Quando o projeto avança para a fase prática de implementação, surgem novos desafios de ordem estritamente técnica. O desenvolvedor passa a ter que lidar com a infraestrutura de dados reais, precisando descobrir como criar o banco de dados propriamente dito no SGBD escolhido, como definir estruturalmente cada tabela e suas respectivas colunas de acordo com as restrições físicas. Além disso, torna-se necessário estabelecer os métodos para a inserção, atualização e remoção diária da informação, criar rotinas eficientes para consultar cruzamentos de dados complexos e, sobretudo, configurar as permissões para preservar o acesso e a consistência. É para orquestrar todas essas respostas em um ambiente computacional que a SQL foi concebida.
 
-\section{O que é SQL}
+\begin{figure}[htpb]
+    \centering
+    \begin{tikzpicture}[
+        node distance=2cm,
+        box/.style={draw=verdeuni, thick, rectangle, rounded corners, minimum width=5cm, minimum height=3.5cm, align=center, fill=green!5},
+        arrow/.style={-{Stealth[scale=1.2]}, thick, color=verdeuni}
+    ]
+        
+        \node[box] (modelagem) {
+            \textbf{Plano de Modelagem}\\[0.3cm]
+            \small
+            \begin{tabular}{l}
+                $\bullet$ Quais dados armazenar \\
+                $\bullet$ Como se relacionam \\
+                $\bullet$ Restrições e regras \\
+                $\bullet$ Realidade do domínio
+            \end{tabular}
+        };
+        
+        \node[box, right=2.5cm of modelagem, fill=blue!5, draw=blue!50!black] (implementacao) {
+            \textbf{Plano de Implementação}\\[0.3cm]
+            \small
+            \begin{tabular}{l}
+                $\bullet$ SGBD e Tabelas \\
+                $\bullet$ Inserção e Atualização \\
+                $\bullet$ Consultas \\
+                $\bullet$ Permissões \\
+                $\bullet$ Consistência
+            \end{tabular}
+        };
+        
+        \draw[arrow] (modelagem) -- node[above, font=\bfseries] {Linguagem SQL} node[below] {Transição} (implementacao);
+        
+    \end{tikzpicture}
+    \caption{A transição do modelo para a implementação intermediada pela SQL.}
+    \label{fig:transicao_sql}
+\end{figure}
 
-A SQL é uma linguagem padronizada voltada à interação com bancos de dados relacionais. Seu nome, \textit{Structured Query Language}, destaca sua origem ligada à formulação de consultas, mas seu escopo é muito mais amplo do que apenas recuperar dados.
+\section{O que é SQL e seu caráter declarativo}
 
-Em sentido prático, a SQL permite:
+A SQL é a linguagem universalmente adotada para a interação com bancos de dados relacionais. Embora seu nome — \textit{Structured Query Language} — destaque a realização de consultas como sua função principal, a SQL evoluiu para cobrir todo o ciclo de vida do dado. De forma prática, a linguagem é o instrumento que não só cria e altera o layout das tabelas no disco, mas também permite popular essas tabelas com inserções e atualizações, filtrar registros de forma dinâmica, configurar políticas rigorosas de acesso e administrar transações atômicas de negócio.
 
-\begin{enumerate}
-    \item criar e modificar estruturas de banco de dados;
-    \item inserir, alterar e remover registros;
-    \item consultar dados simples ou complexos;
-    \item definir permissões de acesso;
-    \item controlar transações.
-\end{enumerate}
+Uma das características mais marcantes e vantajosas da SQL é o seu paradigma declarativo. Em linguagens de programação imperativas, como Python ou C, o desenvolvedor é forçado a escrever o passo a passo lógico detalhando "como" o computador deve chegar a um resultado. Na SQL, o desenvolvedor se preocupa exclusivamente em expressar a intenção final, ou seja, "o que" ele deseja obter. Ao estruturar uma consulta simples solicitando os nomes de todos os alunos pertencentes a um determinado curso, o usuário não se preocupa em programar laços de repetição ou navegar pelos endereços de memória. O SGBD assume toda essa complexidade nos bastidores, tomando decisões otimizadas sobre qual o melhor índice a consultar ou a melhor estratégia para percorrer as tabelas. Essa abstração foi e continua sendo um dos pilares do sucesso massivo dos bancos relacionais.
 
-\section{SQL como linguagem declarativa}
+\section{SQL padrão versus dialetos}
 
-Uma das características mais importantes da SQL é seu caráter declarativo. Isso significa que o usuário informa \emph{o que deseja obter}, e não necessariamente \emph{como} o SGBD deve executar cada passo.
+Existe um esforço contínuo do ANSI e da ISO para manter a SQL sob uma padronização universal. No entanto, o mercado de software e a concorrência por melhor desempenho fizeram com que cada grande fabricante desenvolvesse o próprio SGBD com características singulares. Surgiram assim os dialetos da SQL. Sistemas amplamente conhecidos, como PostgreSQL, MySQL, SQL Server e Oracle Database, compartilham o mesmo núcleo sintático básico — todos compreendem comandos como SELECT, UPDATE ou DELETE de forma quase idêntica. Contudo, assim que a exigência técnica se aprofunda, as diferenças emergem claramente no comportamento das transações, no gerenciamento de concorrência, nas funções auxiliares e até mesmo na nomenclatura oficial dos tipos de dados suportados. Essa diversidade reforça a ideia de que o aprendizado do banco de dados relacional deve focar nos conceitos e arquiteturas essenciais, permitindo que o aluno se adapte facilmente ao dialeto exigido pelo cenário profissional em que estiver inserido.
 
-Por exemplo, ao escrever:
+\section{As sublinguagens da SQL e a complementaridade dos capítulos}
 
-\begin{sqlcode}
-SELECT nome
-FROM aluno
-WHERE curso = 'Engenharia de Software';
-\end{sqlcode}
+No decorrer deste e dos próximos capítulos, perceberemos que a SQL não é um amontoado caótico de instruções. Para fins didáticos e organizacionais, a linguagem é dividida em grupos, ou sublinguagens, focadas em responsabilidades estritas no ciclo de vida do banco.
 
-o usuário expressa sua intenção: deseja os nomes dos alunos do curso indicado. O SGBD, por sua vez, decide internamente quais estratégias utilizar para atender à consulta, como leitura sequencial, uso de índice, cache ou reordenação do plano de execução.
+O primeiro bloco lógico que constrói as fundações do sistema é conhecido como \textbf{DDL} (\textit{Data Definition Language}). A DDL atua quase como um "arquiteto", fornecendo comandos como \texttt{CREATE}, \texttt{ALTER} e \texttt{DROP} para levantar paredes e divisórias lógicas, moldando os bancos, schemas, tabelas e restrições.
 
-Essa separação entre intenção e mecanismo é uma das razões pelas quais a SQL se tornou tão importante.
+Uma vez que as fundações estão prontas, entram em cena os dois núcleos operacionais vitais onde desenvolvedores gastam a maior parte de seu tempo. O primeiro deles é a \textbf{DML} (\textit{Data Manipulation Language}), responsável por nutrir as tabelas. É por meio dos comandos de manipulação como \texttt{INSERT}, \texttt{UPDATE} e \texttt{DELETE} que registros são cadastrados, os preços são corrigidos e o cotidiano da empresa efetivamente ocorre no banco. O segundo núcleo, inseparável e muitas vezes o mais complexo intelectualmente, é a \textbf{DQL} (\textit{Data Query Language}), dominada primariamente pela cláusula \texttt{SELECT}. A DQL é a porta de saída da informação; é ela que possibilita cruzar milhares de linhas em milissegundos, gerar relatórios agregados com agrupamentos e extrair o conhecimento estratégico de volta para a aplicação. Nos capítulos que se seguem — especialmente sob a condução das aulas dedicadas pela autoria do Professor Leandro —, você fará um extenso mergulho prático e dirigido sobre como dominar a inserção e extração sofisticada dessas informações (DML e DQL).
 
-\section{SQL padrão e dialetos}
+Por fim, os bancos corporativos contam com a \textbf{DCL} (\textit{Data Control Language}), focada em segurança e permissões através do uso de \texttt{GRANT} e \texttt{REVOKE}, bem como a \textbf{TCL} (\textit{Transaction Control Language}), responsável pela integridade durante cenários complexos de concorrência com as instruções de salvamento e reversão de tarefas (\texttt{COMMIT} e \texttt{ROLLBACK}).
 
-Embora exista padronização internacional para a linguagem SQL, cada SGBD implementa a linguagem com particularidades. PostgreSQL, MySQL, SQL Server, Oracle e SQLite compartilham grande parte da sintaxe essencial, mas diferem em vários pontos:
+\subsection{A armadilha clássica: DDL versus DML em provas e concursos}
 
-\begin{itemize}
-    \item nomes e comportamento de tipos de dados;
-    \item comandos administrativos;
-    \item funções internas;
-    \item suporte a recursos avançados;
-    \item tratamento de transações e concorrência;
-    \item extensões próprias.
-\end{itemize}
+Um dos erros mais comuns cometidos por estudantes --- e frequentemente explorado em provas do ENADE e exames de concursos públicos --- é a confusão entre a estruturação do banco de dados e a manipulação de seu conteúdo. É fundamental ter clareza de que não é possível inserir um dado em uma estrutura que não existe. A Linguagem de Definição de Dados (DDL) atua como o arquiteto e o pedreiro da obra, erguendo as paredes e definindo os espaços (as tabelas e colunas). Sem essa etapa prévia, qualquer tentativa de usar a Linguagem de Manipulação de Dados (DML), como uma instrução de inserção ou atualização, resultará em um erro imediato do sistema gerenciador, pois o dado não encontrará seu respectivo contêiner físico.
 
-Isso significa que aprender SQL não equivale a decorar uma lista fixa de comandos universalmente idênticos. O estudante deve aprender o núcleo conceitual da linguagem e, ao mesmo tempo, desenvolver sensibilidade para os dialetos.
+Para ilustrar essa problemática de forma visual, considere a seguinte interação hipotética entre um desenvolvedor apressado e o próprio banco de dados:
 
-\section{Por que estudar SQL no contexto do livro}
+\begin{figure}[htpb]
+    \centering
+    \begin{tikzpicture}
+        % Personagem 1 (Desenvolvedor)
+        \node[draw=verdeuni, thick, fill=blue!5, rectangle, rounded corners, minimum height=1.5cm, minimum width=2.5cm, align=center] (dev) at (0,0) {\textbf{Desenvolvedor}};
+        \node[ellipse callout, draw=verdeuni, fill=white, callout absolute pointer={(dev.north)}, above right=0.5cm and 0cm of dev, align=center] (balao1) {Vou salvar o cliente:\\ \texttt{INSERT INTO cliente}\\ \texttt{VALUES (1, 'Ana');}};
 
-Dentro da estrutura da obra, a Parte III representa a passagem da compreensão do banco de dados para seu uso efetivo. A SQL aparece como linguagem de concretização. Se a Parte I constrói a base conceitual e a Parte II conduz o leitor até a introdução da linguagem, a Parte III aprofunda seu uso de forma aplicada.
+        % Personagem 2 (SGBD)
+        \node[draw=red!80!black, thick, fill=red!10, rectangle, rounded corners, minimum height=1.5cm, minimum width=2.5cm, align=center] (sgbd) at (6.5,0) {\textbf{SGBD}};
+        \node[ellipse callout, draw=red!80!black, fill=white, callout absolute pointer={(sgbd.north)}, above left=0.5cm and -0.5cm of sgbd, align=center] (balao2) {\textbf{ERRO!} Tabela inexistente.\\ Faltou o \textbf{DDL}:\\ \texttt{CREATE TABLE cliente (...);}};
 
-Por isso, esta aula não deve ser vista como mera introdução técnica, mas como marco de transição didática.
+    \end{tikzpicture}
+    \caption{A clássica tentativa de executar DML sem a prévia execução do DDL.}
+    \label{fig:tirinha_ddl_dml}
+\end{figure}
 
-\section{Sublinguagens da SQL}
+Essa interação expõe uma falha estrutural primária. Para garantir que o \texttt{INSERT} funcione, a tabela precisaria ter sido planejada no modelo conceitual (como uma entidade com atributos) e efetivamente materializada no banco por meio de um \texttt{CREATE TABLE}. O diagrama Entidade-Relacionamento a seguir reforça essa transição, mostrando a entidade \textbf{Cliente} que obrigatoriamente pautará o comando DDL de criação antes de aceitar a primeira operação DML.
 
-Uma forma útil de compreender a SQL é dividi-la em subconjuntos funcionais. Essa divisão não significa que existam linguagens independentes, mas sim grupos de comandos com objetivos diferentes.
-
-\subsection{DDL -- Data Definition Language}
-
-A DDL reúne comandos que definem a estrutura do banco de dados.
-
-Exemplos:
-\begin{itemize}
-    \item \texttt{CREATE}
-    \item \texttt{ALTER}
-    \item \texttt{DROP}
-\end{itemize}
-
-\subsection{DML -- Data Manipulation Language}
-
-A DML atua na manipulação dos dados armazenados.
-
-Exemplos:
-\begin{itemize}
-    \item \texttt{INSERT}
-    \item \texttt{UPDATE}
-    \item \texttt{DELETE}
-\end{itemize}
-
-\subsection{DQL -- Data Query Language}
-
-A DQL é frequentemente associada ao comando \texttt{SELECT}, responsável pela recuperação de dados.
-
-\subsection{DCL -- Data Control Language}
-
-A DCL controla permissões e acessos.
-
-Exemplos:
-\begin{itemize}
-    \item \texttt{GRANT}
-    \item \texttt{REVOKE}
-\end{itemize}
-
-\subsection{TCL -- Transaction Control Language}
-
-A TCL controla transações.
-
-Exemplos:
-\begin{itemize}
-    \item \texttt{BEGIN}
-    \item \texttt{COMMIT}
-    \item \texttt{ROLLBACK}
-\end{itemize}
-
-\section{Quadro comparativo das sublinguagens}
-
-\begin{center}
-\begin{tabular}{|p{2.5cm}|p{5cm}|p{5cm}|}
-\hline
-\textbf{Grupo} & \textbf{Finalidade} & \textbf{Exemplos} \\
-\hline
-DDL & Definir estruturas & CREATE TABLE, ALTER TABLE, DROP TABLE \\
-\hline
-DML & Manipular dados & INSERT, UPDATE, DELETE \\
-\hline
-DQL & Consultar dados & SELECT \\
-\hline
-DCL & Controlar permissões & GRANT, REVOKE \\
-\hline
-TCL & Controlar transações & BEGIN, COMMIT, ROLLBACK \\
-\hline
-\end{tabular}
-\end{center}
+\begin{diagramER}
+\centering
+\begin{tikzpicture}[
+    node distance=1.5cm,
+    entidade/.style={rectangle, draw=black, thick, fill=blue!10, minimum width=2.5cm, minimum height=1cm, align=center},
+    atributo/.style={ellipse, draw=black, fill=white, align=center, inner sep=2pt}
+]
+    \node[entidade] (cliente) {\textbf{Cliente}};
+    \node[atributo] (id) [above left=0.8cm and 0.5cm of cliente] {\underline{id\_cliente}};
+    \node[atributo] (nome) [above right=0.8cm and 0.5cm of cliente] {nome};
+    
+    \draw (cliente) -- (id);
+    \draw (cliente) -- (nome);
+\end{tikzpicture}
+\end{diagramER}
 
 \section{SGBD, banco, schema e objetos}
 
-Em um ambiente real, a SQL interage com vários níveis de organização:
-
-\begin{itemize}
-    \item o \textbf{SGBD}, que administra bancos de dados;
-    \item o \textbf{banco de dados}, que agrupa objetos de uma aplicação;
-    \item o \textbf{schema}, que organiza logicamente esses objetos;
-    \item os \textbf{objetos}, como tabelas, visões, índices, sequências e funções.
-\end{itemize}
-
-No PostgreSQL, por exemplo, um mesmo banco pode conter múltiplos schemas, e cada schema pode conter múltiplas tabelas.
-
-\section{Primeiros comandos de definição}
-
-\subsection{Criação de banco}
-
-\begin{sqlcode}
-CREATE DATABASE escola;
-\end{sqlcode}
-
-\subsection{Criação de schema}
-
-\begin{sqlcode}
-CREATE SCHEMA academico;
-\end{sqlcode}
-
-\subsection{Criação de tabela simples}
-
-\begin{sqlcode}
-CREATE TABLE academico.curso (
-    curso_id SERIAL PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    carga_horaria INTEGER NOT NULL
-);
-\end{sqlcode}
-
-Esses comandos já mostram que a SQL não se limita à consulta. Ela cria efetivamente o espaço em que os dados existirão.
+Em um ambiente relacional de grande porte, a organização vai além de tabelas isoladas soltas no vácuo. No ponto mais alto da hierarquia, o SGBD representa o motor principal que coordena tudo — seja um servidor PostgreSQL na nuvem ou instalado localmente. Dentro desse motor, podem existir vários bancos de dados completamente independentes, sendo um para cada software da empresa. Mergulhando mais fundo, cada banco de dados pode ser dividido em compartimentos lógicos chamados schemas, que agrupam sob o mesmo teto áreas do negócio (por exemplo, um schema para recursos humanos e outro para o setor financeiro). Finalmente, é dentro dos schemas que residem os objetos finais da SQL: as tabelas, as visões, as funções geradoras de sequências e os índices. Compreender essa árvore arquitetural ajuda a evitar problemas sérios de direcionamento e perda de dados durante a manutenção rotineira de um servidor empresarial.
 
 \section{Comparação entre SQL e linguagem de programação}
 
-É comum que alunos comparem SQL com linguagens como Python, Java ou C. Essa comparação ajuda a esclarecer o papel específico da linguagem.
-
-\begin{itemize}
-    \item uma linguagem de programação de propósito geral controla fluxo, estruturas, algoritmos e interação de software;
-    \item a SQL é especializada em descrever operações sobre estruturas relacionais e conjuntos de dados.
-\end{itemize}
-
-A SQL pode aparecer embutida em aplicações escritas em outras linguagens, mas sua função permanece própria.
+É extremamente comum que alunos busquem comparar o estudo da SQL com o aprendizado de linguagens puras de propósito geral como Python, Java ou C++. Embora partilhem a lógica computacional, possuem finalidades diametralmente distintas. Uma linguagem de programação clássica coordena o fluxo da interface, as decisões baseadas em variáveis globais, os laços de repetição em memória e as requisições de rede. A SQL, em contraste, não foi criada para desenhar janelas de aplicativo ou programar robôs, mas sim para ser a forma mais rápida, segura e escalável de gerenciar conjuntos de informações persistentes. Em quase todo projeto comercial moderno, ambas caminham juntas: enquanto o Python interage com o usuário e constrói a regra de negócio da plataforma, ele simultaneamente envia solicitações em SQL para delegar a custódia das informações ao banco de dados.
 
 \section{Boas práticas iniciais de escrita SQL}
 
-Mesmo na introdução, já convém estabelecer alguns hábitos:
-
-\begin{itemize}
-    \item escrever comandos de forma legível e organizada;
-    \item usar nomes claros para tabelas e colunas;
-    \item manter consistência de nomenclatura;
-    \item evitar abreviações obscuras;
-    \item comentar scripts maiores;
-    \item distinguir claramente comandos de definição e de manipulação.
-\end{itemize}
-
-\begin{quadro_dica}
-Uma boa prática didática consiste em escrever palavras-chave SQL em maiúsculas e nomes de tabelas ou colunas em minúsculas. Isso não é obrigatório, mas facilita a leitura.
-\end{quadro_dica}
-
-\section{Exemplos práticos comentados}
-
-\subsection{Exemplo 1 -- Criando um banco}
-
-\begin{sqlcode}
-CREATE DATABASE universidade;
-\end{sqlcode}
-
-Esse comando inicializa um banco que poderá armazenar as estruturas da aplicação.
-
-\subsection{Exemplo 2 -- Criando um schema}
-
-\begin{sqlcode}
-CREATE SCHEMA secretaria;
-\end{sqlcode}
-
-Esse comando organiza logicamente os objetos da área de secretaria.
-
-\subsection{Exemplo 3 -- Criando uma tabela básica}
-
-\begin{sqlcode}
-CREATE TABLE secretaria.aluno (
-    aluno_id SERIAL PRIMARY KEY,
-    nome VARCHAR(120) NOT NULL,
-    data_ingresso DATE NOT NULL
-);
-\end{sqlcode}
-
-Aqui já aparecem conceitos importantes:
-\begin{itemize}
-    \item chave primária;
-    \item tipo de dado textual;
-    \item tipo de dado data;
-    \item obrigatoriedade de preenchimento.
-\end{itemize}
-
-\subsection{Exemplo 4 -- Criando outra tabela}
-
-\begin{sqlcode}
-CREATE TABLE secretaria.curso (
-    curso_id SERIAL PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    carga_horaria INTEGER NOT NULL
-);
-\end{sqlcode}
-
-Esse exemplo sugere que a SQL começa a traduzir o modelo lógico em estruturas concretas.
-
-\section{Exercícios básicos}
-
-\begin{enumerate}
-    \item Explique o que significa dizer que a SQL é uma linguagem declarativa.
-    \item Diferencie DDL, DML, DQL, DCL e TCL.
-    \item Escreva um comando para criar um banco chamado \texttt{biblioteca}.
-    \item Escreva um comando para criar um schema chamado \texttt{circulacao}.
-    \item Modele uma tabela simples chamada \texttt{livro} com identificador, título e ano.
-\end{enumerate}
-
-\section{Exercícios intermediários}
-
-\begin{enumerate}
-    \item Compare SQL padrão e dialetos de dois SGBDs.
-    \item Explique por que a SQL é indispensável na passagem do modelo lógico para a implementação.
-    \item Descreva a diferença entre banco, schema e tabela.
-    \item Escreva um pequeno texto justificando por que a SQL não deve ser confundida com uma linguagem de programação de propósito geral.
-\end{enumerate}
-
-\section{Exercício integrador}
-
-Considere um sistema acadêmico mínimo com as entidades \texttt{Aluno} e \texttt{Curso}. Descreva:
-\begin{enumerate}
-    \item quais objetos SQL você precisaria criar primeiro;
-    \item em que ordem faria essa implementação;
-    \item a quais grupos da SQL pertencem esses comandos.
-\end{enumerate}
+Mesmo nestes passos iniciais, estabelecer hábitos de escrita coesa evita o surgimento de códigos legados problemáticos. Um bom script em SQL deve ser, antes de tudo, legível e organizado. O uso de nomes significativos para as tabelas e colunas, evitando abreviações obscuras que dificultam a leitura no futuro, é essencial. Existe ainda uma convenção muito difundida no meio acadêmico e em fóruns profissionais: embora o interpretador do banco de dados geralmente ignore diferenças entre letras maiúsculas e minúsculas nas instruções da linguagem, é extremamente recomendável escrever as palavras reservadas do sistema (como \texttt{SELECT}, \texttt{FROM}, \texttt{WHERE}) sempre em caixa alta, mantendo nomes de campos e tabelas em caixa baixa. Isso oferece um contraste visual automático, agilizando enormemente o processo de leitura e depuração do código por outros membros da equipe.
 
 \section{Síntese da aula}
 

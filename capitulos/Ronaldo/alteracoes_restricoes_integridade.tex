@@ -7,15 +7,7 @@ Esta aula aprofunda justamente esse aspecto da implementação. O foco recai sob
 
 \section{Evolução estrutural do banco}
 
-Em um projeto acadêmico, comercial ou institucional, a base de dados é construída para representar uma realidade. Como a realidade muda, a estrutura do banco também pode precisar mudar. Alguns exemplos típicos são:
-
-\begin{itemize}
-    \item inclusão de novas colunas em tabelas já existentes;
-    \item redefinição do tipo de uma coluna;
-    \item reforço de validações por meio de restrições;
-    \item reconfiguração de chaves estrangeiras;
-    \item remoção de objetos temporários ou obsoletos.
-\end{itemize}
+Em um projeto acadêmico, comercial ou institucional, a base de dados é construída para representar uma realidade volátil. Como o mundo real muda constantemente, a estrutura do banco deve acompanhar essas mutações por meio da inclusão de novas colunas em tabelas legadas, da redefinição emergencial de tipos de dados, do endurecimento de regras através de novas restrições lógicas, da reconfiguração minuciosa de chaves estrangeiras e, invariavelmente, da exclusão cirúrgica de objetos que se tornaram obsoletos com o tempo.
 
 Essa dinâmica exige domínio do comando \texttt{ALTER TABLE} e das demais operações de manutenção estrutural.
 
@@ -95,13 +87,7 @@ Essa configuração é útil quando o sistema registra automaticamente a data da
 
 \subsection{Importância dos valores padrão}
 
-Valores padrão:
-\begin{itemize}
-    \item reduzem omissões em cadastros;
-    \item melhoram a consistência dos dados;
-    \item diminuem dependência de lógica da aplicação;
-    \item aproximam a implementação das regras do domínio.
-\end{itemize}
+A configuração diligente de valores padrão é uma técnica poderosa de engenharia de dados. Ao delegar essa responsabilidade ao SGBD, reduz-se drasticamente o número de campos esquecidos nos formulários (\textit{nulls} não intencionais), eleva-se a consistência geral da base, diminui-se o acoplamento perigoso com o código da aplicação cliente, e as regras estritas do domínio de negócio passam a viver enraizadas na própria estrutura da tabela.
 
 \section{CHECK}
 
@@ -277,7 +263,19 @@ Nesse caso, um curso não poderá ser removido se existir inscrição vinculada.
 
 \subsection{NO ACTION}
 
-O comportamento é parecido com \texttt{RESTRICT}, mas a verificação pode ocorrer ao final da instrução ou da transação, dependendo do SGBD.
+A cláusula \texttt{NO ACTION} é frequentemente confundida com a \texttt{RESTRICT}, pois seu objetivo principal também é abortar a operação e levantar um erro se houver registros dependentes na tabela filha. No entanto, há uma diferença arquitetural sutil e de extrema importância: a política de adiamento (\textit{deferred constraints}). Em SGBDs avançados (como o PostgreSQL), ao estipular \texttt{NO ACTION}, o desenvolvedor permite que a verificação de integridade referencial seja momentaneamente suspensa e checada apenas no exato momento do \texttt{COMMIT} final da transação, e não imediatamente a cada linha deletada.
+
+\begin{sqlcode}
+CREATE TABLE reserva (
+    reserva_id SERIAL PRIMARY KEY,
+    quarto_id INTEGER,
+    FOREIGN KEY (quarto_id)
+        REFERENCES quarto(quarto_id)
+        ON DELETE NO ACTION DEFERRABLE INITIALLY DEFERRED
+);
+\end{sqlcode}
+
+Esse comportamento transacional é vital para algoritmos que precisem apagar registros de chaves cruzadas (cíclicas) temporariamente dentro de um grande bloco lógico, contanto que ao final da transação todas as chaves voltem a fazer sentido.
 
 \section{Comparando as opções}
 
@@ -382,66 +380,9 @@ CREATE TABLE matricula (
 
 \section{Estudo de caso curto}
 
-Considere um sistema acadêmico com as tabelas \texttt{alunos}, \texttt{professor}, \texttt{turma} e \texttt{matricula}. Analise as decisões abaixo:
-
-\begin{itemize}
-    \item se um aluno for removido, suas matrículas devem ser removidas;
-    \item se um professor deixar de atuar, a turma pode continuar cadastrada sem professor;
-    \item se uma turma for removida, suas matrículas devem desaparecer.
-\end{itemize}
-
-Uma possível tradução em SQL seria:
-\begin{itemize}
-    \item \texttt{aluno -> matricula}: \texttt{ON DELETE CASCADE}
-    \item \texttt{professor -> turma}: \texttt{ON DELETE SET NULL}
-    \item \texttt{turma -> matricula}: \texttt{ON DELETE CASCADE}
-\end{itemize}
+Considere o cenário real de um ecossistema acadêmico englobando \texttt{alunos}, \texttt{professor}, \texttt{turma} e \texttt{matricula}. Se, por imposição jurídica, o cadastro de um aluno precisar ser integralmente apagado, todas as suas matrículas deverão sumir de forma encadeada (aplicando-se o \texttt{ON DELETE CASCADE} no vínculo de aluno para matrícula). Por outro lado, caso um professor seja demitido e excluído, a turma não pode desaparecer, mas sim figurar como pendente de lecionador; o banco assume isso configurando o \texttt{ON DELETE SET NULL} no relacionamento de professor para turma. E, finalizando a cascata, se o conselho acadêmico decidir extinguir (remover) a própria turma, logicamente todos os boletins atrelados a ela deverão colapsar junto, reforçando novamente o uso do rigoroso \texttt{ON DELETE CASCADE} na ligação da turma com suas respectivas matrículas.
 
 Esse tipo de raciocínio mostra que a integridade referencial é também uma forma de modelagem do comportamento da aplicação.
-
-\section{Exercícios básicos}
-
-\begin{enumerate}
-    \item Escreva um comando \texttt{ALTER TABLE} para adicionar a coluna \texttt{email} em uma tabela \texttt{cliente}.
-    \item Escreva um comando para alterar o tipo da coluna \texttt{telefone}.
-    \item Remova uma coluna chamada \texttt{observacao}.
-    \item Crie uma restrição \texttt{CHECK} que aceite apenas salários positivos.
-    \item Defina um valor padrão para a coluna \texttt{status}.
-\end{enumerate}
-
-\section{Exercícios intermediários}
-
-\begin{enumerate}
-    \item Crie uma restrição \texttt{UNIQUE} para a coluna \texttt{cpf}.
-    \item Escreva um exemplo em que \texttt{SET NULL} seja mais adequado do que \texttt{CASCADE}.
-    \item Explique a diferença entre \texttt{RESTRICT} e \texttt{NO ACTION}.
-    \item Modele uma tabela com chave estrangeira que use \texttt{ON UPDATE CASCADE}.
-    \item Dê um exemplo de risco associado ao uso indiscriminado de \texttt{DROP COLUMN}.
-\end{enumerate}
-
-\section{Exercícios avançados}
-
-\begin{enumerate}
-    \item Modele um pequeno sistema comercial com tabelas \texttt{cliente}, \texttt{pedido} e \texttt{item\_pedido}, definindo políticas adequadas de \texttt{ON DELETE}.
-    \item Modele um pequeno sistema escolar com \texttt{professor}, \texttt{turma} e \texttt{matricula}, justificando a escolha de cada política referencial.
-    \item Escreva um script completo que:
-    \begin{enumerate}
-        \item crie duas tabelas relacionadas;
-        \item altere uma das tabelas;
-        \item adicione uma restrição \texttt{CHECK};
-        \item remova uma coluna desnecessária.
-    \end{enumerate}
-\end{enumerate}
-
-\section{Exercício integrador}
-
-Projete um sistema de biblioteca com as tabelas \texttt{livro}, \texttt{exemplar}, \texttt{emprestimo} e \texttt{leitor}. Para cada relacionamento, defina e justifique:
-
-\begin{enumerate}
-    \item qual chave estrangeira será usada;
-    \item qual política de \texttt{ON DELETE} é mais adequada;
-    \item se há necessidade de \texttt{SET NULL}, \texttt{CASCADE} ou \texttt{RESTRICT}.
-\end{enumerate}
 
 \section{Síntese da aula}
 

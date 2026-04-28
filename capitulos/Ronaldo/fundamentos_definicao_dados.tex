@@ -7,27 +7,11 @@ A linguagem de definição de dados, conhecida como DDL (\textit{Data Definition
 
 No processo de construção de um banco de dados, a DDL cumpre papel estruturante. É ela que traduz entidades, atributos, chaves e relacionamentos para formas efetivamente compreendidas pelo SGBD. Sem DDL, o modelo permaneceria apenas no plano do projeto.
 
-Isso significa que a DDL é responsável por:
-
-\begin{itemize}
-    \item criar bancos e schemas;
-    \item criar tabelas;
-    \item definir colunas e tipos;
-    \item estabelecer restrições;
-    \item remover ou alterar estruturas.
-\end{itemize}
+Na prática, o escopo da DDL abrange a criação primordial de instâncias como bancos de dados e seus \textit{schemas} organizacionais, a instanciação de tabelas, a definição meticulosa das colunas e seus respectivos tipos de dados, a implantação de restrições de integridade, e, quando necessário, a remoção ou modificação de estruturas arquitetônicas obsoletas.
 
 \section{Comandos centrais da DDL}
 
-Entre os comandos mais importantes da DDL, destacam-se:
-
-\begin{itemize}
-    \item \texttt{CREATE DATABASE}
-    \item \texttt{CREATE SCHEMA}
-    \item \texttt{CREATE TABLE}
-    \item \texttt{ALTER TABLE}
-    \item \texttt{DROP TABLE}
-\end{itemize}
+Entre as diretrizes essenciais dessa linguagem, destacam-se os comandos de instanciação (\texttt{CREATE DATABASE}, \texttt{CREATE SCHEMA} e \texttt{CREATE TABLE}), as instruções de modificação evolutiva (\texttt{ALTER TABLE}), e as diretivas de exclusão permanente (\texttt{DROP TABLE}).
 
 Nesta aula, o foco principal recairá sobre a criação inicial de estruturas. Alterações posteriores serão aprofundadas na Aula 12.
 
@@ -47,12 +31,7 @@ CREATE SCHEMA academico;
 
 O schema organiza objetos logicamente. Em projetos maiores, esse recurso ajuda a separar módulos e responsabilidades.
 
-Exemplo:
-\begin{itemize}
-    \item schema \texttt{academico};
-    \item schema \texttt{financeiro};
-    \item schema \texttt{biblioteca}.
-\end{itemize}
+Por exemplo, o agrupamento pode contemplar um \textit{schema} focado no departamento \texttt{academico}, outro isolando as tabelas do setor \texttt{financeiro}, e um terceiro gerenciando os acervos da \texttt{biblioteca}.
 
 \section{Criação de tabelas}
 
@@ -69,97 +48,135 @@ CREATE TABLE academico.aluno (
 );
 \end{sqlcode}
 
-Nesse exemplo, aparecem decisões fundamentais:
-\begin{itemize}
-    \item uma coluna identificadora;
-    \item colunas textuais;
-    \item uma coluna numérica;
-    \item obrigatoriedade em campos essenciais.
-\end{itemize}
+Nesta declaração primordial, observam-se decisões críticas de modelagem física: a atribuição de uma coluna identificadora única, a seleção de colunas textuais para atributos descritivos, a escolha de colunas numéricas adequadas, e a imposição restritiva de obrigatoriedade nos campos vitais para o negócio.
 
 \section{Tipos de dados}
 
-A escolha do tipo de dado é uma decisão de projeto físico. Ela determina:
-\begin{itemize}
-    \item a natureza dos valores aceitos;
-    \item o espaço de armazenamento;
-    \item a semântica da coluna;
-    \item algumas possibilidades de validação.
-\end{itemize}
+\begin{quadro_dica}
+\textbf{Sinergia Teórico-Prática} \\
+Enquanto este capítulo (DDL) aprofunda de forma abrangente o dicionário arquitetural e a mecânica da alocação de tipos de dados em disco, você encontrará a demonstração prática da implementação desses campos e suas interações com consultas lógicas no Capítulo \ref{cap:dml_dql} (\textit{Data Manipulation Language e Data Query Language}). Ambas as frentes se complementam na formação de um bom projetista.
+\end{quadro_dica}
 
-\subsection{Tipos numéricos}
 
-\begin{itemize}
-    \item \texttt{INTEGER}: inteiros;
-    \item \texttt{BIGINT}: inteiros maiores;
-    \item \texttt{NUMERIC(p,s)}: valores exatos com precisão e escala;
-    \item \texttt{REAL} e \texttt{DOUBLE PRECISION}: valores aproximados.
-\end{itemize}
+A escolha do tipo de dado representa uma das decisões mais críticas do projeto físico de um banco de dados. Mais do que simplesmente permitir o armazenamento de informações, a tipagem atua como a primeira e mais elementar camada de integridade estrutural do sistema. Ao definir que uma coluna deve armazenar números inteiros, por exemplo, o Sistema Gerenciador de Banco de Dados (SGBD) bloqueia sumariamente qualquer tentativa de inserir letras ou caracteres especiais naquele campo. Assim, a definição correta garante a semântica da coluna, assegurando que operações matemáticas, ordenações e formatações de exibição ocorram sem comportamentos anômalos.
 
-\subsection{Tipos textuais}
+Além da validação de entrada, a tipagem está intimamente ligada à eficiência e à alocação do espaço de armazenamento. Diferentes tipos de dados exigem volumes diferentes de memória e espaço em disco. Um número inteiro pequeno ocupará muito menos espaço que um número de alta precisão decimal. Em bases de dados com milhões de registros, escolhas subdimensionadas ou superdimensionadas afetam diretamente o desempenho das consultas, a velocidade de gravação e o custo de infraestrutura. Portanto, um projetista de banco de dados busca constantemente o equilíbrio: atribuir o menor tipo de dado capaz de armazenar com segurança o maior valor esperado para aquela coluna.
 
-\begin{itemize}
-    \item \texttt{CHAR(n)}: tamanho fixo;
-    \item \texttt{VARCHAR(n)}: tamanho variável com limite;
-    \item \texttt{TEXT}: texto de tamanho amplo.
-\end{itemize}
+É fundamental compreender, também, que a sintaxe e a disponibilidade dos tipos de dados variam consideravelmente dependendo do dialeto do SGBD utilizado. Embora exista um padrão ANSI SQL que todos tentam seguir, cada fabricante implementa suas particularidades visando otimização. O PostgreSQL, por exemplo, utiliza o tipo \texttt{SERIAL} para a criação de sequências numéricas autoincrementáveis; já no MySQL, utiliza-se a palavra-chave \texttt{AUTO\_INCREMENT} associada a um tipo numérico inteiro normal. No Oracle Database, é tradicional o uso do tipo \texttt{VARCHAR2} e \texttt{NUMBER} em vez dos clássicos \texttt{VARCHAR} e \texttt{NUMERIC} ou \texttt{INTEGER}. Essas nuances reforçam a importância de conhecer não apenas a teoria relacional, mas a documentação específica do motor que suportará o projeto físico.
 
-\subsection{Tipos temporais}
+Para facilitar a consulta durante a transição do modelo lógico para a implementação prática, a Tabela \ref{tab:tipos_dados} consolidou os principais tipos de dados categorizados por sua finalidade, adotando o dialeto do PostgreSQL como referência didática, visto que engloba tipos padrão e estendidos amplamente adotados na indústria.
 
-\begin{itemize}
-    \item \texttt{DATE}: data;
-    \item \texttt{TIME}: hora;
-    \item \texttt{TIMESTAMP}: data e hora.
-\end{itemize}
+\begin{table}[htpb]
+\centering
+\caption{Principais tipos de dados e suas finalidades}
+\label{tab:tipos_dados}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{2.5cm}|p{3.5cm}|p{8cm}|}
+\hline
+\rowcolor{verdeuni}
+\textbf{\textcolor{white}{Categoria}} & \textbf{\textcolor{white}{Tipo de Dado}} & \textbf{\textcolor{white}{Descrição e Aplicação}} \\ \hline
+\multirow{4}{*}{\textbf{Numéricos}} 
+& \texttt{INTEGER} & Números inteiros padrão sem casas decimais. \\ \cline{2-3}
+& \texttt{BIGINT} & Inteiros muito grandes (comuns em identificadores globais). \\ \cline{2-3}
+& \texttt{NUMERIC(p,s)} & Valores exatos definindo $p$ dígitos totais e $s$ casas decimais (ideal para moeda). \\ \cline{2-3}
+& \texttt{REAL} / \texttt{DOUBLE} & Valores numéricos aproximados de ponto flutuante. \\ \hline
+\multirow{3}{*}{\textbf{Textuais}} 
+& \texttt{VARCHAR(n)} & Texto de tamanho variável, mas limitado a $n$ caracteres. \\ \cline{2-3}
+& \texttt{CHAR(n)} & Texto de tamanho fixo com preenchimento em branco se necessário. \\ \cline{2-3}
+& \texttt{TEXT} & Texto amplo, com tamanho ilimitado e alocação dinâmica. \\ \hline
+\multirow{3}{*}{\textbf{Temporais}} 
+& \texttt{DATE} & Armazena exclusivamente a data (Ano, Mês e Dia). \\ \cline{2-3}
+& \texttt{TIME} & Armazena exclusivamente o horário. \\ \cline{2-3}
+& \texttt{TIMESTAMP} & Armazena data e hora combinadas (com ou sem fuso horário). \\ \hline
+\multirow{2}{*}{\textbf{Especiais}} 
+& \texttt{SERIAL} & Número inteiro autoincrementável (utilizado para chaves primárias). \\ \cline{2-3}
+& \texttt{BOOLEAN} & Armazena estados lógicos: verdadeiro (\texttt{TRUE}) ou falso (\texttt{FALSE}). \\ \hline
+\end{tabular}
+\end{table}
 
-\subsection{Tipos úteis no PostgreSQL}
+\subsection{Exemplos Práticos de Definição e Inserção}
 
-\begin{itemize}
-    \item \texttt{SERIAL}: sequência autoincrementável;
-    \item \texttt{JSON}: estrutura semiestruturada;
-    \item \texttt{ARRAY}: coleção homogênea de valores;
-    \item \texttt{daterange}: intervalo de datas.
-\end{itemize}
+Uma das maiores dificuldades práticas para os alunos que estão iniciando em SQL consiste em alinhar o tipo de dado estipulado na criação da tabela (\texttt{DDL}) com a formatação exigida pelo banco no momento da inserção (\texttt{DML}). A seguir, um exemplo clássico cria uma tabela utilizando os principais tipos de dados.
+
+\begin{sqlcode}
+-- Comando DDL para criação da estrutura
+CREATE TABLE aluno_registro (
+    -- SERIAL gera automaticamente a numeração
+    aluno_id SERIAL PRIMARY KEY,
+    
+    -- VARCHAR para um nome delimitado
+    nome VARCHAR(100) NOT NULL,
+    
+    -- DATE focado apenas na data de nascimento
+    data_nascimento DATE,
+    
+    -- NUMERIC(4,2) permite números do tipo 99.99
+    nota_final NUMERIC(4,2),
+    
+    -- BOOLEAN para um estado ativo/inativo
+    ativo BOOLEAN DEFAULT TRUE
+);
+\end{sqlcode}
+
+Após a execução do \texttt{CREATE TABLE}, o banco está preparado para receber registros. É crucial obedecer rigidamente à formatação sintática: textos e datas precisam estar entre aspas simples (\texttt{'...'}), datas devem adotar o formato Ano-Mês-Dia (\texttt{'YYYY-MM-DD'}), e decimais devem usar o \textbf{ponto} e não a vírgula. Campos do tipo \texttt{SERIAL} não precisam constar na instrução de inserção.
+
+\begin{sqlcode}
+-- Comando DML demonstrando a inserção correta de cada formato
+INSERT INTO aluno_registro (nome, data_nascimento, nota_final, ativo)
+VALUES ('Ana Souza Silva', '2005-08-14', 9.75, TRUE);
+
+-- Omitindo o campo BOOLEAN, que assumirá o valor DEFAULT (TRUE)
+INSERT INTO aluno_registro (nome, data_nascimento, nota_final)
+VALUES ('Carlos Pereira', '2004-11-03', 8.50);
+\end{sqlcode}
 
 \section{Restrições fundamentais}
 
-As restrições ajudam a preservar a integridade do banco e a aproximar a implementação das regras do domínio.
+As restrições (\textit{constraints}) são regras declarativas acopladas à criação da tabela. Elas constituem a principal defesa do SGBD contra a entrada de dados inconsistentes, transferindo lógicas de validação que antes habitavam o código-fonte da aplicação diretamente para o motor do banco.
 
-\subsection{NOT NULL}
+\subsection{NOT NULL, PRIMARY KEY e FOREIGN KEY}
 
-Indica que a coluna não pode receber valor nulo.
+A cláusula \texttt{NOT NULL} é a mais básica das restrições e determina categoricamente que uma coluna jamais poderá ser gravada vazia (nula). A \texttt{PRIMARY KEY} consagra uma coluna (ou conjunto) como identificador universal e exclusivo de cada linha, mesclando internamente as propriedades de \texttt{NOT NULL} e exclusividade total. Por fim, a \texttt{FOREIGN KEY} firma o pacto de relacionamento estrutural, garantindo que um valor inserido obrigatoriamente exista na tabela referenciada, blindando o modelo contra dados "órfãos".
 
-\begin{sqlcode}
-nome VARCHAR(100) NOT NULL
-\end{sqlcode}
+\subsection{UNIQUE (A Chave Candidata no Projeto Físico)}
 
-\subsection{PRIMARY KEY}
+No modelo lógico conceitual, as \textbf{Chaves Candidatas} são aqueles atributos singulares que também teriam plena capacidade de identificar univocamente uma entidade (como o CPF de um aluno ou o CNPJ de uma empresa), mas que acabaram não sendo eleitos como a Chave Primária oficial. No projeto físico SQL, essas chaves candidatas são implementadas por meio da restrição \texttt{UNIQUE}. O banco passa a varrer e impedir ativamente qualquer tentativa de duplicidade nessa coluna.
 
-Identifica unicamente cada linha da tabela.
+\subsection{CHECK e DEFAULT}
 
-\begin{sqlcode}
-curso_id SERIAL PRIMARY KEY
-\end{sqlcode}
+A restrição \texttt{CHECK} funciona como um porteiro lógico, rejeitando a inserção se o valor fornecido não passar por uma expressão booleana (como proibir salários negativos ou exigir que o status seja 'ATIVO' ou 'INATIVO'). Já o \texttt{DEFAULT} atua nos bastidores: caso um comando ignore uma determinada coluna, em vez de assumir nulo, ele assumirá o valor padrão parametrizado.
 
-\subsection{FOREIGN KEY}
+\subsection{Exemplo Consolidado e a Violação Prática}
 
-Estabelece vínculo com outra tabela.
+O bloco a seguir concentra todas as restrições em uma definição DDL comercial:
 
 \begin{sqlcode}
-FOREIGN KEY (curso_id) REFERENCES curso(curso_id)
+CREATE TABLE funcionario (
+    func_id SERIAL PRIMARY KEY,
+    cpf VARCHAR(11) UNIQUE NOT NULL,      -- A Chave Candidata protegida
+    nome VARCHAR(100) NOT NULL,
+    salario NUMERIC(10,2) CHECK (salario > 1500.00), -- Validação lógica
+    contratacao DATE DEFAULT CURRENT_DATE            -- Valor assumido
+);
 \end{sqlcode}
 
-\subsection{UNIQUE}
+Uma dúvida frequente nos laboratórios práticos ocorre na transição para a DML. O que o banco fará diante de um \texttt{INSERT} malicioso ou falho?
 
-Impede repetição de valores em determinada coluna ou conjunto de colunas.
+\begin{sqlcode}
+-- Tentativa 1: O funcionário 1 é inserido perfeitamente
+INSERT INTO funcionario (cpf, nome, salario) 
+VALUES ('12345678901', 'Ana Souza', 3000.00);
 
-\subsection{CHECK}
+-- Tentativa 2: Falha crítica! Viola a restrição UNIQUE do CPF.
+-- O SGBD abortará a execução e lançará um "duplicate key value violates unique constraint".
+INSERT INTO funcionario (cpf, nome, salario) 
+VALUES ('12345678901', 'Carlos Lima', 4000.00);
 
-Permite impor restrições lógicas.
-
-\subsection{DEFAULT}
-
-Define valores padrão.
+-- Tentativa 3: Falha crítica! Viola a restrição CHECK do salário.
+-- O SGBD abortará lançando "new row violates check constraint".
+INSERT INTO funcionario (cpf, nome, salario) 
+VALUES ('98765432100', 'João Silva', 1200.00);
+\end{sqlcode}
 
 \section{Chave primária simples e composta}
 
@@ -279,68 +296,17 @@ CREATE TABLE funcionario (
 
 \section{Escolhas de projeto físico}
 
-Ao criar estruturas em SQL, o desenvolvedor precisa tomar decisões que não aparecem com esse nível de detalhe no modelo conceitual. Entre elas:
-
-\begin{itemize}
-    \item qual tipo de dado adotar;
-    \item qual será a chave primária;
-    \item que colunas devem ser obrigatórias;
-    \item quais colunas devem ter unicidade;
-    \item como representar relacionamentos.
-\end{itemize}
+Ao construir a arquitetura em SQL, o engenheiro defronta-se com decisões técnicas profundas que raramente constam nos diagramas de modelagem conceitual. É fundamental discernir cuidadosamente o tipo de dado apropriado para o espaço em disco, cravar categoricamente a chave primária de acesso, estipular a taxatividade das colunas obrigatórias via \texttt{NOT NULL}, traduzir as chaves candidatas em restrições \texttt{UNIQUE}, e garantir a fidedignidade dos relacionamentos através das imposições de chaves estrangeiras.
 
 Essas decisões exigem domínio técnico e compreensão do contexto do sistema.
 
 \section{Boas práticas em DDL}
 
-\begin{itemize}
-    \item usar nomes descritivos;
-    \item manter padrão de nomenclatura;
-    \item definir chaves primárias explicitamente;
-    \item evitar tipos exageradamente genéricos quando há alternativa mais precisa;
-    \item registrar restrições relevantes desde a criação da tabela.
-\end{itemize}
+O amadurecimento profissional em banco de dados envolve a adoção de hábitos rigorosos durante a escrita DDL. Recomenda-se enfaticamente o emprego de nomenclaturas padronizadas e descritivas (por exemplo, \texttt{data\_matricula} em detrimento de \texttt{dt\_mat}), além da explicitação obrigatória de restrições primárias em toda e qualquer tabela. No mesmo sentido, o arquiteto deve rechaçar alocações demasiadamente genéricas (como o uso universal e irresponsável de enormes campos de texto para valores numéricos ou datas finitas), priorizando sempre registrar as proteções lógicas (\texttt{CHECK} e \texttt{UNIQUE}) logo na raiz da instrução de criação.
 
 \begin{quadro_dica}
 Uma modelagem física bem construída reduz retrabalho e evita que regras essenciais fiquem dependentes apenas da aplicação.
 \end{quadro_dica}
-
-\section{Exercícios básicos}
-
-\begin{enumerate}
-    \item Crie uma tabela \texttt{professor} com identificador, nome, titulação e e-mail.
-    \item Crie uma tabela \texttt{disciplina} com identificador, nome e carga horária.
-    \item Crie uma tabela \texttt{turma} relacionando professor e disciplina.
-    \item Escreva um exemplo de chave composta.
-\end{enumerate}
-
-\section{Exercícios intermediários}
-
-\begin{enumerate}
-    \item Compare \texttt{CHAR}, \texttt{VARCHAR} e \texttt{TEXT}.
-    \item Explique em quais situações uma chave composta pode ser mais adequada que uma chave simples.
-    \item Modele um pequeno cenário comercial com cliente e pedido.
-    \item Modele um pequeno cenário de recursos humanos com departamento e funcionário.
-\end{enumerate}
-
-\section{Exercício integrador}
-
-Projete, em SQL DDL, a base de um sistema de biblioteca com as tabelas:
-\begin{itemize}
-    \item \texttt{livro}
-    \item \texttt{autor}
-    \item \texttt{categoria}
-    \item \texttt{leitor}
-    \item \texttt{emprestimo}
-\end{itemize}
-
-Para cada tabela, defina:
-\begin{enumerate}
-    \item chave primária;
-    \item tipos de dados;
-    \item colunas obrigatórias;
-    \item relacionamentos por chave estrangeira.
-\end{enumerate}
 
 \section{Síntese da aula}
 

@@ -4,13 +4,7 @@
 Depois de dominar os comandos fundamentais da DML, o próximo passo é aprofundar a capacidade de análise por meio do comando \texttt{SELECT}. Em aplicações reais, raramente é suficiente listar registros de uma única tabela de forma isolada. Normalmente, é necessário combinar dados de várias tabelas, resumir informações, comparar grupos, localizar ausências e construir respostas mais ricas para problemas de negócio.
 
 Esta aula amplia o estudo do \texttt{SELECT} com foco em:
-\begin{itemize}
-    \item funções de agregação;
-    \item agrupamentos com \texttt{GROUP BY};
-    \item filtros sobre grupos com \texttt{HAVING};
-    \item subconsultas;
-    \item junções entre tabelas com \texttt{JOIN}.
-\end{itemize}
+Esta aula amplia rigorosamente o estudo e o potencial sintático do \texttt{SELECT}. O foco abandona as extrações planas em favor de um aparato analítico robusto: o uso de funções de agregação matemáticas acopladas a agrupamentos dimensionais pelo \texttt{GROUP BY}, a imposição de filtros maduros sobre esses grupos através do \texttt{HAVING}, a injeção profunda de lógicas encadeadas com subconsultas e, como apogeu do modelo relacional, as junções ortogonais entre tabelas promovidas pelas cláusulas \texttt{JOIN}.
 
 O domínio desses recursos marca a passagem da SQL operacional básica para a SQL analítica, aproximando o estudante da construção de relatórios, consultas gerenciais e exploração relacional de dados.
 
@@ -26,13 +20,7 @@ WHERE status = 'ATIVO';
 
 Esse tipo de comando é importante, mas ainda responde apenas a perguntas elementares. Em sistemas reais, surgem questões mais complexas, como:
 
-\begin{itemize}
-    \item quantos alunos existem por curso;
-    \item qual a média de notas por disciplina;
-    \item quais cursos ainda não possuem alunos;
-    \item quais alunos têm nota acima da média;
-    \item quais professores estão relacionados a turmas com maior número de matrículas.
-\end{itemize}
+Esse tipo de comando é funcional, mas satisfaz unicamente inquéritos elementares de listagem. Nos abismos dos sistemas corporativos e *Data Warehouses* reais, as métricas e o negócio exigem respostas intrincadas: torna-se imperativo contabilizar massivamente as densidades de alunos por curso, aferir com precisão a média flutuante de notas por grade curricular, cruzar registros para caçar ativamente cursos fantasmas sem discentes alocados, e elencar estatisticamente alunos posicionados acima da curva de desvio padrão.
 
 Responder a perguntas assim exige raciocínio relacional mais elaborado.
 
@@ -84,13 +72,7 @@ Essas tabelas serão suficientes para explorar agregações, subconsultas e jun�
 As funções de agregação produzem um único valor a partir de várias linhas.
 
 As principais são:
-\begin{itemize}
-    \item \texttt{COUNT()} -- conta ocorrências;
-    \item \texttt{SUM()} -- soma valores;
-    \item \texttt{AVG()} -- calcula média;
-    \item \texttt{MAX()} -- retorna o maior valor;
-    \item \texttt{MIN()} -- retorna o menor valor.
-\end{itemize}
+Entre o arsenal principal de sumarização nativa do padrão ANSI, destacam-se cinco operadores fundamentais: o \texttt{COUNT()} para a quantificação numérica de instâncias brutas, o \texttt{SUM()} para a acumulação financeira ou escalar, o \texttt{AVG()} projetado para a extração do valor central médio de amostras, e a dupla geométrica \texttt{MAX()} e \texttt{MIN()} dedicada à caça implacável dos picos e vales absolutos (maiores e menores tetos) em um conjunto relacional.
 
 \subsection{Contagem total de alunos}
 
@@ -326,11 +308,8 @@ GROUP BY curso_id;
 \end{sqlcode}
 
 \textbf{Interpretação:}
-\begin{itemize}
-    \item a tabela \texttt{alunos} é dividida em grupos por \texttt{curso\_id};
-    \item a função \texttt{COUNT(*)} conta quantos alunos existem em cada grupo;
-    \item o resultado pode ser usado em relatórios ou painéis.
-\end{itemize}
+
+A massa bruta de registros da tabela \texttt{alunos} é silenciosamente estilhaçada em grupos fechados balizados estritamente pela chave de cardinalidade \texttt{curso\_id}. Logo após esse agrupamento lógico, o trator algorítmico do \texttt{COUNT(*)} esmaga cada pacote dimensional, varrendo e reduzindo milhares de linhas avulsas em matrizes sumarizadas altamente mastigadas, prontas para despontar com esplendor em painéis gráficos executivos (\textit{Dashboards}).
 
 \section{Exemplo resolvido 2 -- Alunos acima da média de idade}
 
@@ -346,11 +325,8 @@ WHERE idade > (
 \end{sqlcode}
 
 \textbf{Interpretação:}
-\begin{itemize}
-    \item a subconsulta calcula a média de idade;
-    \item a consulta externa compara cada aluno com esse valor;
-    \item somente alunos acima da média são retornados.
-\end{itemize}
+
+O elegante aninhamento sintático cria um motor de dois tempos. No coração isolado, a subconsulta invisível mastiga toda a tabela para calcular uma média escalar crua. Simultaneamente, a engrenagem externa absorve esse cálculo central flutuante e impõe uma peneira de exclusão: aluno por aluno é julgado e pesado contra a balança térmica gerada no *core*, garantindo que apenas os discentes enquadrados rigorosamente acima dessa estatística flutuante encontrem a luz do \textit{ResultSet}.
 
 \section{Exemplo resolvido 3 -- Relatório de notas com nomes de alunos e disciplinas}
 
@@ -368,12 +344,8 @@ INNER JOIN disciplinas d
 \end{sqlcode}
 
 \textbf{Interpretação:}
-\begin{itemize}
-    \item a consulta parte da tabela \texttt{notas};
-    \item recupera o nome do aluno a partir de \texttt{aluno\_id};
-    \item recupera o nome da disciplina a partir de \texttt{disciplina\_id};
-    \item monta um relatório mais inteligível para usuários humanos.
-\end{itemize}
+
+Saindo do miolo estéril dos identificadores numéricos alojados na tabela transacional \texttt{notas}, a *Query* ramifica pontes (\texttt{INNER JOINs}) contundentes e obrigatórias rumo aos dicionários nominais de mestres e disciplinas (\texttt{alunos} e \texttt{disciplinas}). Ao puxar as chaves textuais ocultas, a engenharia da *engine* esconde completamente o maquinário do sistema, fornecendo sobre a tela um relatório legível, orgânico e plenamente inteligível para os usuários leigos da coordenação educacional.
 
 \section{Exemplo resolvido 4 -- Cursos sem alunos}
 
@@ -388,11 +360,8 @@ WHERE a.aluno_id IS NULL;
 \end{sqlcode}
 
 \textbf{Interpretação:}
-\begin{itemize}
-    \item todos os cursos são mantidos no resultado pelo \texttt{LEFT JOIN};
-    \item quando não há aluno correspondente, as colunas da tabela \texttt{alunos} ficam nulas;
-    \item o \texttt{WHERE a.aluno\_id IS NULL} filtra justamente esses casos.
-\end{itemize}
+
+Ao injetarmos cirurgicamente a ancoragem do \texttt{LEFT JOIN}, o SGBD é ameaçado a estagnar todas as nomenclaturas de cursos independentemente de seu fraco quórum ou isolamento. Quando a ramificação espinhal falha na caçada de alunos preenchidos, ela injeta silenciosamente colunas amaldiçoadas como vazias (\texttt{NULL}). Finalmente, o perito aciona a armadilha cirúrgica com o \texttt{WHERE IS NULL}, filtrando sumariamente os resultados densos até expurgar a escória lógica e destilar com exatidão a lista negra dos cursos vazios ou descontinuados.
 
 \section{Exemplo resolvido 5 -- Disciplinas com média superior a 7}
 
@@ -406,11 +375,8 @@ HAVING AVG(nota) > 7;
 \end{sqlcode}
 
 \textbf{Interpretação:}
-\begin{itemize}
-    \item as notas são agrupadas por disciplina;
-    \item calcula-se a média de cada grupo;
-    \item o \texttt{HAVING} retém apenas os grupos com média superior a 7.
-\end{itemize}
+
+Inicialmente o banco orquestra a fratura geométrica da base ao alinhar ordenadamente o balanço de todas as frações pontuais amarradas à diretriz da matriz de identificação de sua disciplina vinculada. Fechado esse primeiro anel do \texttt{GROUP BY}, aciona-se em segunda instância o crivo sumário finalístico do operador de grupos: o esmagador \texttt{HAVING}. Ele trucida e elimina inapelavelmente perante o console todas as massas de grades curriculares reprovadas que tombaram frente à parede cortante da média de sete pontos.
 
 \section{Erro comum 1 -- Esquecer a condição de junção}
 
@@ -453,14 +419,7 @@ Subconsultas são úteis, mas nem sempre são a solução mais legível. Em muit
 
 \section{Boas práticas}
 
-\begin{itemize}
-    \item usar aliases curtos e consistentes;
-    \item construir consultas em etapas;
-    \item validar a lógica com conjuntos pequenos antes de aplicar em tabelas maiores;
-    \item preferir nomes de colunas explícitos em vez de \texttt{SELECT *};
-    \item usar \texttt{LEFT JOIN} com atenção ao significado de \texttt{NULL};
-    \item revisar se o problema é de linha, grupo ou relação entre tabelas.
-\end{itemize}
+O artesão de bases de dados persegue um rigor metodológico indomável ao tecer malhas relacionais complexas. Em seu escopo tático diário, a estipulação de pseudônimos de tabelas (\textit{Aliases}) em um único ou dois caracteres unifica as cláusulas mastigadas enquanto o trágico antipadrão do asterisco preguiçoso (\texttt{SELECT *}) é sepultado categoricamente a favor de campos pinçados a dedo. A construção analítica madura e o emprego de \texttt{LEFT JOINs} capciosos não são moldados às cegas, mas forjados metodicamente camada a camada sob rígida depuração de conjuntos reduzidos temporários a fim de se mapear ativamente furos de \texttt{NULL} e asfixiar perigosos enganos que subvertam a matemática estatística original das cardinalidades de linhas puras e das matrizes brutas grupais.
 
 \begin{quadro_dica}
 Uma estratégia muito útil é montar a consulta por camadas: primeiro as tabelas e junções, depois os filtros, em seguida os agrupamentos e, por fim, a ordenação.
@@ -468,15 +427,7 @@ Uma estratégia muito útil é montar a consulta por camadas: primeiro as tabela
 
 \section{Minicaso integrador -- Relatório acadêmico de acompanhamento}
 
-Considere que a coordenação deseja um relatório com:
-
-\begin{enumerate}
-    \item a quantidade de alunos por curso;
-    \item os cursos sem alunos;
-    \item os alunos com idade acima da média;
-    \item a listagem de notas com aluno e disciplina;
-    \item as disciplinas cuja média de notas supera 7.
-\end{enumerate}
+Considere que a coordenação colegiada superior, fustigada pela escassez de dados para embasar orçamentos rígidos nas avaliações do novo semestre fiscal, invoca de modo uníssono perante o departamento analítico a geração tática de uma miríade complexa de relatórios decisórios simultâneos. Urge aferir a densidade absoluta por matriz de alunos alocados por curso logado na instituição, mapear sem dó nem piedade as entidades esvaziadas dos cursos fantasmagóricos sem matriculados vivos, elencar visualmente a seleta prole intelectual dotada de notas ou maturidade acadêmica alavancadas fora da curva padrão natural (acima das médias), extrair os lençóis transnacionais crus dos espelhos e boletins completos fundidos entre nomes e disciplinas com nota e, por último, garimpar friamente o cume formidável das grades disciplinares com excelência inquestionável cuja média de ensino se sustenta altiva perante o sarrafo implacável e inegociável do platô setenário aprovativo.
 
 Uma sequência de consultas possível é:
 
@@ -537,48 +488,6 @@ HAVING AVG(nota) > 7;
 
 \textbf{Comentário didático:}
 Esse minicaso mostra que consultas mais ricas raramente dependem de um único recurso. Em geral, elas combinam agregação, junção e subconsulta para responder a perguntas analíticas completas.
-
-\section{Exercícios básicos}
-
-\begin{enumerate}
-    \item Conte o número total de alunos.
-    \item Calcule a média de idade dos alunos.
-    \item Liste a quantidade de alunos por curso.
-    \item Liste apenas os cursos com pelo menos dois alunos.
-    \item Retorne os alunos cuja idade esteja acima da média geral.
-\end{enumerate}
-
-\section{Exercícios intermediários}
-
-\begin{enumerate}
-    \item Faça uma consulta com \texttt{INNER JOIN} entre \texttt{alunos} e \texttt{cursos}.
-    \item Faça uma consulta com \texttt{LEFT JOIN} para localizar cursos sem alunos.
-    \item Monte uma consulta que traga aluno, disciplina e nota.
-    \item Escreva uma subconsulta que filtre alunos vinculados a cursos coordenados por um professor específico.
-    \item Explique a diferença entre \texttt{WHERE} e \texttt{HAVING}.
-\end{enumerate}
-
-\section{Exercícios avançados}
-
-\begin{enumerate}
-    \item Crie uma consulta que combine \texttt{JOIN} e agregação.
-    \item Produza uma consulta com \texttt{EXISTS} para localizar alunos com nota cadastrada.
-    \item Elabore um exemplo de \texttt{FULL JOIN} e explique por que ele pode ser útil.
-    \item Reescreva uma subconsulta usando junção, quando possível.
-\end{enumerate}
-
-\section{Exercício integrador}
-
-Considere um sistema universitário com as tabelas \texttt{alunos}, \texttt{cursos}, \texttt{professores}, \texttt{disciplinas} e \texttt{notas}. Elabore um conjunto de consultas que responda:
-
-\begin{enumerate}
-    \item quantos alunos existem por curso;
-    \item quais cursos não possuem alunos;
-    \item quais alunos têm nota acima de 8;
-    \item quais alunos estão acima da média de idade;
-    \item quais disciplinas possuem média superior a 7;
-    \item quais alunos possuem ao menos uma nota registrada.
-\end{enumerate}
 
 \section{Síntese da aula}
 

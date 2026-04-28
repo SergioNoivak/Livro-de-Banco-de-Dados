@@ -9,29 +9,13 @@ Esta aula tem como objetivo apresentar os fundamentos da manipulação de dados 
 
 Em um sistema de informação, a estrutura do banco é relativamente estável, mas os dados mudam o tempo todo. Isso significa que a manipulação é muito mais frequente do que a definição estrutural.
 
-Algumas ações típicas do cotidiano correspondem diretamente a comandos DML:
-
-\begin{itemize}
-    \item cadastrar um novo aluno;
-    \item lançar uma nota;
-    \item corrigir o nome de um curso;
-    \item alterar o status de uma matrícula;
-    \item remover um registro inserido por engano;
-    \item consultar alunos ou disciplinas para exibição em tela.
-\end{itemize}
+Operações diárias como o cadastramento de um novo aluno na instituição, o lançamento semestral de notas em um diário, a retificação de inconsistências cadastrais ou mesmo a emissão de históricos para a visualização na tela do sistema são ações corriqueiras que se traduzem, nos bastidores do SGBD, no disparo incessante de comandos DML.
 
 Por isso, dominar a DML é essencial para qualquer pessoa que vá desenvolver, administrar ou utilizar sistemas baseados em banco de dados relacionais.
 
 \section{Os quatro comandos fundamentais}
 
-Nesta aula, trabalharemos com quatro comandos principais:
-
-\begin{itemize}
-    \item \texttt{INSERT} -- inserir registros;
-    \item \texttt{SELECT} -- consultar registros;
-    \item \texttt{UPDATE} -- atualizar registros existentes;
-    \item \texttt{DELETE} -- remover registros.
-\end{itemize}
+Nesta aula, aprofundaremos o estudo dos quatro pilares operacionais da linguagem: a inserção de registros (\texttt{INSERT}), a consulta analítica e leitura de dados (\texttt{SELECT}), a modificação de linhas já persistidas (\texttt{UPDATE}) e, finalmente, a exclusão definitiva de registros (\texttt{DELETE}).
 
 Embora o \texttt{SELECT} seja frequentemente tratado em um grupo específico de consultas, ele aparece aqui por ser parte indispensável da rotina de manipulação e conferência dos dados.
 
@@ -61,7 +45,7 @@ CREATE TABLE notas (
 \end{sqlcode}
 
 \section{INSERT}
-
+ 
 O comando \texttt{INSERT} é usado para adicionar novas linhas a uma tabela.
 
 \subsection{Estrutura geral}
@@ -78,13 +62,7 @@ INSERT INTO alunos (nome, idade, curso)
 VALUES ('Maria Silva', 22, 'Engenharia de Software');
 \end{sqlcode}
 
-Nesse comando:
-\begin{itemize}
-    \item a tabela destino é \texttt{alunos};
-    \item as colunas explicitadas são \texttt{nome}, \texttt{idade} e \texttt{curso};
-    \item o identificador \texttt{aluno\_id} será gerado automaticamente;
-    \item a coluna \texttt{status} assumirá o valor padrão \texttt{ATIVO}.
-\end{itemize}
+Ao observar a semântica deste comando, nota-se o comportamento implícito garantido pelo motor do banco de dados. Embora as colunas explicitadas sejam apenas \texttt{nome}, \texttt{idade} e \texttt{curso} com destino à tabela \texttt{alunos}, o próprio sistema se encarregará de gerar o identificador numérico sequencial (\texttt{aluno\_id}) de forma automática. De igual modo, como a coluna \texttt{status} não foi mencionada no escopo da cláusula, ela assumirá silenciosamente o valor padrão (\texttt{ATIVO}) previamente estabelecido no momento do projeto estrutural (DDL).
 
 \subsection{Inserção múltipla}
 
@@ -113,7 +91,11 @@ A ordem de inserção importa quando existem relações entre tabelas. Primeiro 
 
 \section{SELECT}
 
-O comando \texttt{SELECT} recupera dados do banco. Mesmo antes de explorar consultas mais avançadas, já é possível realizar operações muito úteis.
+O comando \texttt{SELECT} recupera dados do banco. Mesmo antes de explorar consultas mais avançadas, já é possível realizar operações muito úteis. Diferente dos demais comandos apresentados nesta aula, o \texttt{SELECT} não altera o estado do banco de dados, ou seja, não insere, atualiza ou apaga registros. Sua função é puramente de leitura, permitindo que os usuários e sistemas visualizem as informações armazenadas de forma segura e flexível.
+
+A estrutura mais elementar de uma consulta envolve duas cláusulas obrigatórias: a cláusula \texttt{SELECT}, que define quais colunas serão projetadas no resultado, e a cláusula \texttt{FROM}, que indica de qual tabela (ou tabelas) os dados serão extraídos. Essa separação lógica reflete a essência da operação relacional, determinando primeiro a origem da informação e, em seguida, o subconjunto exato de atributos que comporão a resposta final ao usuário.
+
+Além de servir como base para relatórios, painéis de controle (\textit{dashboards}) e interfaces de aplicações, o \texttt{SELECT} atua como a principal ferramenta de auditoria e conferência para o desenvolvedor. Como será demonstrado ao longo deste capítulo, executar uma consulta prévia é uma etapa preparatória indispensável antes de submeter operações críticas de atualização ou exclusão, garantindo que os filtros aplicados atinjam estritamente os registros desejados.
 
 \subsection{Selecionando colunas específicas}
 
@@ -396,22 +378,11 @@ Esse comando remove todas as linhas da tabela \texttt{notas}.
 
 \subsection{Erro comum 4 -- Usar SELECT * sem necessidade}
 
-Embora útil em testes, o uso indiscriminado de \texttt{SELECT *} pode:
-\begin{itemize}
-    \item dificultar a leitura;
-    \item trazer colunas desnecessárias;
-    \item acoplar relatórios a estruturas que podem mudar.
-\end{itemize}
+Embora o uso do curinga universal seja tentador e prático durante sessões rápidas de teste pelo terminal, seu uso indiscriminado em código de produção é considerado um forte antipadrão. Solicitar à máquina que devolva todas as colunas de uma tabela extensa gera um tráfego de rede oneroso e desnecessário. Além de prejudicar sensivelmente a legibilidade do script para futuros mantenedores, o curinga acopla os relatórios e sistemas dependentes à estrutura física provisória da tabela. Caso novas colunas (inclusive colunas contendo dados sensíveis ou criptografados) sejam adicionadas no futuro, o comando passará a extraí-las de forma automática, criando potenciais vazamentos de informação e quebra de contratos de dados em integrações com \textit{softwares} parceiros.
 
 \section{Boas práticas em DML}
 
-\begin{itemize}
-    \item usar \texttt{SELECT} para validar condições antes de \texttt{UPDATE} e \texttt{DELETE};
-    \item inserir dados respeitando dependências referenciais;
-    \item nomear colunas explicitamente em \texttt{INSERT};
-    \item evitar comandos destrutivos sem cópia de segurança;
-    \item preferir exclusão lógica quando houver necessidade de histórico.
-\end{itemize}
+A excelência no gerenciamento de dados requer do administrador a adoção de hábitos rigorosos de segurança e previsibilidade. A principal diretriz ao se lidar com DML é tornar mandatória a validação prévia de filtros: nunca se deve submeter uma instrução destrutiva como um \texttt{UPDATE} ou \texttt{DELETE} sem antes executar um \texttt{SELECT} equivalente para garantir matematicamente quais registros serão afetados. Durante a injeção de dados via \texttt{INSERT}, as colunas alvo devem ser nomeadas explicitamente, evitando que futuras alterações na ordem da tabela causem falhas estruturais, e a ordem de inserção deve respeitar rigidamente as dependências das chaves estrangeiras. Por fim, a cultura arquitetural moderna costuma desaconselhar a exclusão física severa (\texttt{DELETE}) na maioria dos sistemas empresariais; a exclusão lógica, por meio de colunas booleanas de arquivamento (como um status alterado para inativo), desponta como a escolha primordial por garantir a rastreabilidade em cenários de auditoria.
 
 \begin{quadro_dica}
 Em muitos sistemas, é preferível mudar o status de um registro para \texttt{INATIVO} em vez de apagá-lo fisicamente. Isso ajuda a preservar histórico e reduz riscos de perda indevida de informação.
@@ -419,16 +390,47 @@ Em muitos sistemas, é preferível mudar o status de um registro para \texttt{IN
 
 \section{Minicaso integrador -- Secretaria acadêmica}
 
-Considere a rotina de uma secretaria acadêmica no início do semestre. Ela precisa:
+Considere o cenário real no início de um semestre letivo, onde os funcionários de uma secretaria acadêmica deflagram uma cadeia sistêmica de operações no banco. O fluxo começa com a matrícula fundamental da turma, cadastrando quatro novos alunos. Na sequência da avaliação diagnóstica, lança-se no sistema o primeiro pacote de notas brutas. Em meio a esse volume de informações em processamento, identifica-se um erro de digitação cadastral que forçará os gestores a buscar e atualizar o curso de um aluno, culminando finalmente na detecção de uma nota atrelada a uma disciplina incorreta, exigindo a sua exclusão técnica imediata para restabelecer a consistência do boletim.
 
-\begin{enumerate}
-    \item cadastrar quatro novos alunos;
-    \item lançar notas iniciais de avaliação diagnóstica;
-    \item corrigir o curso de um aluno inserido incorretamente;
-    \item remover uma nota lançada em disciplina errada.
-\end{enumerate}
+Para visualizar a estrutura antes de manipularmos os dados, observe o diagrama entidade-relacionamento abaixo, que mapeia a dependência estrutural entre o cadastro principal de alunos e seus respectivos lançamentos de nota:
 
-Uma sequência possível seria:
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        entidade/.style={rectangle, draw=black, fill=blue!5, thick, minimum width=2.5cm, minimum height=1cm, align=center, font=\sffamily\bfseries},
+        relacionamento/.style={diamond, draw=black, fill=green!5, thick, minimum width=2.5cm, minimum height=1cm, align=center, font=\sffamily},
+        atributo/.style={ellipse, draw=black, fill=gray!5, minimum width=1.8cm, minimum height=0.6cm, align=center, font=\sffamily\small},
+        atributo_chave/.style={ellipse, draw=black, fill=gray!20, minimum width=1.8cm, minimum height=0.6cm, align=center, font=\sffamily\small\bfseries}
+    ]
+        % Entidades
+        \node[entidade] (aluno) {alunos};
+        \node[relacionamento, right=1.5cm of aluno] (possui) {possui};
+        \node[entidade, right=1.5cm of possui] (nota) {notas};
+        
+        % Linhas e Cardinalidades
+        \draw[thick] (aluno) -- (possui) node[midway, above] {1};
+        \draw[thick] (possui) -- (nota) node[midway, above] {N};
+        
+        % Atributos Aluno
+        \node[atributo_chave, above left=0.6cm and -0.3cm of aluno] (id_aluno) {\underline{aluno\_id}};
+        \node[atributo, above right=0.6cm and -0.3cm of aluno] (nome) {nome};
+        \draw (aluno) -- (id_aluno);
+        \draw (aluno) -- (nome);
+        
+        % Atributos Nota
+        \node[atributo_chave, above left=0.6cm and -0.3cm of nota] (id_nota) {\underline{nota\_id}};
+        \node[atributo, above right=0.6cm and -0.3cm of nota] (disciplina) {disciplina};
+        \node[atributo, right=0.5cm of nota] (valor) {nota};
+        \draw (nota) -- (id_nota);
+        \draw (nota) -- (disciplina);
+        \draw (nota) -- (valor);
+        
+    \end{tikzpicture}
+    \caption{Diagrama ER: Relacionamento 1:N entre alunos e notas}
+    \label{fig:er_minicaso_dml}
+\end{figure}
+
+Uma sequência possível para este fluxo de operações DML seria:
 
 \subsection*{Passo 1 -- Inserção de alunos}
 
@@ -487,50 +489,6 @@ FROM notas;
 
 \textbf{Comentário didático:}  
 Esse minicaso mostra como os comandos DML aparecem encadeados em um processo de trabalho real. A lógica não está apenas em saber a sintaxe, mas em entender a sequência correta das operações e a necessidade constante de conferência.
-
-\section{Exercícios básicos}
-
-\begin{enumerate}
-    \item Insira cinco alunos na tabela \texttt{alunos}.
-    \item Cadastre três notas em disciplinas diferentes.
-    \item Liste todos os alunos da tabela.
-    \item Liste apenas nome e curso.
-    \item Atualize a idade de um aluno específico.
-    \item Remova uma nota por identificador.
-\end{enumerate}
-
-\section{Exercícios intermediários}
-
-\begin{enumerate}
-    \item Insira oito alunos distribuídos em ao menos três cursos.
-    \item Insira notas para pelo menos metade desses alunos.
-    \item Faça uma consulta que retorne apenas alunos com idade maior ou igual a 21.
-    \item Atualize o curso de todos os alunos de um curso extinto.
-    \item Remova todas as notas de uma disciplina específica.
-    \item Escreva a consulta de conferência que você executaria antes de cada \texttt{UPDATE} ou \texttt{DELETE}.
-\end{enumerate}
-
-\section{Exercícios avançados}
-
-\begin{enumerate}
-    \item Monte um script completo de carga inicial para a tabela \texttt{alunos}.
-    \item Monte um script de correção que inclua ao menos dois \texttt{UPDATE}s e um \texttt{DELETE}.
-    \item Descreva um cenário em que a exclusão lógica é mais adequada que a exclusão física.
-    \item Explique o que pode acontecer se um \texttt{INSERT} tentar referenciar uma chave estrangeira inexistente.
-\end{enumerate}
-
-\section{Exercício integrador}
-
-Considere um sistema de biblioteca com as tabelas \texttt{leitor}, \texttt{livro} e \texttt{emprestimo}. Escreva:
-
-\begin{enumerate}
-    \item comandos de inserção de leitores;
-    \item comandos de inserção de livros;
-    \item um comando de registro de empréstimo;
-    \item uma consulta de conferência dos empréstimos;
-    \item um comando para corrigir a data prevista de devolução;
-    \item um comando para remover um empréstimo lançado por engano.
-\end{enumerate}
 
 \section{Síntese da aula}
 
